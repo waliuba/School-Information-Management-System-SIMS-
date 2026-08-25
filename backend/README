@@ -1,0 +1,57 @@
+# SIMS - School Information Management System
+
+A School Information Management System built as a backend
+development project to demonstrate Java, Spring Boot, Oracle
+Database, JPA/Hibernate, REST APIs, and software architecture.
+
+## Technologies
+
+- Java
+- Spring Boot
+- Spring Data JPA
+- Oracle Database
+- Maven
+- REST API
+- Hibernate
+
+## Architecture
+
+The backend follows a layered architecture:
+
+Controller
+    ↓
+Service
+    ↓
+Repository
+    ↓
+Oracle Database
+
+## Main Modules
+
+- Students
+- Departments
+- Classes
+- Subjects/Units
+- Enrollments
+- Users
+- Authentication
+
+## Database
+
+The system uses Oracle Database with relational tables,
+primary keys, foreign keys, constraints, and relationships.
+
+## Project Purpose
+
+This project was developed as a portfolio project to demonstrate
+backend development skills, database design, Java programming,
+REST API development, and layered application architecture.
+
+## License
+
+Copyright © 2026 Xavier Waliuba.
+All Rights Reserved.
+
+The source code may be viewed for portfolio, educational,
+and evaluation purposes. Reuse, redistribution, and
+commercial use require permission.
