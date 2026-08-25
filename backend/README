@@ -1,8 +1,52 @@
 # SIMS - School Information Management System
 
-A School Information Management System built as a backend
-development project to demonstrate Java, Spring Boot, Oracle
-Database, JPA/Hibernate, REST APIs, and software architecture.
+A backend development project for a School Information Management System using
+Java, Spring Boot, Oracle Database, JPA/Hibernate, and REST APIs.
+
+## Current Progress
+
+The project is currently at the **backend planning and foundation stage**.
+
+### Completed
+
+- Defined the project purpose and scope
+- Selected the core technology stack
+- Planned the layered backend architecture
+- Identified the main system modules
+- Established Oracle Database as the target database
+- Defined the project as a portfolio and learning project
+
+### Current Focus
+
+- Setting up the Spring Boot project
+- Configuring Maven dependencies
+- Configuring the Oracle database connection
+- Designing the database schema and relationships
+- Creating the initial entities, repositories, services, and controllers
+
+## Planned Modules
+
+- Students
+- Departments
+- Classes
+- Subjects/Units
+- Enrollments
+- Users
+- Authentication
+
+## Architecture
+
+The backend follows a layered architecture:
+
+```text
+Controller
+    ↓
+Service
+    ↓
+Repository
+    ↓
+Oracle Database
+```
 
 ## Technologies
 
@@ -14,44 +58,34 @@ Database, JPA/Hibernate, REST APIs, and software architecture.
 - REST API
 - Hibernate
 
-## Architecture
+## Next Steps
 
-The backend follows a layered architecture:
+1. Complete the Spring Boot project setup
+2. Configure Oracle Database connectivity
+3. Create the database schema
+4. Implement the core entities and relationships
+5. Add repository and service layers
+6. Develop REST controllers and endpoints
+7. Implement validation and exception handling
+8. Add authentication and authorization
+9. Write unit and integration tests
+10. Document and test the API
 
-Controller
-    ↓
-Service
-    ↓
-Repository
-    ↓
-Oracle Database
+## Project Status
 
-## Main Modules
-
-- Students
-- Departments
-- Classes
-- Subjects/Units
-- Enrollments
-- Users
-- Authentication
-
-## Database
-
-The system uses Oracle Database with relational tables,
-primary keys, foreign keys, constraints, and relationships.
+**Status:** In active development  
+**Current stage:** Backend foundation, architecture, and database design  
+**Next milestone:** Working database connection with the first implemented module
 
 ## Project Purpose
 
-This project was developed as a portfolio project to demonstrate
-backend development skills, database design, Java programming,
-REST API development, and layered application architecture.
+This project demonstrates backend development skills, database design,
+Java programming, REST API development, and layered software architecture.
 
 ## License
 
-Copyright © 2026 Xavier Waliuba.
+Copyright © 2026 Xavier Waliuba.  
 All Rights Reserved.
 
-The source code may be viewed for portfolio, educational,
-and evaluation purposes. Reuse, redistribution, and
-commercial use require permission.
+The source code may be viewed for portfolio, educational, and evaluation
+purposes. Reuse, redistribution, and commercial use require permission.
