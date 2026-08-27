@@ -1,4 +1,4 @@
-package com.sims.backend.dto;
+package com.sims.backend.dtos;
 
 import java.time.LocalDate;
 
@@ -24,25 +24,30 @@ public class StudentRequestDTO {
     @Size(max = 50, message = "Last name must be at most 50 characters")
     private String lastName;
 
-    @Size(max = 10, message = "Gender must be at most 10 characters")
+   @NotBlank(message = "select gender")
     private String gender;
 
     private LocalDate dateOfBirth;
 
     @Size(max = 30, message = "National id must be at most 30 characters")
+    @NotBlank(message = "enter your National Id")
     private String nationalId;
 
     @Email(message = "Email must be valid")
     @Size(max = 100, message = "Email must be at most 100 characters")
+    @NotBlank(message = "please enter your email")
     private String email;
 
-    @Size(max = 20, message = "Phone must be at most 20 characters")
+    @Size(max = 10, message = "Phone must be at most 10 characters")
+    @NotBlank(message = "Please Enter your Phone Number")
     private String phone;
 
     @Size(max = 200, message = "Address must be at most 200 characters")
+    @NotBlank(message = "Please enter your address")
     private String address;
 
     @Size(max = 50, message = "County must be at most 50 characters")
+    @NotBlank(message = "Select your county")
     private String county;
 
     private LocalDate admissionDate;
@@ -54,9 +59,11 @@ public class StudentRequestDTO {
     private Long departmentId;
 
     @Size(max = 100, message = "Guardian name must be at most 100 characters")
+    @NotBlank(message = "Enter Guardians Name ")
     private String guardianName;
 
     @Size(max = 20, message = "Guardian phone must be at most 20 characters")
+    @NotBlank(message = "enter guadians phone number")
     private String guardianPhone;
 
     @Size(max = 20, message = "Status must be at most 20 characters")
