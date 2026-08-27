@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sims.backend.dto.StudentRequestDTO;
-import com.sims.backend.dto.StudentResponseDTO;
+import com.sims.backend.dto.StudentsRequestDTO;
+import com.sims.backend.dto.StudentsResponseDTO;
 import com.sims.backend.services.StudentsService;
 
 import jakarta.validation.Valid;
@@ -62,9 +62,9 @@ public class StudentsController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createStudent(@Valid @RequestBody StudentRequestDTO student) {
+    public ResponseEntity<?> createStudent(@Valid @RequestBody StudentsRequestDTO student) {
         try {
-            StudentResponseDTO createdStudent = studentsService.createStudent(student);
+            StudentsResponseDTO createdStudent = studentsService.createStudent(student);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdStudent);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest()
@@ -75,9 +75,9 @@ public class StudentsController {
     @PutMapping("/{studentId}")
     public ResponseEntity<?> updateStudent(
             @PathVariable Long studentId,
-            @Valid @RequestBody StudentRequestDTO student) {
+            @Valid @RequestBody StudentsRequestDTO student) {
         try {
-            StudentResponseDTO updatedStudent = studentsService.updateStudent(studentId, student);
+            StudentsResponseDTO updatedStudent = studentsService.updateStudent(studentId, student);
 
             if (updatedStudent == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
