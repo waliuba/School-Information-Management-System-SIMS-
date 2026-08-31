@@ -1,7 +1,6 @@
 package com.sims.backend.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sims.backend.dto.StudentsRequestDTO;
-import com.sims.backend.dto.StudentsResponseDTO;
+import com.sims.backend.dtos.ApiResponse;
+import com.sims.backend.dtos.StudentsRequestDTO;
+import com.sims.backend.dtos.StudentsResponseDTO;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.services.StudentsService;
 
 import jakarta.validation.Valid;
@@ -32,80 +33,47 @@ public class StudentsController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getStudents(
+    public ResponseEntity<ApiResponse<List<StudentsResponseDTO>>> getStudents(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long classId,
             @RequestParam(required = false) String className,
             @RequestParam(required = false) Long departmentId,
             @RequestParam(required = false) String status) {
-        List<StudentResponseDTO> students = studentsService.getStudents(name, classId, className, departmentId, status);
+        List<StudentsResponseDTO> students = studentsService.getStudents(name, classId, className, departmentId, status);
 
         if (students.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No students found"));
+            throw new ResourceNotFoundException("No students found");
         }
 
-        return ResponseEntity.ok(students);
+        return ResponseEntity.ok(ApiResponse.of("Students retrieved successfully", students));
     }
 
     @GetMapping("/{studentId}")
-    public ResponseEntity<?> getStudentById(@PathVariable Long studentId) {
-        if (studentId == null || studentId <= 0) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Student id must be greater than zero"));
-        }
-
-        return studentsService.getStudentById(studentId)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Student not found")));
+    public ResponseEntity<ApiResponse<StudentsResponseDTO>> getStudentById(@PathVariable Long studentId) {
+        StudentsResponseDTO student = studentsService.getStudentById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        return ResponseEntity.ok(ApiResponse.of("Student retrieved successfully", student));
     }
 
     @PostMapping
-    public ResponseEntity<?> createStudent(@Valid @RequestBody StudentsRequestDTO student) {
-        try {
-            StudentsResponseDTO createdStudent = studentsService.createStudent(student);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdStudent);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
-        }
+    public ResponseEntity<ApiResponse<StudentsResponseDTO>> createStudent(@Valid @RequestBody StudentsRequestDTO student) {
+        StudentsResponseDTO createdStudent = studentsService.createStudent(student);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.of("Student created successfully", createdStudent));
     }
 
     @PutMapping("/{studentId}")
-    public ResponseEntity<?> updateStudent(
+    public ResponseEntity<ApiResponse<StudentsResponseDTO>> updateStudent(
             @PathVariable Long studentId,
             @Valid @RequestBody StudentsRequestDTO student) {
-        try {
-            StudentsResponseDTO updatedStudent = studentsService.updateStudent(studentId, student);
-
-            if (updatedStudent == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Student not found"));
-            }
-
-            return ResponseEntity.ok(updatedStudent);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
-        }
+        StudentsResponseDTO updatedStudent = studentsService.updateStudent(studentId, student);
+        return ResponseEntity.ok(ApiResponse.of("Student updated successfully", updatedStudent));
     }
 
     @DeleteMapping("/{studentId}")
-    public ResponseEntity<?> deleteStudent(@PathVariable Long studentId) {
-        if (studentId == null || studentId <= 0) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Student id must be greater than zero"));
-        }
-
-        boolean deleted = studentsService.deleteStudentById(studentId);
-
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Student not found"));
-        }
-
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<Void>> deleteStudent(@PathVariable Long studentId) {
+        studentsService.deleteStudentById(studentId);
+        return ResponseEntity.ok(ApiResponse.of("Student deleted successfully", null));
     }
 
 }

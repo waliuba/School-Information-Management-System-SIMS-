@@ -19,5 +19,7 @@ public interface ClassRepository extends JpaRepository<ClassModel, Long> {
     Optional<ClassModel> findByClassId(Long classId); 
     Optional<ClassModel> findByDepartmentModel_departmentId(Long departmentId);
 
+    boolean existsByDepartmentModel_DepartmentId(Long departmentId);
+
     
 }

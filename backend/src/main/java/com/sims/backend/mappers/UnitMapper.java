@@ -1,7 +1,7 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dto.UnitRequestDTO;
-import com.sims.backend.dto.UnitResponseDTO;
+import com.sims.backend.dtos.UnitRequestDTO;
+import com.sims.backend.dtos.UnitResponseDTO;
 import com.sims.backend.models.UnitsModel;
 
 public class UnitMapper {

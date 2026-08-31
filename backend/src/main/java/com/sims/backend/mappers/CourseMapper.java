@@ -1,7 +1,7 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dto.CourseRequestDTO;
-import com.sims.backend.dto.CourseResponseDTO;
+import com.sims.backend.dtos.CourseRequestDTO;
+import com.sims.backend.dtos.CourseResponseDTO;
 import com.sims.backend.models.Courses;
 
 public class CourseMapper {

@@ -5,8 +5,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dto.EnrollmentRequestDTO;
-import com.sims.backend.dto.EnrollmentResponseDTO;
+import com.sims.backend.dtos.EnrollmentRequestDTO;
+import com.sims.backend.dtos.EnrollmentResponseDTO;
+import com.sims.backend.exceptions.BusinessRuleException;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.mappers.EnrollmentMapper;
 import com.sims.backend.models.Courses;
 import com.sims.backend.models.DepartmentModel;
@@ -48,6 +50,7 @@ public class EnrollmentsService {
     public EnrollmentResponseDTO createEnrollment(EnrollmentRequestDTO enrollmentRequest) {
         EnrollmentsModel enrollment = toEntity(enrollmentRequest);
         validateEnrollment(enrollment);
+        ensureEnrollmentDoesNotDuplicate(enrollment, null);
         return EnrollmentMapper.toDTO(enrollmentsRepository.save(enrollment));
     }
 
@@ -60,8 +63,11 @@ public class EnrollmentsService {
     }
 
     public boolean deleteEnrollmentById(Long enrollmentId) {
-        if (enrollmentId == null || enrollmentId <= 0 || !enrollmentsRepository.existsById(enrollmentId)) {
-            return false;
+        if (enrollmentId == null || enrollmentId <= 0) {
+            throw new IllegalArgumentException("Enrollment id must be greater than zero");
+        }
+        if (!enrollmentsRepository.existsById(enrollmentId)) {
+            throw new ResourceNotFoundException("Enrollment not found");
         }
 
         enrollmentsRepository.deleteById(enrollmentId);
@@ -114,7 +120,9 @@ public class EnrollmentsService {
 
         EnrollmentsModel existingEnrollment =
                 enrollmentsRepository.findById(enrollmentId)
-                        .orElseThrow(() -> new RuntimeException("Enrollment not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
+
+        ensureEnrollmentDoesNotDuplicate(updatedEnrollment, enrollmentId);
 
         existingEnrollment.setStudentsModel(updatedEnrollment.getStudentsModel());
         existingEnrollment.setDepartmentModel(updatedEnrollment.getDepartmentModel());
@@ -131,11 +139,16 @@ public class EnrollmentsService {
         }
 
         StudentsModel student = studentsRepository.findById(enrollmentRequest.getStudentId())
-                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
         DepartmentModel department = departmentRepository.findById(enrollmentRequest.getDepartmentId())
-                .orElseThrow(() -> new IllegalArgumentException("Department not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
         Courses course = coursesRepository.findById(enrollmentRequest.getCourseId())
-                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+
+        if (student.getDepartmentModel() != null
+                && !student.getDepartmentModel().getDepartmentId().equals(department.getDepartmentId())) {
+            throw new BusinessRuleException("Enrollment department must match the student's department");
+        }
 
         return EnrollmentMapper.toEntity(enrollmentRequest, student, department, course);
     }
@@ -164,6 +177,23 @@ public class EnrollmentsService {
         }
         if (enrollment.getEnrollmentDate() == null) {
             throw new IllegalArgumentException("Enrollment date is required");
+        }
+    }
+
+    private void ensureEnrollmentDoesNotDuplicate(EnrollmentsModel enrollment, Long currentEnrollmentId) {
+        Long studentId = enrollment.getStudentsModel().getStudentId();
+        Long courseId = enrollment.getCourseModel().getCourseId();
+
+        boolean duplicate = currentEnrollmentId == null
+                ? enrollmentsRepository.existsByStudentsModel_StudentIdAndCourseModel_CourseId(studentId, courseId)
+                : enrollmentsRepository.existsByStudentsModel_StudentIdAndCourseModel_CourseIdAndEnrollmentIdNot(
+                        studentId,
+                        courseId,
+                        currentEnrollmentId
+                );
+
+        if (duplicate) {
+            throw new BusinessRuleException("Student is already enrolled in this course");
         }
     }
 }

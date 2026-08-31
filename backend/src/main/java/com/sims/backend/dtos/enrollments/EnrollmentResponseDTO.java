@@ -1,4 +1,4 @@
-package com.sims.backend.dto;
+package com.sims.backend.dtos;
 
 import java.time.LocalDate;
 
