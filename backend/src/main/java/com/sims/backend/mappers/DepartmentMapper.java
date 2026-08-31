@@ -1,7 +1,7 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dto.DepartmentRequestDTO;
-import com.sims.backend.dto.DepartmentResponseDTO;
+import com.sims.backend.dtos.DepartmentRequestDTO;
+import com.sims.backend.dtos.DepartmentResponseDTO;
 import com.sims.backend.models.DepartmentModel;
 
 public class DepartmentMapper {

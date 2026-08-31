@@ -1,7 +1,6 @@
 package com.sims.backend.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
  
+import com.sims.backend.dtos.ApiResponse;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.models.RoleModel;
 import com.sims.backend.services.RoleService;
 
@@ -34,81 +35,62 @@ public class RoleController {
     
     @GetMapping("/search")
 
-    public ResponseEntity<?> searchRolesByName(@RequestParam String name) {
+    public ResponseEntity<ApiResponse<List<RoleModel>>> searchRolesByName(@RequestParam String name) {
         List<RoleModel> roles = roleservice.searchRolesByName(name);
 
         if (roles.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No roles found with the given name"));
+            throw new ResourceNotFoundException("No roles found with the given name");
         }
 
-        return ResponseEntity.ok(roles);
+        return ResponseEntity.ok(ApiResponse.of("Roles retrieved successfully", roles));
     }
 
     @GetMapping
-    public ResponseEntity<?> getRoles(@RequestParam(required = false) String name) {
+    public ResponseEntity<ApiResponse<List<RoleModel>>> getRoles(@RequestParam(required = false) String name) {
         List<RoleModel> roles = roleservice.searchRolesByName(name);
 
         if (roles.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No roles found"));
+            throw new ResourceNotFoundException("No roles found");
         }
 
-        return ResponseEntity.ok(roles);
+        return ResponseEntity.ok(ApiResponse.of("Roles retrieved successfully", roles));
     }
 
     @GetMapping("/{roleId}")
-    public ResponseEntity<?> getRoleById(@PathVariable Long roleId) {
-        if (roleId == null || roleId <= 0) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Role id must be greater than zero"));
-        }
-
-        return roleservice.getRoleById(roleId)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Role not found")));
+    public ResponseEntity<ApiResponse<RoleModel>> getRoleById(@PathVariable Long roleId) {
+        RoleModel role = roleservice.getRoleById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        return ResponseEntity.ok(ApiResponse.of("Role retrieved successfully", role));
     }
 
     @PostMapping
-    public ResponseEntity<?> createRole(@RequestBody RoleModel role) {
-        try {
-            RoleModel createdRole = roleservice.createRole(role);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdRole);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
-        }
+    public ResponseEntity<ApiResponse<RoleModel>> createRole(@RequestBody RoleModel role) {
+        RoleModel createdRole = roleservice.createRole(role);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.of("Role created successfully", createdRole));
     }
 
     @PutMapping("/{roleId}")
-    public ResponseEntity<?> updateRole(
+    public ResponseEntity<ApiResponse<RoleModel>> updateRole(
             @PathVariable Long roleId,
             @RequestBody RoleModel role) {
-        try {
-            RoleModel updatedRole = roleservice.updateRole(roleId, role);
+        RoleModel updatedRole = roleservice.updateRole(roleId, role);
 
-            if (updatedRole == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Role not found"));
-            }
-
-            return ResponseEntity.ok(updatedRole);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
+        if (updatedRole == null) {
+            throw new ResourceNotFoundException("Role not found");
         }
+
+        return ResponseEntity.ok(ApiResponse.of("Role updated successfully", updatedRole));
     }
 
     @DeleteMapping("/{roleId}")
-    public ResponseEntity<?> deleteRole(@PathVariable Long roleId) {
+    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Long roleId) {
         boolean deleted = roleservice.deleteRoleById(roleId);
 
         if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Role not found"));
+            throw new ResourceNotFoundException("Role not found");
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.of("Role deleted successfully", null));
     }
 }

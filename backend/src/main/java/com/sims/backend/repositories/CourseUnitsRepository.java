@@ -17,4 +17,8 @@ public interface CourseUnitsRepository extends JpaRepository<CourseUnits, Long> 
     List<CourseUnits> findByYearofstudy(String yearofstudy);
 
     List<CourseUnits> findByCourseId_CourseIdAndSemester(Long courseId, String semester);
+
+    boolean existsByCourseId_CourseId(Long courseId);
+
+    boolean existsByUnitId_UnitId(Long unitId);
 }

@@ -1,8 +1,8 @@
-package com.sims.backend.dto;
+package com.sims.backend.dtos;
 
 import java.time.LocalDate;
 
-public class StudentResponseDTO {
+public class StudentsResponseDTO {
 
     private Long studentId;
     private String admissionNo;
