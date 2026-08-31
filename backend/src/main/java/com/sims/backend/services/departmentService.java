@@ -4,19 +4,33 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dto.DepartmentRequestDTO;
-import com.sims.backend.dto.DepartmentResponseDTO;
+import com.sims.backend.dtos.DepartmentRequestDTO;
+import com.sims.backend.dtos.DepartmentResponseDTO;
+import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.mappers.DepartmentMapper;
 import com.sims.backend.models.DepartmentModel;
+import com.sims.backend.repositories.ClassRepository;
 import com.sims.backend.repositories.DepartmentRepository;
+import com.sims.backend.repositories.EnrollmentsRepository;
+import com.sims.backend.repositories.StudentsRepository;
 
 @Service
 public class departmentService {
 
     private final DepartmentRepository departmentRepository;
+    private final ClassRepository classRepository;
+    private final StudentsRepository studentsRepository;
+    private final EnrollmentsRepository enrollmentsRepository;
 
-    public departmentService(DepartmentRepository departmentRepository) {
+    public departmentService(
+            DepartmentRepository departmentRepository,
+            ClassRepository classRepository,
+            StudentsRepository studentsRepository,
+            EnrollmentsRepository enrollmentsRepository) {
         this.departmentRepository = departmentRepository;
+        this.classRepository = classRepository;
+        this.studentsRepository = studentsRepository;
+        this.enrollmentsRepository = enrollmentsRepository;
     }
 
     public List<DepartmentResponseDTO> getAllDepartments() {
@@ -58,7 +72,7 @@ public class departmentService {
 
         String departmentName = department.getDepartmentName().trim();
         if (departmentRepository.existsByDepartmentName(departmentName)) {
-            throw new IllegalArgumentException("Department name already exists");
+            throw new BusinessRuleException("Department name already exists");
         }
 
         department.setDepartmentName(departmentName);
@@ -84,6 +98,12 @@ public class departmentService {
     public boolean deleteDepartmentById(Long departmentId) {
         if (departmentId == null || departmentId <= 0 || !departmentRepository.existsById(departmentId)) {
             return false;
+        }
+
+        if (classRepository.existsByDepartmentModel_DepartmentId(departmentId)
+                || studentsRepository.existsByDepartmentModel_DepartmentId(departmentId)
+                || enrollmentsRepository.existsByDepartmentModel_DepartmentId(departmentId)) {
+            throw new BusinessRuleException("Cannot delete department with existing classes, students or enrollments");
         }
 
         departmentRepository.deleteById(departmentId);

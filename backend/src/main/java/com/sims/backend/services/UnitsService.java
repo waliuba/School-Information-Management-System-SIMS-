@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dto.UnitRequestDTO;
-import com.sims.backend.dto.UnitResponseDTO;
+import com.sims.backend.dtos.UnitRequestDTO;
+import com.sims.backend.dtos.UnitResponseDTO;
 import com.sims.backend.mappers.UnitMapper;
 import com.sims.backend.models.UnitsModel;
 import com.sims.backend.repositories.UnitsRepository;

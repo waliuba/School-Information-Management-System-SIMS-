@@ -1,7 +1,6 @@
 package com.sims.backend.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sims.backend.dto.CourseUnitRequestDTO;
-import com.sims.backend.dto.CourseUnitResponseDTO;
+import com.sims.backend.dtos.ApiResponse;
+import com.sims.backend.dtos.CourseUnitRequestDTO;
+import com.sims.backend.dtos.CourseUnitResponseDTO;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.services.CourseUnitsService;
 
 import jakarta.validation.Valid;
@@ -32,7 +33,7 @@ public class CourseUnitsController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getCourseUnits(
+    public ResponseEntity<ApiResponse<List<CourseUnitResponseDTO>>> getCourseUnits(
             @RequestParam(required = false) Long courseId,
             @RequestParam(required = false) Long unitId,
             @RequestParam(required = false) String semester,
@@ -40,60 +41,47 @@ public class CourseUnitsController {
         List<CourseUnitResponseDTO> courseUnits = courseUnitsService.getCourseUnits(courseId, unitId, semester, yearOfStudy);
 
         if (courseUnits.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No course units found"));
+            throw new ResourceNotFoundException("No course units found");
         }
 
-        return ResponseEntity.ok(courseUnits);
+        return ResponseEntity.ok(ApiResponse.of("Course units retrieved successfully", courseUnits));
     }
 
     @GetMapping("/{courseUnitId}")
-    public ResponseEntity<?> getCourseUnitById(@PathVariable Long courseUnitId) {
-        return courseUnitsService.getCourseUnitById(courseUnitId)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Course unit not found")));
+    public ResponseEntity<ApiResponse<CourseUnitResponseDTO>> getCourseUnitById(@PathVariable Long courseUnitId) {
+        CourseUnitResponseDTO courseUnit = courseUnitsService.getCourseUnitById(courseUnitId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course unit not found"));
+        return ResponseEntity.ok(ApiResponse.of("Course unit retrieved successfully", courseUnit));
     }
 
     @PostMapping
-    public ResponseEntity<?> createCourseUnit(@Valid @RequestBody CourseUnitRequestDTO courseUnit) {
-        try {
-            CourseUnitResponseDTO createdCourseUnit = courseUnitsService.createCourseUnit(courseUnit);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdCourseUnit);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
-        }
+    public ResponseEntity<ApiResponse<CourseUnitResponseDTO>> createCourseUnit(@Valid @RequestBody CourseUnitRequestDTO courseUnit) {
+        CourseUnitResponseDTO createdCourseUnit = courseUnitsService.createCourseUnit(courseUnit);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.of("Course unit created successfully", createdCourseUnit));
     }
 
     @PutMapping("/{courseUnitId}")
-    public ResponseEntity<?> updateCourseUnit(
+    public ResponseEntity<ApiResponse<CourseUnitResponseDTO>> updateCourseUnit(
             @PathVariable Long courseUnitId,
             @Valid @RequestBody CourseUnitRequestDTO courseUnit) {
-        try {
-            CourseUnitResponseDTO updatedCourseUnit = courseUnitsService.updateCourseUnit(courseUnitId, courseUnit);
+        CourseUnitResponseDTO updatedCourseUnit = courseUnitsService.updateCourseUnit(courseUnitId, courseUnit);
 
-            if (updatedCourseUnit == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Course unit not found"));
-            }
-
-            return ResponseEntity.ok(updatedCourseUnit);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
+        if (updatedCourseUnit == null) {
+            throw new ResourceNotFoundException("Course unit not found");
         }
+
+        return ResponseEntity.ok(ApiResponse.of("Course unit updated successfully", updatedCourseUnit));
     }
 
     @DeleteMapping("/{courseUnitId}")
-    public ResponseEntity<?> deleteCourseUnit(@PathVariable Long courseUnitId) {
+    public ResponseEntity<ApiResponse<Void>> deleteCourseUnit(@PathVariable Long courseUnitId) {
         boolean deleted = courseUnitsService.deleteCourseUnitById(courseUnitId);
 
         if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Course unit not found"));
+            throw new ResourceNotFoundException("Course unit not found");
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.of("Course unit deleted successfully", null));
     }
 }

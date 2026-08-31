@@ -5,23 +5,34 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dto.ClassRequestDTO;
-import com.sims.backend.dto.ClassResponseDTO;
+import com.sims.backend.dtos.ClassRequestDTO;
+import com.sims.backend.dtos.ClassResponseDTO;
+import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.mappers.ClassMapper;
 import com.sims.backend.models.ClassModel;
 import com.sims.backend.models.DepartmentModel;
 import com.sims.backend.repositories.ClassRepository;
 import com.sims.backend.repositories.DepartmentRepository;
+import com.sims.backend.repositories.EnrollmentsRepository;
+import com.sims.backend.repositories.StudentsRepository;
 
 @Service
 public class ClassService {
 
     public final ClassRepository classRepository;
     private final DepartmentRepository departmentRepository;
+    private final StudentsRepository studentsRepository;
+    private final EnrollmentsRepository enrollmentsRepository;
 
-    public ClassService(ClassRepository classRepository, DepartmentRepository departmentRepository) {
+    public ClassService(
+            ClassRepository classRepository,
+            DepartmentRepository departmentRepository,
+            StudentsRepository studentsRepository,
+            EnrollmentsRepository enrollmentsRepository) {
         this.classRepository = classRepository;
         this.departmentRepository = departmentRepository;
+        this.studentsRepository = studentsRepository;
+        this.enrollmentsRepository = enrollmentsRepository;
     }
 
     public List<ClassResponseDTO> getAllClasses() {
@@ -89,6 +100,11 @@ public class ClassService {
     public boolean deleteClassById(Long classId) {
         if (classId == null || classId <= 0 || !classRepository.existsById(classId)) {
             return false;
+        }
+
+        if (studentsRepository.existsByClassModel_ClassId(classId)
+                || enrollmentsRepository.existsByStudentsModel_ClassModel_ClassId(classId)) {
+            throw new BusinessRuleException("Cannot delete class with existing students or enrollments");
         }
 
         classRepository.deleteById(classId);

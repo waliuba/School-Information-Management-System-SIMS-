@@ -2,7 +2,6 @@ package com.sims.backend.controllers;
 
 import java.util.List;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sims.backend.dto.UnitRequestDTO;
-import com.sims.backend.dto.UnitResponseDTO;
+import com.sims.backend.dtos.ApiResponse;
+import com.sims.backend.dtos.UnitRequestDTO;
+import com.sims.backend.dtos.UnitResponseDTO;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.services.UnitsService;
 
 import jakarta.validation.Valid;
@@ -32,7 +33,7 @@ public class UnitsController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getUnits(
+    public ResponseEntity<ApiResponse<List<UnitResponseDTO>>> getUnits(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String unitCode) {
@@ -49,74 +50,55 @@ public class UnitsController {
         }
 
         if (units == null || units.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            throw new ResourceNotFoundException("No units found");
         }
 
-        return ResponseEntity.ok(units);
+        return ResponseEntity.ok(ApiResponse.of("Units retrieved successfully", units));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUnitById(@PathVariable Long id) {
-        if (id == null) {
-            return ResponseEntity.badRequest().body("Unit ID is required.");
-        }
-
+    public ResponseEntity<ApiResponse<UnitResponseDTO>> getUnitById(@PathVariable Long id) {
         UnitResponseDTO unit = unitsService.getUnitById(id);
 
         if (unit == null) {
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Unit not found");
         }
 
-        return ResponseEntity.ok(unit);
+        return ResponseEntity.ok(ApiResponse.of("Unit retrieved successfully", unit));
     }
 
     @PostMapping
-    public ResponseEntity<?> createUnit(@Valid @RequestBody UnitRequestDTO unit) {
-        if (unit == null) {
-            return ResponseEntity.badRequest().body("Unit data is required.");
-        }
-
+    public ResponseEntity<ApiResponse<UnitResponseDTO>> createUnit(@Valid @RequestBody UnitRequestDTO unit) {
         UnitResponseDTO savedUnit = unitsService.createUnit(unit);
 
         if (savedUnit == null) {
-            return ResponseEntity.badRequest().body("Unable to create unit.");
+            throw new IllegalArgumentException("Unable to create unit");
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUnit);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.of("Unit created successfully", savedUnit));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUnit(@PathVariable Long id, @Valid @RequestBody UnitRequestDTO unit) {
-        if (id == null) {
-            return ResponseEntity.badRequest().body("Unit ID is required.");
-        }
-
-        if (unit == null) {
-            return ResponseEntity.badRequest().body("Unit data is required.");
-        }
-
+    public ResponseEntity<ApiResponse<UnitResponseDTO>> updateUnit(@PathVariable Long id, @Valid @RequestBody UnitRequestDTO unit) {
         UnitResponseDTO updatedUnit = unitsService.updateUnit(id, unit);
 
         if (updatedUnit == null) {
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Unit not found");
         }
 
-        return ResponseEntity.ok(updatedUnit);
+        return ResponseEntity.ok(ApiResponse.of("Unit updated successfully", updatedUnit));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUnit(@PathVariable Long id) {
-        if (id == null) {
-            return ResponseEntity.badRequest().body("Unit ID is required.");
-        }
-
+    public ResponseEntity<ApiResponse<Void>> deleteUnit(@PathVariable Long id) {
         boolean deleted = unitsService.deleteUnitId(id);
 
         if (!deleted) {
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Unit not found");
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.of("Unit deleted successfully", null));
     }
 
 

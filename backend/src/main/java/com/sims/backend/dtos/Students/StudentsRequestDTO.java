@@ -4,10 +4,12 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-public class StudentRequestDTO {
+public class StudentsRequestDTO {
 
     @NotBlank(message = "Admission number is required")
     @Size(max = 20, message = "Admission number must be at most 20 characters")
@@ -24,9 +26,12 @@ public class StudentRequestDTO {
     @Size(max = 50, message = "Last name must be at most 50 characters")
     private String lastName;
 
-   @NotBlank(message = "select gender")
+    @NotBlank(message = "Gender is required")
+    @Size(max = 10, message = "Gender must be at most 10 characters")
     private String gender;
 
+    @NotNull(message = "Date of birth is required")
+    @Past(message = "Date of birth must be in the past")
     private LocalDate dateOfBirth;
 
     @Size(max = 30, message = "National id must be at most 30 characters")
@@ -38,8 +43,8 @@ public class StudentRequestDTO {
     @NotBlank(message = "please enter your email")
     private String email;
 
-    @Size(max = 10, message = "Phone must be at most 10 characters")
-    @NotBlank(message = "Please Enter your Phone Number")
+    @Size(max = 20, message = "Phone must be at most 20 characters")
+    @NotBlank(message = "Phone is required")
     private String phone;
 
     @Size(max = 200, message = "Address must be at most 200 characters")
@@ -50,11 +55,14 @@ public class StudentRequestDTO {
     @NotBlank(message = "Select your county")
     private String county;
 
+    @NotNull(message = "Admission date is required")
     private LocalDate admissionDate;
 
+    @NotNull(message = "Class id is required")
     @Positive(message = "Class id must be greater than zero")
     private Long classId;
 
+    @NotNull(message = "Department id is required")
     @Positive(message = "Department id must be greater than zero")
     private Long departmentId;
 

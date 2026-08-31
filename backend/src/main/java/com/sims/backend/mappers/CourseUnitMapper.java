@@ -1,7 +1,7 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dto.CourseUnitRequestDTO;
-import com.sims.backend.dto.CourseUnitResponseDTO;
+import com.sims.backend.dtos.CourseUnitRequestDTO;
+import com.sims.backend.dtos.CourseUnitResponseDTO;
 import com.sims.backend.models.CourseUnits;
 import com.sims.backend.models.Courses;
 import com.sims.backend.models.UnitsModel;

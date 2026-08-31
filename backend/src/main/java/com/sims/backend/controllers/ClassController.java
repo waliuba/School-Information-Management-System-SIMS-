@@ -1,7 +1,6 @@
 package com.sims.backend.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sims.backend.dto.ClassRequestDTO;
-import com.sims.backend.dto.ClassResponseDTO;
+import com.sims.backend.dtos.ApiResponse;
+import com.sims.backend.dtos.ClassRequestDTO;
+import com.sims.backend.dtos.ClassResponseDTO;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.services.ClassService;
 
 import jakarta.validation.Valid;
@@ -32,81 +33,49 @@ public class ClassController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getClasses(
+    public ResponseEntity<ApiResponse<List<ClassResponseDTO>>> getClasses(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String academicYear,
             @RequestParam(required = false) Long departmentId) {
         List<ClassResponseDTO> classes = classService.getClasses(name, academicYear, departmentId);
 
         if (classes.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No classes found"));
+            throw new ResourceNotFoundException("No classes found");
         }
 
-        return ResponseEntity.ok(classes);
+        return ResponseEntity.ok(ApiResponse.of("Classes retrieved successfully", classes));
     }
 
     @GetMapping("/{classId}")
-    public ResponseEntity<?> getClassById(@PathVariable Long classId) {
-        if (classId == null || classId <= 0) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Class id must be greater than zero"));
-        }
-
-        return classService.getClassById(classId)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Class not found")));
+    public ResponseEntity<ApiResponse<ClassResponseDTO>> getClassById(@PathVariable Long classId) {
+        ClassResponseDTO classModel = classService.getClassById(classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Class not found"));
+        return ResponseEntity.ok(ApiResponse.of("Class retrieved successfully", classModel));
     }
 
     @PostMapping
-    public ResponseEntity<?> createClass(@Valid @RequestBody ClassRequestDTO classModel) {
-        if (classModel == null) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Class data is required"));
-        }
-
-        try {
-            ClassResponseDTO createdClass = classService.createClass(classModel);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdClass);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
-        }
+    public ResponseEntity<ApiResponse<ClassResponseDTO>> createClass(@Valid @RequestBody ClassRequestDTO classModel) {
+        ClassResponseDTO createdClass = classService.createClass(classModel);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.of("Class created successfully", createdClass));
     }
 
     @PutMapping("/{classId}")
-    public ResponseEntity<?> updateClass(
+    public ResponseEntity<ApiResponse<ClassResponseDTO>> updateClass(
             @PathVariable Long classId,
             @Valid @RequestBody ClassRequestDTO classModel) {
-        if (classId == null || classId <= 0) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Class id must be greater than zero"));
-        }
-
-        try {
-            ClassResponseDTO updatedClass = classService.updateClass(classId, classModel);
-            return ResponseEntity.ok(updatedClass);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
-        }
+        ClassResponseDTO updatedClass = classService.updateClass(classId, classModel);
+        return ResponseEntity.ok(ApiResponse.of("Class updated successfully", updatedClass));
     }
 
     @DeleteMapping("/{classId}")
-    public ResponseEntity<?> deleteClass(@PathVariable Long classId) {
-        if (classId == null || classId <= 0) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Class id must be greater than zero"));
-        }
-
+    public ResponseEntity<ApiResponse<Void>> deleteClass(@PathVariable Long classId) {
         boolean deleted = classService.deleteClassById(classId);
 
         if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Class not found"));
+            throw new ResourceNotFoundException("Class not found");
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.of("Class deleted successfully", null));
     }
 }

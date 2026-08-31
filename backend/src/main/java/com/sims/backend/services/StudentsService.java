@@ -5,14 +5,17 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dto.StudentRequestDTO;
-import com.sims.backend.dto.StudentResponseDTO;
+import com.sims.backend.dtos.StudentsRequestDTO;
+import com.sims.backend.dtos.StudentsResponseDTO;
+import com.sims.backend.exceptions.BusinessRuleException;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.mappers.StudentMapper;
 import com.sims.backend.models.ClassModel;
 import com.sims.backend.models.DepartmentModel;
 import com.sims.backend.models.StudentsModel;
 import com.sims.backend.repositories.ClassRepository;
 import com.sims.backend.repositories.DepartmentRepository;
+import com.sims.backend.repositories.EnrollmentsRepository;
 import com.sims.backend.repositories.StudentsRepository;
 
 @Service
@@ -21,29 +24,32 @@ public class StudentsService {
     private final StudentsRepository studentsRepository;
     private final ClassRepository classRepository;
     private final DepartmentRepository departmentRepository;
+    private final EnrollmentsRepository enrollmentsRepository;
 
     public StudentsService(
             StudentsRepository studentsRepository,
             ClassRepository classRepository,
-            DepartmentRepository departmentRepository) {
+            DepartmentRepository departmentRepository,
+            EnrollmentsRepository enrollmentsRepository) {
         this.studentsRepository = studentsRepository;
         this.classRepository = classRepository;
         this.departmentRepository = departmentRepository;
+        this.enrollmentsRepository = enrollmentsRepository;
     }
 
-    public List<StudentResponseDTO> getAllStudents() {
+    public List<StudentsResponseDTO> getAllStudents() {
         return toDTOList(studentsRepository.findAll());
     }
 
-    public Optional<StudentResponseDTO> getStudentById(Long studentId) {
+    public Optional<StudentsResponseDTO> getStudentById(Long studentId) {
         if (studentId == null || studentId <= 0) {
-            return Optional.empty();
+            throw new IllegalArgumentException("Student id must be greater than zero");
         }
 
         return studentsRepository.findById(studentId).map(StudentMapper::toDTO);
     }
 
-    public List<StudentResponseDTO> searchStudentsByName(String name) {
+    public List<StudentsResponseDTO> searchStudentsByName(String name) {
         if (name == null || name.isBlank()) {
             return getAllStudents();
         }
@@ -55,23 +61,23 @@ public class StudentsService {
         ));
     }
 
-    public StudentResponseDTO saveStudent(StudentRequestDTO studentRequest) {
+    public StudentsResponseDTO saveStudent(StudentsRequestDTO studentRequest) {
         StudentsModel student = toEntity(studentRequest);
         validateStudent(student);
         return StudentMapper.toDTO(studentsRepository.save(student));
     }
 
-    public StudentResponseDTO createStudent(StudentRequestDTO studentRequest) {
+    public StudentsResponseDTO createStudent(StudentsRequestDTO studentRequest) {
         StudentsModel student = toEntity(studentRequest);
         validateStudent(student);
 
         if (studentsRepository.existsByAdmissionNo(student.getAdmissionNo().trim())) {
-            throw new IllegalArgumentException("Admission number already exists");
+            throw new BusinessRuleException("Admission number already exists");
         }
 
         if (student.getEmail() != null && !student.getEmail().isBlank()
                 && studentsRepository.existsByEmail(student.getEmail().trim())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new BusinessRuleException("Email already exists");
         }
 
         normalizeStudent(student);
@@ -85,32 +91,41 @@ public class StudentsService {
     }
 
     public boolean deleteStudentById(Long studentId) {
-        if (studentId == null || studentId <= 0 || !studentsRepository.existsById(studentId)) {
-            return false;
-        }
-
-        studentsRepository.deleteById(studentId);
-        return true;
-    }
-
-    public StudentResponseDTO updateStudent(Long studentId, StudentRequestDTO studentRequest) {
         if (studentId == null || studentId <= 0) {
             throw new IllegalArgumentException("Student id must be greater than zero");
         }
 
-        if (!studentsRepository.existsById(studentId)) {
-            return null;
+        ensureStudentExists(studentId);
+        if (enrollmentsRepository.existsByStudentsModel_StudentId(studentId)) {
+            throw new BusinessRuleException("Cannot delete student with existing enrollments");
         }
+        studentsRepository.deleteById(studentId);
+        return true;
+    }
+
+    public StudentsResponseDTO updateStudent(Long studentId, StudentsRequestDTO studentRequest) {
+        if (studentId == null || studentId <= 0) {
+            throw new IllegalArgumentException("Student id must be greater than zero");
+        }
+
+        ensureStudentExists(studentId);
 
         StudentsModel student = toEntity(studentRequest);
         validateStudent(student);
         normalizeStudent(student);
+        if (studentsRepository.existsByAdmissionNoAndStudentIdNot(student.getAdmissionNo(), studentId)) {
+            throw new BusinessRuleException("Admission number already exists");
+        }
+        if (student.getEmail() != null && !student.getEmail().isBlank()
+                && studentsRepository.existsByEmailAndStudentIdNot(student.getEmail(), studentId)) {
+            throw new BusinessRuleException("Email already exists");
+        }
         student.setStudentId(studentId);
         return StudentMapper.toDTO(studentsRepository.save(student));
     }
 
 
-    public List<StudentResponseDTO> getStudentsByClassId(Long classId) {
+    public List<StudentsResponseDTO> getStudentsByClassId(Long classId) {
         if (classId == null || classId <= 0) {
             return List.of(); // Return an empty list if classId is invalid
         }
@@ -118,7 +133,7 @@ public class StudentsService {
         return toDTOList(studentsRepository.findByClassModel_ClassId(classId));
     }
 
-    public List<StudentResponseDTO> getStudentsByClassName(String className) {
+    public List<StudentsResponseDTO> getStudentsByClassName(String className) {
         if (className == null || className.isBlank()) {
             return List.of(); // Return an empty list if className is invalid
         }
@@ -126,7 +141,7 @@ public class StudentsService {
         return toDTOList(studentsRepository.findByClassModel_ClassName(className.trim()));
     }
 
-    public List<StudentResponseDTO> getStudentsByStatus(String status) {
+    public List<StudentsResponseDTO> getStudentsByStatus(String status) {
         if (status == null || status.isBlank()) {
             return List.of(); // Return an empty list if status is invalid
         }
@@ -134,7 +149,7 @@ public class StudentsService {
         return toDTOList(studentsRepository.findByStatus(status.trim()));
     }
 
-    public List<StudentResponseDTO> getStudentsByClassIdAndStatus(Long classId, String status) {
+    public List<StudentsResponseDTO> getStudentsByClassIdAndStatus(Long classId, String status) {
         if (classId == null || classId <= 0 || status == null || status.isBlank()) {
             return List.of(); // Return an empty list if classId or status is invalid
         }
@@ -142,7 +157,7 @@ public class StudentsService {
         return toDTOList(studentsRepository.findByClassModel_ClassIdAndStatus(classId, status.trim()));
     }
 
-    public List<StudentResponseDTO> getStudentsByClassNameAndStatus(String className, String status) {
+    public List<StudentsResponseDTO> getStudentsByClassNameAndStatus(String className, String status) {
         if (className == null || className.isBlank() || status == null || status.isBlank()) {
             return List.of(); // Return an empty list if className or status is invalid
         }
@@ -150,7 +165,7 @@ public class StudentsService {
         return toDTOList(studentsRepository.findByClassModel_ClassNameAndStatus(className.trim(), status.trim()));
     }
 
-    public List<StudentResponseDTO> getStudentsByClassIdAndStatusAndName(Long classId, String status, String name) {
+    public List<StudentsResponseDTO> getStudentsByClassIdAndStatusAndName(Long classId, String status, String name) {
         if (classId == null || classId <= 0 || status == null || status.isBlank() || name == null || name.isBlank()) {
             return List.of(); // Return an empty list if any parameter is invalid
         }
@@ -165,7 +180,7 @@ public class StudentsService {
     }
 
 
-    public List<StudentResponseDTO> getStudentsByClassNameAndStatusAndName(String className, String status, String name) {
+    public List<StudentsResponseDTO> getStudentsByClassNameAndStatusAndName(String className, String status, String name) {
         if (className == null || className.isBlank() || status == null || status.isBlank() || name == null || name.isBlank()) {
             return List.of(); // Return an empty list if any parameter is invalid
         }
@@ -179,44 +194,17 @@ public class StudentsService {
         ));
     }
 
-    public List<StudentResponseDTO> getStudents(String name, Long classId, String className, Long departmentId, String status) {
-        if (classId != null && status != null && !status.isBlank() && name != null && !name.isBlank()) {
-            return getStudentsByClassIdAndStatusAndName(classId, status, name);
-        }
-
-        if (className != null && !className.isBlank() && status != null && !status.isBlank()
-                && name != null && !name.isBlank()) {
-            return getStudentsByClassNameAndStatusAndName(className, status, name);
-        }
-
-        if (classId != null && status != null && !status.isBlank()) {
-            return getStudentsByClassIdAndStatus(classId, status);
-        }
-
-        if (className != null && !className.isBlank() && status != null && !status.isBlank()) {
-            return getStudentsByClassNameAndStatus(className, status);
-        }
-
-        if (classId != null) {
-            return getStudentsByClassId(classId);
-        }
-
-        if (className != null && !className.isBlank()) {
-            return getStudentsByClassName(className);
-        }
-
-        if (departmentId != null && departmentId > 0) {
-            return toDTOList(studentsRepository.findByDepartmentModel_DepartmentId(departmentId));
-        }
-
-        if (status != null && !status.isBlank()) {
-            return getStudentsByStatus(status);
-        }
-
-        return searchStudentsByName(name);
+    public List<StudentsResponseDTO> getStudents(String name, Long classId, String className, Long departmentId, String status) {
+        return toDTOList(studentsRepository.searchStudents(
+                normalizeSearch(name),
+                classId,
+                normalizeSearch(className),
+                departmentId,
+                normalizeSearch(status)
+        ));
     }
 
-    private StudentsModel toEntity(StudentRequestDTO studentRequest) {
+    private StudentsModel toEntity(StudentsRequestDTO studentRequest) {
         if (studentRequest == null) {
             throw new IllegalArgumentException("Student data is required");
         }
@@ -233,10 +221,16 @@ public class StudentsService {
                     .orElseThrow(() -> new IllegalArgumentException("Department not found"));
         }
 
+        if (classModel != null && departmentModel != null
+                && classModel.getDepartmentModel() != null
+                && !classModel.getDepartmentModel().getDepartmentId().equals(departmentModel.getDepartmentId())) {
+            throw new BusinessRuleException("Class does not belong to the selected department");
+        }
+
         return StudentMapper.toEntity(studentRequest, classModel, departmentModel);
     }
 
-    private List<StudentResponseDTO> toDTOList(List<StudentsModel> students) {
+    private List<StudentsResponseDTO> toDTOList(List<StudentsModel> students) {
         return students.stream()
                 .map(StudentMapper::toDTO)
                 .toList();
@@ -255,6 +249,12 @@ public class StudentsService {
         if (student.getLastName() == null || student.getLastName().isBlank()) {
             throw new IllegalArgumentException("Last name is required");
         }
+        if (student.getClassModel() == null || student.getClassModel().getClassId() == null) {
+            throw new IllegalArgumentException("Class is required");
+        }
+        if (student.getDepartmentModel() == null || student.getDepartmentModel().getDepartmentId() == null) {
+            throw new IllegalArgumentException("Department is required");
+        }
     }
 
     private void normalizeStudent(StudentsModel student) {
@@ -267,6 +267,16 @@ public class StudentsService {
         if (student.getStatus() != null) {
             student.setStatus(student.getStatus().trim());
         }
+    }
+
+    private void ensureStudentExists(Long studentId) {
+        if (!studentsRepository.existsById(studentId)) {
+            throw new ResourceNotFoundException("Student not found");
+        }
+    }
+
+    private String normalizeSearch(String value) {
+        return value == null ? null : value.trim();
     }
 
 }
