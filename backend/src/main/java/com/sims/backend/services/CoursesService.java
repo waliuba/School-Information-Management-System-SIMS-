@@ -4,19 +4,29 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dto.CourseRequestDTO;
-import com.sims.backend.dto.CourseResponseDTO;
+import com.sims.backend.dtos.CourseRequestDTO;
+import com.sims.backend.dtos.CourseResponseDTO;
+import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.mappers.CourseMapper;
 import com.sims.backend.models.Courses;
+import com.sims.backend.repositories.CourseUnitsRepository;
 import com.sims.backend.repositories.CoursesRepository;
+import com.sims.backend.repositories.EnrollmentsRepository;
 
 @Service
 public class CoursesService {
 
     private final CoursesRepository coursesRepository;
+    private final EnrollmentsRepository enrollmentsRepository;
+    private final CourseUnitsRepository courseUnitsRepository;
 
-    public CoursesService(CoursesRepository coursesRepository) {
+    public CoursesService(
+            CoursesRepository coursesRepository,
+            EnrollmentsRepository enrollmentsRepository,
+            CourseUnitsRepository courseUnitsRepository) {
         this.coursesRepository = coursesRepository;
+        this.enrollmentsRepository = enrollmentsRepository;
+        this.courseUnitsRepository = courseUnitsRepository;
     }
 
     public List<CourseResponseDTO> getAllCourses() {
@@ -64,11 +74,11 @@ public class CoursesService {
         validateCourse(course);
 
         if (coursesRepository.existsByCourseCode(course.getCourseCode().trim())) {
-            throw new IllegalArgumentException("Course code already exists");
+            throw new BusinessRuleException("Course code already exists");
         }
 
         if (coursesRepository.existsByCourseName(course.getCourseName().trim())) {
-            throw new IllegalArgumentException("Course name already exists");
+            throw new BusinessRuleException("Course name already exists");
         }
 
         normalizeCourse(course);
@@ -84,6 +94,11 @@ public class CoursesService {
     public boolean deleteCourseById(Long courseId) {
         if (courseId == null || courseId <= 0 || !coursesRepository.existsById(courseId)) {
             return false;
+        }
+
+        if (enrollmentsRepository.existsByCourseModel_CourseId(courseId)
+                || courseUnitsRepository.existsByCourseId_CourseId(courseId)) {
+            throw new BusinessRuleException("Cannot delete course with existing enrollments or course units");
         }
 
         coursesRepository.deleteById(courseId);

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.sims.backend.models.StudentsModel;
 
@@ -61,7 +63,31 @@ public interface StudentsRepository extends JpaRepository<StudentsModel, Long> {
 
     boolean existsByEmail(String email);
 
-    
+    boolean existsByAdmissionNoAndStudentIdNot(String admissionNo, Long studentId);
+
+    boolean existsByEmailAndStudentIdNot(String email, Long studentId);
+
+    boolean existsByClassModel_ClassId(Long classId);
+
+    boolean existsByDepartmentModel_DepartmentId(Long departmentId);
+
+    @Query("""
+            select s from StudentsModel s
+            where (:name is null or :name = '' or
+                lower(s.firstName) like lower(concat('%', :name, '%')) or
+                lower(s.lastName) like lower(concat('%', :name, '%')) or
+                lower(s.admissionNo) like lower(concat('%', :name, '%')))
+            and (:classId is null or s.classModel.classId = :classId)
+            and (:className is null or :className = '' or lower(s.classModel.className) = lower(:className))
+            and (:departmentId is null or s.departmentModel.departmentId = :departmentId)
+            and (:status is null or :status = '' or lower(s.status) = lower(:status))
+            """)
+    List<StudentsModel> searchStudents(
+            @Param("name") String name,
+            @Param("classId") Long classId,
+            @Param("className") String className,
+            @Param("departmentId") Long departmentId,
+            @Param("status") String status
+    );
 
 } 
-

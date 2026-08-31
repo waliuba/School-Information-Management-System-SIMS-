@@ -1,7 +1,6 @@
 package com.sims.backend.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sims.backend.dtos.ApiResponse;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.models.UserModel;
 import com.sims.backend.services.UserService;
 
@@ -29,75 +30,61 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getUsers(
+    public ResponseEntity<ApiResponse<List<UserModel>>> getUsers(
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long roleId) {
         List<UserModel> users = userService.getUsers(username, status, roleId);
 
         if (users.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No users found"));
+            throw new ResourceNotFoundException("No users found");
         }
 
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(ApiResponse.of("Users retrieved successfully", users));
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
-        return userService.getUserById(userId)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "User not found")));
+    public ResponseEntity<ApiResponse<UserModel>> getUserById(@PathVariable Long userId) {
+        UserModel user = userService.getUserById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return ResponseEntity.ok(ApiResponse.of("User retrieved successfully", user));
     }
 
     @GetMapping("/email")
-    public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
-        return userService.getUserByEmail(email)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "User not found")));
+    public ResponseEntity<ApiResponse<UserModel>> getUserByEmail(@RequestParam String email) {
+        UserModel user = userService.getUserByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return ResponseEntity.ok(ApiResponse.of("User retrieved successfully", user));
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody UserModel user) {
-        try {
-            UserModel createdUser = userService.createUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
-        }
+    public ResponseEntity<ApiResponse<UserModel>> createUser(@RequestBody UserModel user) {
+        UserModel createdUser = userService.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.of("User created successfully", createdUser));
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(
+    public ResponseEntity<ApiResponse<UserModel>> updateUser(
             @PathVariable Long userId,
             @RequestBody UserModel user) {
-        try {
-            UserModel updatedUser = userService.updateUser(userId, user);
+        UserModel updatedUser = userService.updateUser(userId, user);
 
-            if (updatedUser == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "User not found"));
-            }
-
-            return ResponseEntity.ok(updatedUser);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", ex.getMessage()));
+        if (updatedUser == null) {
+            throw new ResourceNotFoundException("User not found");
         }
+
+        return ResponseEntity.ok(ApiResponse.of("User updated successfully", updatedUser));
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
         boolean deleted = userService.deleteUserById(userId);
 
         if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "User not found"));
+            throw new ResourceNotFoundException("User not found");
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.of("User deleted successfully", null));
     }
 }

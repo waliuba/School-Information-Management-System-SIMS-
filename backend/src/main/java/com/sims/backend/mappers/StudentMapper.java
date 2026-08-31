@@ -1,16 +1,16 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dto.StudentRequestDTO;
-import com.sims.backend.dto.StudentResponseDTO;
+import com.sims.backend.dtos.StudentsRequestDTO;
+import com.sims.backend.dtos.StudentsResponseDTO;
 import com.sims.backend.models.ClassModel;
 import com.sims.backend.models.DepartmentModel;
 import com.sims.backend.models.StudentsModel;
 
 public class StudentMapper {
 
-    public static StudentResponseDTO toDTO(StudentsModel student) {
+    public static StudentsResponseDTO toDTO(StudentsModel student) {
 
-        StudentResponseDTO dto = new StudentResponseDTO();
+        StudentsResponseDTO dto = new StudentsResponseDTO();
 
         dto.setStudentId(student.getStudentId());
         dto.setAdmissionNo(student.getAdmissionNo());
@@ -46,7 +46,7 @@ public class StudentMapper {
     }
 
     public static StudentsModel toEntity(
-            StudentRequestDTO dto,
+            StudentsRequestDTO dto,
             ClassModel classModel,
             DepartmentModel departmentModel) {
         StudentsModel student = new StudentsModel();

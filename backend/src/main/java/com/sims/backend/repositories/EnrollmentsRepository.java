@@ -36,7 +36,21 @@ public interface EnrollmentsRepository extends JpaRepository<EnrollmentsModel, L
         Long courseId
     );
 
-    
+    boolean existsByStudentsModel_StudentId(Long studentId);
+
+    boolean existsByDepartmentModel_DepartmentId(Long departmentId);
+
+    boolean existsByStudentsModel_ClassModel_ClassId(Long classId);
+
+    boolean existsByCourseModel_CourseId(Long courseId);
+
+    boolean existsByStudentsModel_StudentIdAndCourseModel_CourseId(Long studentId, Long courseId);
+
+    boolean existsByStudentsModel_StudentIdAndCourseModel_CourseIdAndEnrollmentIdNot(
+        Long studentId,
+        Long courseId,
+        Long enrollmentId
+    );
 
     
 
