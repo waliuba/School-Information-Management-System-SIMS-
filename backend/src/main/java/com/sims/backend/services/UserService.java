@@ -1,125 +1,72 @@
-package com.sims.backend.services;
+package com.sims.backend.service;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.sims.backend.dto.request.UserRequestDTO;
+import com.sims.backend.dto.response.UserResponseDTO;
+import com.sims.backend.mapper.UserMapper;
+import com.sims.backend.model.UserModel;
+import com.sims.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.models.UserModel;
-import com.sims.backend.repositories.UserRepository;
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserResponseDTO createUser(UserRequestDTO request) {
+
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException(
+                    "Username already exists"
+            );
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException(
+                    "Email already exists"
+            );
+        }
+
+        UserModel user = UserMapper.toEntity(request);
+
+        
+        user.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
+
+        UserModel savedUser = userRepository.save(user);
+
+        return UserMapper.toDTO(savedUser);
     }
 
-    public List<UserModel> getUsers(String username, String status, Long roleId) {
-        if (username != null && !username.isBlank()) {
-            return userRepository.findByUsernameContainingIgnoreCase(username.trim());
-        }
+    public List<UserResponseDTO> getAllUsers() {
 
-        if (status != null && !status.isBlank()) {
-            return userRepository.findByStatus(status.trim());
-        }
-
-        if (roleId != null && roleId > 0) {
-            return userRepository.findByRoleModel_RoleId(roleId);
-        }
-
-        return userRepository.findAll();
+        return userRepository.findAll()
+                .stream()
+                .map(UserMapper::toDTO)
+                .toList();
     }
 
-    public Optional<UserModel> getUserById(Long userId) {
+    public UserResponseDTO getUserById(Long userId) {
+
         if (userId == null || userId <= 0) {
-            return Optional.empty();
+            throw new IllegalArgumentException(
+                    "Invalid user ID"
+            );
         }
 
-        return userRepository.findById(userId);
-    }
+        UserModel user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "User not found"
+                        )
+                );
 
-    public Optional<UserModel> getUserByEmail(String email) {
-        if (email == null || email.isBlank()) {
-            return Optional.empty();
-        }
-
-        return userRepository.findByEmail(email.trim());
-    }
-
-    public UserModel createUser(UserModel user) {
-        validateUser(user);
-
-        if (userRepository.existsByUsername(user.getUsername().trim())) {
-            throw new IllegalArgumentException("Username already exists");
-        }
-
-        if (userRepository.existsByEmail(user.getEmail().trim())) {
-            throw new IllegalArgumentException("Email already exists");
-        }
-
-        normalizeUser(user);
-        return userRepository.save(user);
-    }
-
-    public UserModel updateUser(Long userId, UserModel user) {
-        if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("User id must be greater than zero");
-        }
-
-        if (!userRepository.existsById(userId)) {
-            return null;
-        }
-
-        validateUser(user);
-        normalizeUser(user);
-        user.setUserId(userId);
-        return userRepository.save(user);
-    }
-
-    public boolean deleteUserById(Long userId) {
-        if (userId == null || userId <= 0 || !userRepository.existsById(userId)) {
-            return false;
-        }
-
-        userRepository.deleteById(userId);
-        return true;
-    }
-
-    private void validateUser(UserModel user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User data is required");
-        }
-        if (user.getUsername() == null || user.getUsername().isBlank()) {
-            throw new IllegalArgumentException("Username is required");
-        }
-        if (user.getFirstName() == null || user.getFirstName().isBlank()) {
-            throw new IllegalArgumentException("First name is required");
-        }
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email is required");
-        }
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Password is required");
-        }
-        if (user.getRoleModel() == null || user.getRoleModel().getRoleId() <= 0) {
-            throw new IllegalArgumentException("Role is required");
-        }
-        if (user.getStatus() == null || user.getStatus().isBlank()) {
-            throw new IllegalArgumentException("Status is required");
-        }
-        if (user.getCreatedAt() == null || user.getCreatedAt().isBlank()) {
-            throw new IllegalArgumentException("Created at is required");
-        }
-    }
-
-    private void normalizeUser(UserModel user) {
-        user.setUsername(user.getUsername().trim());
-        user.setFirstName(user.getFirstName().trim());
-        user.setEmail(user.getEmail().trim());
-        user.setStatus(user.getStatus().trim());
-        user.setCreatedAt(user.getCreatedAt().trim());
+        return UserMapper.toDTO(user);
     }
 }
