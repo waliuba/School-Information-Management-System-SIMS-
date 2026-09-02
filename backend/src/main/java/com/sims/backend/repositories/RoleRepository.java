@@ -2,12 +2,12 @@ package com.sims.backend.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.sims.backend.models.RoleModel;
+import com.sims.backend.models.Role;
 import java.util.List;
 
-public interface  RoleRepository extends JpaRepository<RoleModel, Long>{
+public interface  RoleRepository extends JpaRepository<Role, Long>{
 
-    List<RoleModel> findByRoleName(String roleName);
+    List<Role> findByRoleName(String roleName);
     boolean existsByRoleName(String roleName);
 
 }
