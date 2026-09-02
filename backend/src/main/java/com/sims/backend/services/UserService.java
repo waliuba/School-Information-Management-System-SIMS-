@@ -1,15 +1,17 @@
-package com.sims.backend.service;
+package com.sims.backend.services;
 
-import com.sims.backend.dto.request.UserRequestDTO;
-import com.sims.backend.dto.response.UserResponseDTO;
-import com.sims.backend.mapper.UserMapper;
-import com.sims.backend.model.UserModel;
-import com.sims.backend.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.sims.backend.dtos.request.UserRequestDTO;
+import com.sims.backend.dtos.response.UserResponseDTO;
+import com.sims.backend.mapper.UserMapper;
+import com.sims.backend.models.UserModel;
+import com.sims.backend.repositories.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

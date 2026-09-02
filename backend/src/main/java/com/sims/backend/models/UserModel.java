@@ -1,4 +1,4 @@
-package com.sims.backend.model;
+package com.sims.backend.models;
 
 import jakarta.persistence.*;
 import lombok.*;

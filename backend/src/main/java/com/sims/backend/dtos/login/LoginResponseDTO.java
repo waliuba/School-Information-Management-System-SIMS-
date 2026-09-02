@@ -1,6 +1,6 @@
-package com.sims.backend.dtos.response;
+package com.sims.backend.dtos;
 
-import com.sims.backend.model.Role;
+import com.sims.backend.models.Role;
 import lombok.*;
 
 @Getter
@@ -8,7 +8,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponseDTO {
+public class LoginResponseDTO {
+
+    private String accessToken;
+
+    private String tokenType;
 
     private Long userId;
 
@@ -17,6 +21,4 @@ public class UserResponseDTO {
     private String email;
 
     private Role role;
-
-    private Boolean enabled;
 }
