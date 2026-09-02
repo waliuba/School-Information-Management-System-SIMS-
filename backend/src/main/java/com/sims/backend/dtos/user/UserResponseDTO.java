@@ -1,4 +1,4 @@
-package com.sims.backend.dto.response;
+package com.sims.backend.dtos.response;
 
 import com.sims.backend.model.Role;
 import lombok.*;

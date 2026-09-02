@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  
 import com.sims.backend.dtos.ApiResponse;
 import com.sims.backend.exceptions.ResourceNotFoundException;
-import com.sims.backend.models.RoleModel;
+import com.sims.backend.models.Role;
 import com.sims.backend.services.RoleService;
 
 
@@ -35,8 +35,8 @@ public class RoleController {
     
     @GetMapping("/search")
 
-    public ResponseEntity<ApiResponse<List<RoleModel>>> searchRolesByName(@RequestParam String name) {
-        List<RoleModel> roles = roleservice.searchRolesByName(name);
+    public ResponseEntity<ApiResponse<List<Role>>> searchRolesByName(@RequestParam String name) {
+        List<Role> roles = roleservice.searchRolesByName(name);
 
         if (roles.isEmpty()) {
             throw new ResourceNotFoundException("No roles found with the given name");
@@ -46,8 +46,8 @@ public class RoleController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RoleModel>>> getRoles(@RequestParam(required = false) String name) {
-        List<RoleModel> roles = roleservice.searchRolesByName(name);
+    public ResponseEntity<ApiResponse<List<Role>>> getRoles(@RequestParam(required = false) String name) {
+        List<Role> roles = roleservice.searchRolesByName(name);
 
         if (roles.isEmpty()) {
             throw new ResourceNotFoundException("No roles found");
@@ -57,24 +57,24 @@ public class RoleController {
     }
 
     @GetMapping("/{roleId}")
-    public ResponseEntity<ApiResponse<RoleModel>> getRoleById(@PathVariable Long roleId) {
-        RoleModel role = roleservice.getRoleById(roleId)
+    public ResponseEntity<ApiResponse<Role>> getRoleById(@PathVariable Long roleId) {
+        Role role = roleservice.getRoleById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         return ResponseEntity.ok(ApiResponse.of("Role retrieved successfully", role));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<RoleModel>> createRole(@RequestBody RoleModel role) {
-        RoleModel createdRole = roleservice.createRole(role);
+    public ResponseEntity<ApiResponse<Role>> createRole(@RequestBody Role role) {
+        Role createdRole = roleservice.createRole(role);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.of("Role created successfully", createdRole));
     }
 
     @PutMapping("/{roleId}")
-    public ResponseEntity<ApiResponse<RoleModel>> updateRole(
+    public ResponseEntity<ApiResponse<Role>> updateRole(
             @PathVariable Long roleId,
-            @RequestBody RoleModel role) {
-        RoleModel updatedRole = roleservice.updateRole(roleId, role);
+            @RequestBody Role role) {
+        Role  updatedRole = roleservice.updateRole(roleId, role);
 
         if (updatedRole == null) {
             throw new ResourceNotFoundException("Role not found");

@@ -1,7 +1,7 @@
 package com.sims.backend.controllers;
 
-import com.sims.backend.dto.request.UserRequestDTO;
-import com.sims.backend.dto.response.UserResponseDTO;
+import com.sims.backend.dtos.request.UserRequestDTO;
+import com.sims.backend.dtos.response.UserResponseDTO;
 import com.sims.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

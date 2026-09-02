@@ -1,8 +1,8 @@
 package com.sims.backend.mapper;
 
-import com.sims.backend.dto.request.UserRequestDTO;
-import com.sims.backend.dto.response.UserResponseDTO;
-import com.sims.backend.model.UserModel;
+import com.sims.backend.dtos.request.UserRequestDTO;
+import com.sims.backend.dtos.response.UserResponseDTO;
+import com.sims.backend.models.UserModel;
 
 public class UserMapper {
 
