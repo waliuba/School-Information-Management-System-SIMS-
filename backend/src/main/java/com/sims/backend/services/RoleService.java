@@ -1,6 +1,6 @@
 package com.sims.backend.services;
 
-import com.sims.backend.models.RoleModel;
+import com.sims.backend.models.Role;
 import com.sims.backend.repositories.RoleRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -15,25 +15,25 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-    public List<RoleModel> searchRolesByName(String name) {
+    public List<Role> searchRolesByName(String name) {
         if (name == null || name.isBlank()) {
             return getAllRoles();
         }
         return roleRepository.findByRoleName(name);
     }
 
-    public List<RoleModel> getAllRoles() {
+    public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }
 
-    public Optional<RoleModel> getRoleById(Long roleId) {
+    public Optional<Role> getRoleById(Long roleId) {
         if (roleId == null || roleId <= 0) {
             return Optional.empty();
         }
         return roleRepository.findById(roleId);
     }
 
-    public RoleModel createRole(RoleModel role) {
+    public Role createRole(Role role) {
         validateRole(role);
         String roleName = role.getRoleName().trim();
 
@@ -45,7 +45,7 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
-    public RoleModel updateRole(Long roleId, RoleModel role) {
+    public Role updateRole(Long roleId, Role role) {
         if (roleId == null || roleId <= 0) {
             throw new IllegalArgumentException("Role id must be greater than zero");
         }
@@ -69,7 +69,7 @@ public class RoleService {
         return true;
     }
 
-    private void validateRole(RoleModel role) {
+    private void validateRole(Role role) {
         if (role == null) {
             throw new IllegalArgumentException("Role data is required");
         }

@@ -1,4 +1,4 @@
-package com.sims.backend.dto.request;
+package com.sims.backend.dtos.request;
 
 import com.sims.backend.model.Role;
 import jakarta.validation.constraints.Email;
