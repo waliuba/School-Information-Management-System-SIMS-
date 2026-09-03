@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dtos.request.UserRequestDTO;
-import com.sims.backend.dtos.response.UserResponseDTO;
-import com.sims.backend.mapper.UserMapper;
+import com.sims.backend.dtos.user.UserRequestDTO;
+import com.sims.backend.dtos.user.UserResponseDTO;
+import com.sims.backend.mappers.UserMapper;
 import com.sims.backend.models.UserModel;
 import com.sims.backend.repositories.UserRepository;
 
