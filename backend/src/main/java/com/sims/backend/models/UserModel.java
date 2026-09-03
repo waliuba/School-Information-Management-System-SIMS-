@@ -2,7 +2,6 @@ package com.sims.backend.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.sims.backend.enums.Role;
 
 @Entity
 @Table(

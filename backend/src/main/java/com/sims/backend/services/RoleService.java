@@ -1,48 +1,43 @@
 package com.sims.backend.services;
 
 import com.sims.backend.models.Role;
-import com.sims.backend.repositories.RoleRepository;
 import org.springframework.stereotype.Service;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class RoleService {
-   
-    private final RoleRepository roleRepository;
-
-    public RoleService(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
 
     public List<Role> searchRolesByName(String name) {
         if (name == null || name.isBlank()) {
             return getAllRoles();
         }
-        return roleRepository.findByRoleName(name);
+        String normalizedName = name.trim().toUpperCase();
+        return Arrays.stream(Role.values())
+                .filter(role -> role.name().contains(normalizedName))
+                .toList();
     }
 
     public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+        return Arrays.asList(Role.values());
     }
 
     public Optional<Role> getRoleById(Long roleId) {
         if (roleId == null || roleId <= 0) {
             return Optional.empty();
         }
-        return roleRepository.findById(roleId);
+        Role[] roles = Role.values();
+        int index = roleId.intValue() - 1;
+        if (index < 0 || index >= roles.length) {
+            return Optional.empty();
+        }
+        return Optional.of(roles[index]);
     }
 
     public Role createRole(Role role) {
         validateRole(role);
-        String roleName = role.getRoleName().trim();
-
-        if (roleRepository.existsByRoleName(roleName)) {
-            throw new IllegalArgumentException("Role name already exists");
-        }
-
-        role.setRoleName(roleName);
-        return roleRepository.save(role);
+        return role;
     }
 
     public Role updateRole(Long roleId, Role role) {
@@ -50,31 +45,21 @@ public class RoleService {
             throw new IllegalArgumentException("Role id must be greater than zero");
         }
 
-        if (!roleRepository.existsById(roleId)) {
+        if (getRoleById(roleId).isEmpty()) {
             return null;
         }
 
         validateRole(role);
-        role.setRoleId(roleId);
-        role.setRoleName(role.getRoleName().trim());
-        return roleRepository.save(role);
+        return role;
     }
 
     public boolean deleteRoleById(Long roleId) {
-        if (roleId == null || roleId <= 0 || !roleRepository.existsById(roleId)) {
-            return false;
-        }
-
-        roleRepository.deleteById(roleId);
-        return true;
+        return getRoleById(roleId).isPresent();
     }
 
     private void validateRole(Role role) {
         if (role == null) {
             throw new IllegalArgumentException("Role data is required");
-        }
-        if (role.getRoleName() == null || role.getRoleName().isBlank()) {
-            throw new IllegalArgumentException("Role name is required");
         }
     }
 }
