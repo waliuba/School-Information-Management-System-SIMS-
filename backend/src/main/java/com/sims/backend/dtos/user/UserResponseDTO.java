@@ -1,7 +1,12 @@
-package com.sims.backend.dtos.response;
+package com.sims.backend.dtos.user;
 
-import com.sims.backend.model.Role;
-import lombok.*;
+import com.sims.backend.models.Role;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
