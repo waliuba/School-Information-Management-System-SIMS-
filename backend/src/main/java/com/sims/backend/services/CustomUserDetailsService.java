@@ -1,4 +1,4 @@
-package com.sims.backend.security;
+package com.sims.backend.services;
 
 import com.sims.backend.models.UserModel;
 import com.sims.backend.repositories.UserRepository;

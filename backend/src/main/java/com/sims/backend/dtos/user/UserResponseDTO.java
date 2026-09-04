@@ -1,6 +1,6 @@
 package com.sims.backend.dtos.user;
 
-import com.sims.backend.models.Role;
+import com.sims.backend.enums.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
