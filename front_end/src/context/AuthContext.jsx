@@ -54,7 +54,12 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (credentials) => {
     const data = await loginRequest(credentials);
     const nextToken = data.token || data.accessToken;
-    const nextUser = data.user;
+    const nextUser = data.user || {
+      userId: data.userId,
+      username: data.username,
+      email: data.email,
+      role: data.role,
+    };
 
     storeToken(nextToken);
     storeUser(nextUser);
