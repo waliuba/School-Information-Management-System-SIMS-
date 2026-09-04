@@ -1,6 +1,6 @@
 package com.sims.backend.services;
 
-import com.sims.backend.models.Role;
+import com.sims.backend.enums.Role;
 import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
