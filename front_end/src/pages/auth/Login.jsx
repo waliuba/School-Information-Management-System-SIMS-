@@ -8,7 +8,7 @@ import { useAuth } from '../../hooks/useAuth.js';
 
 export default function Login() {
   const { isAuthenticated, isAuthLoading, login } = useAuth();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -49,11 +49,11 @@ export default function Login() {
         <ErrorMessage error={error} title="Login failed" />
 
         <Input
-          id="email"
-          label="Email"
-          type="email"
-          value={form.email}
-          onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+          id="username"
+          label="Username"
+          type="text"
+          value={form.username}
+          onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))}
           required
         />
         <Input
