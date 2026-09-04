@@ -1,5 +1,6 @@
 package com.sims.backend.models;
 
+import com.sims.backend.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,6 +39,7 @@ public class UserModel {
     private Role role;
 
     @Column(name = "ENABLED", nullable = false)
+    @Builder.Default
     private Boolean enabled = true;
 }
 
