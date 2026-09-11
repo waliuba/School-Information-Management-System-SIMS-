@@ -1,6 +1,7 @@
 package com.sims.backend.models;
 import com.sims.backend.enums.Role;
 
+<<<<<<< HEAD
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +16,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+=======
+import com.sims.backend.enums.Role;
+import jakarta.persistence.*;
+import lombok.*;
+>>>>>>> 80a32a198f23eb05a7d45e0c53900cbd6b72f469
 
 @Entity
 @Table(
