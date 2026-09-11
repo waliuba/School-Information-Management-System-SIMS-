@@ -1,65 +1,53 @@
 package com.sims.backend.services;
 
-import com.sims.backend.enums.Role;
-import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.sims.backend.enums.Role;
 
 @Service
 public class RoleService {
 
     public List<Role> searchRolesByName(String name) {
         if (name == null || name.isBlank()) {
-            return getAllRoles();
+            return Arrays.asList(Role.values());
         }
-        String normalizedName = name.trim().toUpperCase();
+
+        String query = name.trim().toLowerCase();
         return Arrays.stream(Role.values())
-                .filter(role -> role.name().contains(normalizedName))
+                .filter(role -> role.name().toLowerCase().contains(query))
                 .toList();
     }
 
-    public List<Role> getAllRoles() {
-        return Arrays.asList(Role.values());
-    }
-
     public Optional<Role> getRoleById(Long roleId) {
-        if (roleId == null || roleId <= 0) {
+        if (roleId == null || roleId <= 0 || roleId > Role.values().length) {
             return Optional.empty();
         }
-        Role[] roles = Role.values();
-        int index = roleId.intValue() - 1;
-        if (index < 0 || index >= roles.length) {
-            return Optional.empty();
-        }
-        return Optional.of(roles[index]);
+
+        return Optional.of(Role.values()[Math.toIntExact(roleId) - 1]);
     }
 
     public Role createRole(Role role) {
-        validateRole(role);
+        if (role == null) {
+            throw new IllegalArgumentException("Role is required");
+        }
         return role;
     }
 
     public Role updateRole(Long roleId, Role role) {
-        if (roleId == null || roleId <= 0) {
-            throw new IllegalArgumentException("Role id must be greater than zero");
-        }
-
-        if (getRoleById(roleId).isEmpty()) {
+        if (roleId == null || roleId <= 0 || roleId > Role.values().length) {
             return null;
         }
-
-        validateRole(role);
+        if (role == null) {
+            return null;
+        }
         return role;
     }
 
     public boolean deleteRoleById(Long roleId) {
-        return getRoleById(roleId).isPresent();
-    }
-
-    private void validateRole(Role role) {
-        if (role == null) {
-            throw new IllegalArgumentException("Role data is required");
-        }
+        return roleId != null && roleId > 0 && roleId <= Role.values().length;
     }
 }
