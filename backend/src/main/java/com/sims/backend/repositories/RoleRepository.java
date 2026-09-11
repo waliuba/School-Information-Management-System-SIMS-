@@ -1,7 +1,12 @@
 package com.sims.backend.repositories;
 
-import com.sims.backend.enums.Role;
+import java.util.List;
 
-public interface RoleRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.sims.backend.models.UserModel;
+
+public interface RoleRepository extends JpaRepository<UserModel, Long> {
+
+    List<UserModel> findByRole(com.sims.backend.enums.Role role);
 }

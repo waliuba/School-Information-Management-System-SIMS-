@@ -56,4 +56,11 @@ public class AuthController {
                 authService.getCurrentUser(authentication.getName())
         );
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok(java.util.Map.of(
+                "message", "Logged out successfully"
+        ));
+    }
 }
