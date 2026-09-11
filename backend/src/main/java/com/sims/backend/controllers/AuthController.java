@@ -56,6 +56,7 @@ public class AuthController {
                 authService.getCurrentUser(authentication.getName())
         );
     }
+<<<<<<< HEAD
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
@@ -63,4 +64,6 @@ public class AuthController {
                 "message", "Logged out successfully"
         ));
     }
+=======
+>>>>>>> 80a32a198f23eb05a7d45e0c53900cbd6b72f469
 }

@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sims.backend.dtos.ApiResponse;
 import com.sims.backend.enums.Role;
 import com.sims.backend.exceptions.ResourceNotFoundException;
+<<<<<<< HEAD
+=======
+import com.sims.backend.enums.Role;
+>>>>>>> 80a32a198f23eb05a7d45e0c53900cbd6b72f469
 import com.sims.backend.services.RoleService;
 
 

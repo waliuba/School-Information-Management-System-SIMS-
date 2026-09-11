@@ -1,5 +1,10 @@
 package com.sims.backend.services;
 
+<<<<<<< HEAD
+=======
+import com.sims.backend.enums.Role;
+import org.springframework.stereotype.Service;
+>>>>>>> 80a32a198f23eb05a7d45e0c53900cbd6b72f469
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
