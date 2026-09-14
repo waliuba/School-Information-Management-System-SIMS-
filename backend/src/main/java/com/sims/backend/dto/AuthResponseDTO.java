@@ -1,24 +1,24 @@
-package com.sims.backend.dtos;
+package com.sims.backend.dto;
 
 import com.sims.backend.enums.Role;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginResponseDTO {
+public class AuthResponseDTO {
 
     private String accessToken;
-
     private String tokenType;
-
     private Long userId;
-
     private String username;
-
     private String email;
-
     private Role role;
+    private Boolean enabled;
 }
