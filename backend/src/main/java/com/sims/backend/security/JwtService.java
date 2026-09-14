@@ -1,6 +1,5 @@
 package com.sims.backend.security;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 @Service
@@ -23,9 +23,7 @@ public class JwtService {
             @Value("${jwt.expiration}") long expiration
     ) {
 
-        this.secretKey = Keys.hmacShaKeyFor(
-                secret.getBytes(StandardCharsets.UTF_8)
-        );
+        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
 
         this.expiration = expiration;
     }
@@ -54,6 +52,16 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+    }
+
+    public String extractUsernameSafely(String token) {
+
+        try {
+            return extractUsername(token);
+        } catch (JwtException |
+                 IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     public boolean isTokenValid(
