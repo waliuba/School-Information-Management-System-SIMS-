@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import { getStoredToken, clearAuthStorage } from '../storage/authStorage.js';
 
 const axiosClient = axios.create({
@@ -39,6 +39,7 @@ axiosClient.interceptors.request.use((config) => {
   const token = getStoredToken();
 
   if (token) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
 

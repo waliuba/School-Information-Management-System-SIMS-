@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import com.sims.backend.enums.Status;
 
 
 
@@ -32,7 +33,7 @@ public class Courses {
     private Integer durationYears;
 
     @Column(name = "status", length = 20)
-    private String status;
+    private Status status;
 
     public Long getCourseId() {
         return courseId;
@@ -64,10 +65,10 @@ public class Courses {
     public void setDurationYears(Integer durationYears) {
         this.durationYears = durationYears;
     }
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
