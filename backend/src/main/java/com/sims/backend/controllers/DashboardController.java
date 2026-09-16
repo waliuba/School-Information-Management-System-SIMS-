@@ -22,4 +22,9 @@ public class DashboardController {
     public ResponseEntity<Map<String, Long>> getDashboardSummary() {
         return ResponseEntity.ok(dashboardService.getSummary());
     }
+
+    @GetMapping("/dashboard/performance")
+    public ResponseEntity<Map<String, Object>> getDashboardPerformance() {
+        return ResponseEntity.ok(dashboardService.getPerformance());
+    }
 }
