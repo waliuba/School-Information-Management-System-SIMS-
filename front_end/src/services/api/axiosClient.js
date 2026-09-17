@@ -39,6 +39,7 @@ axiosClient.interceptors.request.use((config) => {
   const token = getStoredToken();
 
   if (token) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
 

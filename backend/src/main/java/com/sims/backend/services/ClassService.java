@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dtos.ClassRequestDTO;
-import com.sims.backend.dtos.ClassResponseDTO;
+import com.sims.backend.dtos.classes.ClassRequestDTO;
+import com.sims.backend.dtos.classes.ClassResponseDTO;
 import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.mappers.ClassMapper;
 import com.sims.backend.models.ClassModel;

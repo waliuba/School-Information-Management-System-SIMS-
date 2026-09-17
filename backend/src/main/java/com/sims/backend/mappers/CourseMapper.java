@@ -1,7 +1,6 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dtos.CourseRequestDTO;
-import com.sims.backend.dtos.CourseResponseDTO;
+import com.sims.backend.dtos.courses.*;
 import com.sims.backend.models.Courses;
 
 public class CourseMapper {
@@ -13,7 +12,7 @@ public class CourseMapper {
         dto.setCourseCode(course.getCourseCode());
         dto.setDescription(course.getDescription());
         dto.setDurationYears(course.getDurationYears());
-        dto.setStatus(course.getStatus());
+        dto.setStatus(course.getStatus() == null ? null : course.getStatus().name());
         return dto;
     }
 

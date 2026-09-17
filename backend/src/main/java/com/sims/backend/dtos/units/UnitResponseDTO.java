@@ -1,4 +1,4 @@
-package com.sims.backend.dtos;
+package com.sims.backend.dtos.units;
 
 public class UnitResponseDTO {
 

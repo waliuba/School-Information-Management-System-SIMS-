@@ -1,8 +1,9 @@
-package com.sims.backend.dtos;
+package com.sims.backend.dtos.courses;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import com.sims.backend.enums.Status;
 
 public class CourseRequestDTO {
 
@@ -20,8 +21,7 @@ public class CourseRequestDTO {
     @Positive(message = "Duration years must be greater than zero")
     private Integer durationYears;
 
-    @Size(max = 20, message = "Status must be at most 20 characters")
-    private String status;
+    private Status status;
 
     public String getCourseName() {
         return courseName;
@@ -55,11 +55,11 @@ public class CourseRequestDTO {
         this.durationYears = durationYears;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 }

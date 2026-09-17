@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sims.backend.dtos.ApiResponse;
-import com.sims.backend.dtos.DepartmentRequestDTO;
-import com.sims.backend.dtos.DepartmentResponseDTO;
+import com.sims.backend.dtos.department.DepartmentRequestDTO;
+import com.sims.backend.dtos.department.DepartmentResponseDTO;
 import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.services.departmentService;
 

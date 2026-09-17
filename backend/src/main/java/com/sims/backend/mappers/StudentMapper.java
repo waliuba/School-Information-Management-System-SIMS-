@@ -1,7 +1,7 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dtos.StudentsRequestDTO;
-import com.sims.backend.dtos.StudentsResponseDTO;
+import com.sims.backend.dtos.students.StudentsRequestDTO;
+import com.sims.backend.dtos.students.StudentsResponseDTO;
 import com.sims.backend.models.ClassModel;
 import com.sims.backend.models.DepartmentModel;
 import com.sims.backend.models.StudentsModel;
