@@ -1,4 +1,4 @@
-package com.sims.backend.dtos;
+package com.sims.backend.dtos.units;
 
 import jakarta.validation.constraints.NotBlank;
 

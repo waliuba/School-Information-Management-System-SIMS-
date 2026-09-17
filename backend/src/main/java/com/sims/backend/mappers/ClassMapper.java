@@ -1,7 +1,7 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dtos.ClassRequestDTO;
-import com.sims.backend.dtos.ClassResponseDTO;
+import com.sims.backend.dtos.classes.ClassRequestDTO;
+import com.sims.backend.dtos.classes.ClassResponseDTO;
 import com.sims.backend.models.ClassModel;
 import com.sims.backend.models.DepartmentModel;
 

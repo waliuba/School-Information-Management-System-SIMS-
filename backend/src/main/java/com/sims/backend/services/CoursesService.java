@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dtos.CourseRequestDTO;
-import com.sims.backend.dtos.CourseResponseDTO;
+import com.sims.backend.dtos.courses.CourseRequestDTO;
+import com.sims.backend.dtos.courses.CourseResponseDTO;
+import com.sims.backend.enums.Status;
 import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.mappers.CourseMapper;
 import com.sims.backend.models.Courses;
@@ -57,7 +58,7 @@ public class CoursesService {
         }
 
         if (status != null && !status.isBlank()) {
-            return toDTOList(coursesRepository.findByStatus(status.trim()));
+            return toDTOList(coursesRepository.findByStatus(parseStatus(status)));
         }
 
         return getAllCourses();
@@ -143,7 +144,7 @@ public class CoursesService {
         }
 
         String searchTerm = (name != null && !name.isBlank()) ? name.trim() : "";
-        String searchStatus = (status != null && !status.isBlank()) ? status.trim() : "";
+        Status searchStatus = (status != null && !status.isBlank()) ? parseStatus(status) : null;
 
         return toDTOList(coursesRepository.findByCourseNameOrStatus(searchTerm, searchStatus));
     }
@@ -175,8 +176,13 @@ public class CoursesService {
         if (course.getDescription() != null) {
             course.setDescription(course.getDescription().trim());
         }
-        if (course.getStatus() != null) {
-            course.setStatus(course.getStatus().trim());
+    }
+
+    private Status parseStatus(String status) {
+        try {
+            return Status.valueOf(status.trim());
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("Status must be Active or Inactive", exception);
         }
     }
 }

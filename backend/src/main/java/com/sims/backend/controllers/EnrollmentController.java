@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sims.backend.dtos.ApiResponse;
-import com.sims.backend.dtos.EnrollmentRequestDTO;
-import com.sims.backend.dtos.EnrollmentResponseDTO;
+import com.sims.backend.dtos.enrollment.EnrollmentRequestDTO;
+import com.sims.backend.dtos.enrollment.EnrollmentResponseDTO;
 import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.services.EnrollmentsService;
 

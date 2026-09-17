@@ -14,7 +14,6 @@ public class UserMapper {
         return UserModel.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
-                .password(dto.getPassword())
                 .role(dto.getRole())
                 .enabled(true)
                 .build();
@@ -31,3 +30,4 @@ public class UserMapper {
                 .build();
     }
 }
+

@@ -1,4 +1,4 @@
-package com.sims.backend.dtos;
+package com.sims.backend.dtos.login;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

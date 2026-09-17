@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sims.backend.dto.AuthResponseDTO;
-import com.sims.backend.dto.LoginRequestDTO;
-import com.sims.backend.dto.RegisterRequestDTO;
+import com.sims.backend.dtos.authentication.AuthResponseDTO;
+import com.sims.backend.dtos.authentication.LoginRequestDTO;
+import com.sims.backend.dtos.authentication.RegisterRequestDTO;
 import com.sims.backend.dtos.user.UserResponseDTO;
 import com.sims.backend.services.AuthService;
 
@@ -55,5 +55,12 @@ public class AuthController {
         return ResponseEntity.ok(
                 authService.getCurrentUser(authentication.getName())
         );
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok(java.util.Map.of(
+                "message", "Logged out successfully"
+        ));
     }
 }

@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dtos.StudentsRequestDTO;
-import com.sims.backend.dtos.StudentsResponseDTO;
+import com.sims.backend.dtos.students.StudentsRequestDTO;
+import com.sims.backend.dtos.students.StudentsResponseDTO;
 import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.mappers.StudentMapper;
