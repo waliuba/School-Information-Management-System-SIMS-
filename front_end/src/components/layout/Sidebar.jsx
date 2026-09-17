@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth.js';
 
 const navItems = [
   { label: 'Dashboard', to: '/dashboard' },
@@ -10,11 +11,15 @@ const navItems = [
   { label: 'Enrollments', to: '/enrollments' },
   { label: 'Attendance', to: '/attendance' },
   { label: 'Exams & Results', to: '/results' },
-  { label: 'Users', to: '/users' },
-  { label: 'Roles', to: '/roles' },
+  { label: 'Users', to: '/users', adminOnly: true },
+  { label: 'Roles', to: '/roles', adminOnly: true },
 ];
 
 export default function Sidebar() {
+  const { user } = useAuth();
+  const role = user?.role || user?.role_name || user?.roleName;
+  const visibleItems = navItems.filter((item) => !item.adminOnly || role === 'ADMIN');
+
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -26,7 +31,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="sidebar__nav" aria-label="Main navigation">
-        {navItems.map((item) => (
+        {visibleItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

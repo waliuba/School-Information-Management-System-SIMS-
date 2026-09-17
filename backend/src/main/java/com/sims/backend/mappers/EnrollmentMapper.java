@@ -1,7 +1,7 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dtos.EnrollmentRequestDTO;
-import com.sims.backend.dtos.EnrollmentResponseDTO;
+import com.sims.backend.dtos.enrollment.EnrollmentRequestDTO;
+import com.sims.backend.dtos.enrollment.EnrollmentResponseDTO;
 import com.sims.backend.models.Courses;
 import com.sims.backend.models.DepartmentModel;
 import com.sims.backend.models.EnrollmentsModel;

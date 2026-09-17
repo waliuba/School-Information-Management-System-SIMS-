@@ -24,8 +24,16 @@ export function getStudents(params) {
   return getList('/students', params);
 }
 
+export function getTeachers(params) {
+  return getList('/teachers', params);
+}
+
 export function getClasses(params) {
   return getList('/classes', params);
+}
+
+export function getDepartments(params) {
+  return getList('/departments', params);
 }
 
 export function getCourses(params) {
@@ -40,6 +48,18 @@ export function getEnrollments(params) {
   return getList('/enrollments', params);
 }
 
+export function getAttendance(params) {
+  return getList('/attendance', params);
+}
+
+export function getResults(params) {
+  return getList('/results', params);
+}
+
 export function getUsers(params) {
   return getList('/users', params);
+}
+
+export function getRoles(params) {
+  return getList('/roles', params);
 }

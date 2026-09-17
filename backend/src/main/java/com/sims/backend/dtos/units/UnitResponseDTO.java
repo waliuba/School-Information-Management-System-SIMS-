@@ -1,20 +1,20 @@
-package com.sims.backend.dtos;
+package com.sims.backend.dtos.units;
 
-import jakarta.validation.constraints.NotBlank;
+public class UnitResponseDTO {
 
-public class UnitRequestDTO {
-
-    @NotBlank(message = "Unit name is required")
+    private Long unitId;
     private String unitName;
-
-    @NotBlank(message = "Unit code is required")
     private String unitCode;
-
-    @NotBlank(message = "Description is required")
     private String description;
-
-    @NotBlank(message = "Status is required")
     private String status;
+
+    public Long getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(Long unitId) {
+        this.unitId = unitId;
+    }
 
     public String getUnitName() {
         return unitName;

@@ -1,81 +1,38 @@
-package com.sims.backend.dtos;
+package com.sims.backend.dtos.students;
 
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+public class StudentsResponseDTO {
 
-public class StudentsRequestDTO {
-
-    @NotBlank(message = "Admission number is required")
-    @Size(max = 20, message = "Admission number must be at most 20 characters")
+    private Long studentId;
     private String admissionNo;
-
-    @NotBlank(message = "First name is required")
-    @Size(max = 50, message = "First name must be at most 50 characters")
     private String firstName;
-
-    @Size(max = 50, message = "Middle name must be at most 50 characters")
     private String middleName;
-
-    @NotBlank(message = "Last name is required")
-    @Size(max = 50, message = "Last name must be at most 50 characters")
     private String lastName;
-
-    @NotBlank(message = "Gender is required")
-    @Size(max = 10, message = "Gender must be at most 10 characters")
     private String gender;
-
-    @NotNull(message = "Date of birth is required")
-    @Past(message = "Date of birth must be in the past")
     private LocalDate dateOfBirth;
-
-    @Size(max = 30, message = "National id must be at most 30 characters")
-    @NotBlank(message = "enter your National Id")
     private String nationalId;
-
-    @Email(message = "Email must be valid")
-    @Size(max = 100, message = "Email must be at most 100 characters")
-    @NotBlank(message = "please enter your email")
     private String email;
-
-    @Size(max = 20, message = "Phone must be at most 20 characters")
-    @NotBlank(message = "Phone is required")
     private String phone;
-
-    @Size(max = 200, message = "Address must be at most 200 characters")
-    @NotBlank(message = "Please enter your address")
     private String address;
-
-    @Size(max = 50, message = "County must be at most 50 characters")
-    @NotBlank(message = "Select your county")
     private String county;
-
-    @NotNull(message = "Admission date is required")
     private LocalDate admissionDate;
 
-    @NotNull(message = "Class id is required")
-    @Positive(message = "Class id must be greater than zero")
     private Long classId;
-
-    @NotNull(message = "Department id is required")
-    @Positive(message = "Department id must be greater than zero")
     private Long departmentId;
 
-    @Size(max = 100, message = "Guardian name must be at most 100 characters")
-    @NotBlank(message = "Enter Guardians Name ")
     private String guardianName;
-
-    @Size(max = 20, message = "Guardian phone must be at most 20 characters")
-    @NotBlank(message = "enter guadians phone number")
     private String guardianPhone;
-
-    @Size(max = 20, message = "Status must be at most 20 characters")
     private String status;
+
+
+    public Long getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
+    }
 
     public String getAdmissionNo() {
         return admissionNo;
