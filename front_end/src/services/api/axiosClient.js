@@ -1,4 +1,4 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 import { getStoredToken, clearAuthStorage } from '../storage/authStorage.js';
 
 const axiosClient = axios.create({

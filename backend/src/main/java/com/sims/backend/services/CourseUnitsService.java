@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dtos.CourseUnitRequestDTO;
-import com.sims.backend.dtos.CourseUnitResponseDTO;
+import com.sims.backend.dtos.courseunit.CourseUnitRequestDTO;
+import com.sims.backend.dtos.courseunit.CourseUnitResponseDTO;
 import com.sims.backend.mappers.CourseUnitMapper;
 import com.sims.backend.models.CourseUnits;
 import com.sims.backend.models.Courses;

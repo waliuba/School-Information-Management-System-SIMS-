@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.sims.backend.dtos.students.StudentPerformanceResponseDTO;
 import com.sims.backend.enums.Role;
-import com.sims.backend.dtos.StudentPerformanceResponseDTO;
 import com.sims.backend.models.StudentPerformanceModel;
 import com.sims.backend.repositories.ClassRepository;
 import com.sims.backend.repositories.CoursesRepository;

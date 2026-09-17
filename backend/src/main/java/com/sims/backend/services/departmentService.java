@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dtos.DepartmentRequestDTO;
-import com.sims.backend.dtos.DepartmentResponseDTO;
+import com.sims.backend.dtos.department.DepartmentRequestDTO;
+import com.sims.backend.dtos.department.DepartmentResponseDTO;
 import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.mappers.DepartmentMapper;
 import com.sims.backend.models.DepartmentModel;

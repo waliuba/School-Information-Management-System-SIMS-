@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import com.sims.backend.enums.Status;
 
@@ -33,6 +35,7 @@ public class Courses {
     private Integer durationYears;
 
     @Column(name = "status", length = 20)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     public Long getCourseId() {

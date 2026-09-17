@@ -3,6 +3,7 @@ package com.sims.backend.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import com.sims.backend.enums.Status;
 import com.sims.backend.models.Courses;
 import java.util.Optional;
 import java.util.List;
@@ -18,8 +19,8 @@ public interface CoursesRepository extends JpaRepository<Courses, Long> {
 
     List<Courses> findByCourseNameContainingIgnoreCase(String courseName);
     List<Courses> findByCourseName(String coursename);
-    List<Courses> findByCourseNameOrStatus(String courseName, String status);
-    List<Courses> findByStatus(String status);
+    List<Courses> findByCourseNameOrStatus(String courseName, Status status);
+    List<Courses> findByStatus(Status status);
     boolean existsByCourseCode(String courseCode);
     boolean existsByCourseName(String courseName);
     

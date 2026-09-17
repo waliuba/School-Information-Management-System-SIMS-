@@ -1,4 +1,4 @@
-package com.sims.backend.dto;
+package com.sims.backend.dtos.authentication;
 
 import com.sims.backend.enums.Role;
 import lombok.AllArgsConstructor;

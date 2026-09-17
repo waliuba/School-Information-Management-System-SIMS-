@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sims.backend.dto.AuthResponseDTO;
-import com.sims.backend.dto.LoginRequestDTO;
-import com.sims.backend.dto.RegisterRequestDTO;
+import com.sims.backend.dtos.authentication.AuthResponseDTO;
+import com.sims.backend.dtos.authentication.LoginRequestDTO;
+import com.sims.backend.dtos.authentication.RegisterRequestDTO;
 import com.sims.backend.dtos.user.UserResponseDTO;
 import com.sims.backend.services.AuthService;
 

@@ -4,8 +4,21 @@ import Login from '../pages/auth/Login.jsx';
 import Unauthorized from '../pages/auth/Unauthorized.jsx';
 import Dashboard from '../pages/dashboard/Dashboard.jsx';
 import Onboarding from '../pages/onboarding/Onboarding.jsx';
-import PlaceholderPage from '../pages/shared/PlaceholderPage.jsx';
+import ResourcePage from '../pages/shared/ResourcePage.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
+import RoleRoute from './RoleRoute.jsx';
+import {
+  getAttendance,
+  getClasses,
+  getDepartments,
+  getEnrollments,
+  getResults,
+  getRoles,
+  getStudents,
+  getTeachers,
+  getUnits,
+  getUsers,
+} from '../services/api/resourcesApi.js';
 
 export default function AppRoutes() {
   return (
@@ -18,16 +31,18 @@ export default function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/students" element={<PlaceholderPage title="Students" resourcePath="/api/students" />} />
-          <Route path="/teachers" element={<PlaceholderPage title="Teachers" resourcePath="/api/teachers" />} />
-          <Route path="/classes" element={<PlaceholderPage title="Classes" resourcePath="/api/classes" />} />
-          <Route path="/departments" element={<PlaceholderPage title="Departments" resourcePath="/api/departments" />} />
-          <Route path="/subjects" element={<PlaceholderPage title="Subjects" resourcePath="/api/subjects" />} />
-          <Route path="/enrollments" element={<PlaceholderPage title="Enrollments" resourcePath="/api/enrollments" />} />
-          <Route path="/attendance" element={<PlaceholderPage title="Attendance" resourcePath="/api/attendance" />} />
-          <Route path="/results" element={<PlaceholderPage title="Exams & Results" resourcePath="/api/results" />} />
-          <Route path="/users" element={<PlaceholderPage title="Users" resourcePath="/api/users" />} />
-          <Route path="/roles" element={<PlaceholderPage title="Roles" resourcePath="/api/roles" />} />
+          <Route path="/students" element={<ResourcePage title="Students" description="Students returned by the backend." request={getStudents} />} />
+          <Route path="/teachers" element={<ResourcePage title="Teachers" description="Teachers returned by the backend." request={getTeachers} />} />
+          <Route path="/classes" element={<ResourcePage title="Classes" description="Classes returned by the backend." request={getClasses} />} />
+          <Route path="/departments" element={<ResourcePage title="Departments" description="Departments returned by the backend." request={getDepartments} />} />
+          <Route path="/subjects" element={<ResourcePage title="Subjects" description="Academic units returned by the backend." request={getUnits} />} />
+          <Route path="/enrollments" element={<ResourcePage title="Enrollments" description="Enrollments returned by the backend." request={getEnrollments} />} />
+          <Route path="/attendance" element={<ResourcePage title="Attendance" description="Attendance returned by the backend." request={getAttendance} />} />
+          <Route path="/results" element={<ResourcePage title="Exams & Results" description="Exam results returned by the backend." request={getResults} />} />
+          <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+            <Route path="/users" element={<ResourcePage title="Users" description="Users returned by the backend." request={getUsers} />} />
+            <Route path="/roles" element={<ResourcePage title="Roles" description="Roles returned by the backend." request={getRoles} />} />
+          </Route>
         </Route>
       </Route>
 
