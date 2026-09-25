@@ -4,7 +4,9 @@ import Login from '../pages/auth/Login.jsx';
 import Unauthorized from '../pages/auth/Unauthorized.jsx';
 import Dashboard from '../pages/dashboard/Dashboard.jsx';
 import Onboarding from '../pages/onboarding/Onboarding.jsx';
+import LandingPage from '../pages/landing/LandingPage.jsx';
 import ResourcePage from '../pages/shared/ResourcePage.jsx';
+import PlaceholderPage from '../pages/shared/PlaceholderPage.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import RoleRoute from './RoleRoute.jsx';
 import {
@@ -23,13 +25,16 @@ import {
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/forgot-password" element={<PlaceholderPage title="Forgot password" resourcePath="/auth/forgot-password" />} />
+      <Route path="/signup" element={<PlaceholderPage title="Create an account" resourcePath="/auth/register" />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       <Route element={<ProtectedRoute />}>
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<MainLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="/app" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/students" element={<ResourcePage title="Students" description="Students returned by the backend." request={getStudents} />} />
           <Route path="/teachers" element={<ResourcePage title="Teachers" description="Teachers returned by the backend." request={getTeachers} />} />
