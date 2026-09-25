@@ -13,22 +13,22 @@ import OnboardingSlide from './components/OnboardingSlide.jsx';
 const slides = [
   {
     title: 'Welcome to SIMS',
-    description: 'Use this React client to log in, call backend endpoints, and inspect Oracle-backed school data.',
+    description: 'A centralized School Information Management System designed to bring important academic and administrative information into one connected platform.',
     animationData: welcomeAnimation,
   },
   {
-    title: 'Manage Students',
-    description: 'Student pages will call /api/students through a dedicated student API service.',
+    title: 'Everything Connected',
+    description: 'Students, teachers, courses, departments, enrollment, attendance, examinations, and academic performance — designed to work together.',
     animationData: studentsAnimation,
   },
   {
-    title: 'Manage Teachers and Subjects',
-    description: 'Teacher, subject, and teacher-subject modules will mirror backend resources.',
+    title: 'One System. Multiple Layers.',
+    description: 'From the React frontend through REST and Spring Boot business logic to the Oracle database, each layer has a clear role.',
     animationData: teachersAnimation,
   },
   {
-    title: 'Track Attendance and Results',
-    description: 'Attendance and results data should be validated and calculated by the backend.',
+    title: 'The System Is Growing',
+    description: 'Core management is implemented. Integration, authentication, testing, and deployment are the next stages in the journey.',
     animationData: schoolAnimation,
   },
 ];
@@ -41,7 +41,7 @@ export default function Onboarding() {
 
   function handleNext() {
     if (isLastSlide) {
-      navigate('/login');
+      navigate('/dashboard');
       return;
     }
 
@@ -67,7 +67,7 @@ export default function Onboarding() {
           isLastSlide={isLastSlide}
           onBack={handleBack}
           onNext={handleNext}
-          onSkip={() => navigate('/login')}
+          onSkip={() => navigate('/dashboard')}
         />
       </section>
     </main>

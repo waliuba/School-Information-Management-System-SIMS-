@@ -56,7 +56,7 @@ export default function AdminDashboard() {
         <div className="dashboard-section__header">
           <div>
             <h2>Class/Stream Performance</h2>
-            <p>Rankings will use real examination results once the backend exposes them.</p>
+            <p>Summary of student performance across all classes/streams</p>
           </div>
         </div>
         <StudentPerformanceTable rows={data?.performance?.rows || []} />
@@ -70,10 +70,10 @@ export default function AdminDashboard() {
       <AnimatedSection className="dashboard-section">
         <ChartCard
           title="Additional Insights"
-          description="Trends and support signals will be calculated from real result history when available."
+          description="Trends and support signals."
           isEmpty
           emptyTitle="No insight data available yet"
-          emptyMessage="Insights will appear once results, grading, and academic history are available from the backend."
+          emptyMessage="no data available."
         />
       </AnimatedSection>
     </div>

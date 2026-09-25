@@ -7,11 +7,11 @@ import TeacherDashboard from './TeacherDashboard.jsx';
 const dashboardCopy = {
   ADMIN: {
     title: 'Admin Dashboard',
-    description: 'School-wide overview from connected backend data.',
+    description: 'School performance overview and management workspace.',
   },
   TEACHER: {
-    title: 'Teacher Dashboard',
-    description: 'Focused class, subject, and student performance workspace.',
+    title: 'Teachers Dashboard',
+    description: 'Class Performance Hub',
   },
   STUDENT: {
     title: 'Student Dashboard',
