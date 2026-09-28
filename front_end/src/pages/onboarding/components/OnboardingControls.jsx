@@ -11,7 +11,7 @@ export default function OnboardingControls({ canGoBack, isLastSlide, onBack, onN
           Skip
         </Button>
         <Button type="button" onClick={onNext}>
-          {isLastSlide ? 'Go to login' : 'Next'}
+          {isLastSlide ? 'Enter SIMS' : 'Next'}
         </Button>
       </div>
     </div>
