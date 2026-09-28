@@ -5,6 +5,7 @@ import Unauthorized from '../pages/auth/Unauthorized.jsx';
 import Dashboard from '../pages/dashboard/Dashboard.jsx';
 import Onboarding from '../pages/onboarding/Onboarding.jsx';
 import PlaceholderPage from '../pages/shared/PlaceholderPage.jsx';
+import TeachersPage from '../pages/teachers/TeachersPage.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 
 export default function AppRoutes() {
@@ -19,7 +20,7 @@ export default function AppRoutes() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/students" element={<PlaceholderPage title="Students" resourcePath="/api/students" />} />
-          <Route path="/teachers" element={<PlaceholderPage title="Teachers" resourcePath="/api/teachers" />} />
+          <Route path="/teachers" element={<TeachersPage />} />
           <Route path="/classes" element={<PlaceholderPage title="Classes" resourcePath="/api/classes" />} />
           <Route path="/departments" element={<PlaceholderPage title="Departments" resourcePath="/api/departments" />} />
           <Route path="/subjects" element={<PlaceholderPage title="Subjects" resourcePath="/api/subjects" />} />

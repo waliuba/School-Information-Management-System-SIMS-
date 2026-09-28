@@ -5,8 +5,8 @@ import java.time.LocalDate;
 public class EnrollmentResponseDTO {
 
     private Long enrollmentId;
-    private Long studentId;
-    private Long departmentId;
+    private String studentName;
+    private String departmentName;
     private Long courseId;
     private Integer semester;
     private LocalDate enrollmentDate;
@@ -19,20 +19,20 @@ public class EnrollmentResponseDTO {
         this.enrollmentId = enrollmentId;
     }
 
-    public Long getStudentId() {
-        return studentId;
+    public String getStudentName() {
+        return studentName;
     }
 
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
     }
 
-    public Long getDepartmentId() {
-        return departmentId;
+    public String getDepartmentName() {
+        return departmentName;
     }
 
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 
     public Long getCourseId() {

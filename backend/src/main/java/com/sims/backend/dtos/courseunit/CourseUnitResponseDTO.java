@@ -5,7 +5,6 @@ public class CourseUnitResponseDTO {
     private Long courseunitId;
     private Long courseId;
     private Long unitId;
-    private String unitDescription;
     private String semester;
     private String yearofstudy;
 
@@ -33,13 +32,7 @@ public class CourseUnitResponseDTO {
         this.unitId = unitId;
     }
 
-    public String getUnitDescription() {
-        return unitDescription;
-    }
-
-    public void setUnitDescription(String unitDescription) {
-        this.unitDescription = unitDescription;
-    }
+     
 
     public String getSemester() {
         return semester;

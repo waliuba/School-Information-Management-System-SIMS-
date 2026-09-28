@@ -5,6 +5,7 @@ import Loading from '../../components/common/Loading.jsx';
 import PageContainer from '../../components/layout/PageContainer.jsx';
 import RecentActivity from '../../components/dashboard/RecentActivity.jsx';
 import StatCard from '../../components/dashboard/StatCard.jsx';
+import Button from '../../components/common/Button.jsx';
 import { fadeIn } from '../../animations/fadeIn.js';
 import { getDashboardSummary } from '../../services/api/dashboardApi.js';
 import { useApi } from '../../hooks/useApi.js';
@@ -15,16 +16,27 @@ const stats = [
   { key: 'totalClasses', label: 'Total Classes' },
   { key: 'totalSubjects', label: 'Total Subjects' },
   { key: 'totalDepartments', label: 'Total Departments' },
+  { key: 'averageScore', label: 'Average Score', suffix: '%' },
+  { key: 'highestScore', label: 'Highest Score', suffix: '%' },
+  { key: 'lowestScore', label: 'Lowest Score', suffix: '%' },
+  { key: 'passRate', label: 'Pass Rate', suffix: '%' },
 ];
 
 export default function Dashboard() {
   const loadDashboard = useCallback(() => getDashboardSummary(), []);
-  const { data, error, isLoading } = useApi(loadDashboard);
+  const { data, error, isLoading, execute } = useApi(loadDashboard, {
+    refetchOnWindowFocus: true,
+  });
 
   return (
     <PageContainer
       title="Admin Dashboard"
       description="Summary values should come from the backend dashboard endpoint."
+      actions={
+        <Button type="button" onClick={() => execute()} disabled={isLoading}>
+          {isLoading ? 'Refreshing...' : 'Refresh'}
+        </Button>
+      }
     >
       <ErrorMessage error={error} title="Could not load dashboard summary" />
 
@@ -37,7 +49,8 @@ export default function Dashboard() {
               key={stat.key}
               label={stat.label}
               value={data?.[stat.key]}
-              helper={`From backend field: ${stat.key}`}
+              suffix={stat.suffix}
+              helper="Live data from the backend"
             />
           ))}
         </AnimatedSection>

@@ -19,7 +19,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping("/dashboard/summary")
-    public ResponseEntity<Map<String, Long>> getDashboardSummary() {
+    public ResponseEntity<Map<String, Object>> getDashboardSummary() {
         return ResponseEntity.ok(dashboardService.getSummary());
     }
 

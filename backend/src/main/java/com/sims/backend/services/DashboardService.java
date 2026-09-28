@@ -1,5 +1,7 @@
 package com.sims.backend.services;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,14 +10,13 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.sims.backend.dtos.students.StudentPerformanceResponseDTO;
-import com.sims.backend.enums.Role;
 import com.sims.backend.models.StudentPerformanceModel;
 import com.sims.backend.repositories.ClassRepository;
 import com.sims.backend.repositories.CoursesRepository;
 import com.sims.backend.repositories.DepartmentRepository;
 import com.sims.backend.repositories.StudentsRepository;
 import com.sims.backend.repositories.StudentPerformanceRepository;
-import com.sims.backend.repositories.UserRepository;
+import com.sims.backend.repositories.TeachersRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,20 +25,38 @@ import lombok.RequiredArgsConstructor;
 public class DashboardService {
 
     private final StudentsRepository studentsRepository;
-    private final UserRepository userRepository;
+    private final TeachersRepository teachersRepository;
     private final ClassRepository classRepository;
     private final CoursesRepository coursesRepository;
     private final DepartmentRepository departmentRepository;
     private final StudentPerformanceRepository performanceRepository;
 
-    public Map<String, Long> getSummary() {
-        Map<String, Long> summary = new LinkedHashMap<>();
+    public Map<String, Object> getSummary() {
+        Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("totalStudents", studentsRepository.count());
-        summary.put("totalTeachers", userRepository.countByRole(Role.TEACHER));
+        summary.put("totalTeachers", teachersRepository.count());
         summary.put("totalClasses", classRepository.count());
         summary.put("totalSubjects", coursesRepository.count());
         summary.put("totalDepartments", departmentRepository.count());
+
+        List<BigDecimal> scores = performanceRepository.findAllByOrderByScoreDesc()
+                .stream()
+                .map(StudentPerformanceModel::getScore)
+                .filter(score -> score != null)
+                .toList();
+        summary.put("averageScore", scores.isEmpty() ? BigDecimal.ZERO : average(scores));
+        summary.put("highestScore", scores.stream().findFirst().orElse(BigDecimal.ZERO));
+        summary.put("lowestScore", scores.isEmpty() ? BigDecimal.ZERO : scores.get(scores.size() - 1));
+        summary.put("passRate", scores.isEmpty()
+                ? BigDecimal.ZERO
+                : BigDecimal.valueOf(scores.stream().filter(score -> score.compareTo(BigDecimal.valueOf(50)) >= 0).count() * 100.0 / scores.size())
+                        .setScale(2, RoundingMode.HALF_UP));
         return summary;
+    }
+
+    private BigDecimal average(List<BigDecimal> scores) {
+        BigDecimal total = scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return total.divide(BigDecimal.valueOf(scores.size()), 2, RoundingMode.HALF_UP);
     }
 
     public Map<String, Object> getPerformance() {

@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sims.backend.enums.Role;
 import com.sims.backend.enums.Status;
+import com.sims.backend.enums.AttendanceStatus;
+import com.sims.backend.models.AttendanceModel;
+import com.sims.backend.models.TeachersModel;
 import com.sims.backend.models.ClassModel;
 import com.sims.backend.models.CourseUnits;
 import com.sims.backend.models.Courses;
@@ -23,6 +26,8 @@ import com.sims.backend.models.StudentsModel;
 import com.sims.backend.models.UnitsModel;
 import com.sims.backend.models.UserModel;
 import com.sims.backend.repositories.ClassRepository;
+import com.sims.backend.repositories.AttendanceRepository;
+import com.sims.backend.repositories.TeachersRepository;
 import com.sims.backend.repositories.CourseUnitsRepository;
 import com.sims.backend.repositories.CoursesRepository;
 import com.sims.backend.repositories.DepartmentRepository;
@@ -70,6 +75,8 @@ public class DataSeeder implements ApplicationRunner {
     private final StudentsRepository studentsRepository;
     private final EnrollmentsRepository enrollmentsRepository;
     private final StudentPerformanceRepository performanceRepository;
+    private final AttendanceRepository attendanceRepository;
+    private final TeachersRepository teachersRepository;
 
     @Override
     @Transactional
@@ -99,10 +106,30 @@ public class DataSeeder implements ApplicationRunner {
     }
 
     private void seedTeachers() {
+        seedTeacher("teacher", "teacher@sims.com", "Teacher", "Account", "TCH000");
         for (int index = 1; index <= 15; index++) {
-            seedUser("teacher" + index, "teacher" + index + "@sims.com",
-                    "Teacher@123", Role.TEACHER);
+            seedTeacher("teacher" + index, "teacher" + index + "@sims.com",
+                    FIRST_NAMES[(index - 1) % FIRST_NAMES.length],
+                    LAST_NAMES[(index - 1) % LAST_NAMES.length],
+                    String.format("TCH%03d", index));
         }
+    }
+
+    private void seedTeacher(
+            String username,
+            String email,
+            String firstName,
+            String lastName,
+            String teacherNo) {
+        seedUser(username, email, "Teacher@123", Role.TEACHER);
+
+        TeachersModel teacher = teachersRepository.findByTeacherNo(teacherNo)
+                .orElseGet(TeachersModel::new);
+        teacher.setTeacherNo(teacherNo);
+        teacher.setFirstName(firstName);
+        teacher.setLastName(lastName);
+        teacher.setEmail(email);
+        teachersRepository.save(teacher);
     }
 
     private List<DepartmentModel> seedDepartments() {
@@ -171,7 +198,6 @@ public class DataSeeder implements ApplicationRunner {
                 CourseUnits courseUnit = new CourseUnits();
                 courseUnit.setCourseId(course);
                 courseUnit.setUnitId(units.get(index % units.size()));
-                courseUnit.setUnitDescription(course.getCourseName() + " course subject");
                 courseUnit.setSemester("1");
                 courseUnit.setYearofstudy("1");
                 courseUnitsRepository.save(courseUnit);
@@ -227,6 +253,30 @@ public class DataSeeder implements ApplicationRunner {
             performance.setGrade(gradeFor(score));
             performance.setPerformance(performanceFor(score));
             performanceRepository.save(performance);
+
+            seedAttendance(student, index);
+        }
+    }
+
+    private void seedAttendance(StudentsModel student, int index) {
+        LocalDate firstDate = LocalDate.of(2026, 2, 2);
+        for (int day = 0; day < 2; day++) {
+            LocalDate attendanceDate = firstDate.plusDays(day);
+            if (attendanceRepository.existsByStudentsModel_StudentIdAndAttendanceDate(
+                    student.getStudentId(), attendanceDate)) {
+                continue;
+            }
+
+            AttendanceModel attendance = new AttendanceModel();
+            attendance.setStudentsModel(student);
+            attendance.setAttendanceDate(attendanceDate);
+            attendance.setStatus((index + day) % 10 == 0
+                    ? AttendanceStatus.ABSENT
+                    : AttendanceStatus.PRESENT);
+            attendance.setRemarks(attendance.getStatus() == AttendanceStatus.ABSENT
+                    ? "Absent"
+                    : "Present");
+            attendanceRepository.save(attendance);
         }
     }
 

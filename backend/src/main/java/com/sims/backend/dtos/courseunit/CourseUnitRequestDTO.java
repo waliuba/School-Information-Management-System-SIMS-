@@ -15,8 +15,7 @@ public class CourseUnitRequestDTO {
     @Positive(message = "Unit id must be greater than zero")
     private Long unitId;
 
-    @Size(max = 500, message = "Unit description must be at most 500 characters")
-    private String unitDescription;
+    
 
     @NotBlank(message = "Semester is required")
     @Size(max = 20, message = "Semester must be at most 20 characters")
@@ -42,13 +41,7 @@ public class CourseUnitRequestDTO {
         this.unitId = unitId;
     }
 
-    public String getUnitDescription() {
-        return unitDescription;
-    }
-
-    public void setUnitDescription(String unitDescription) {
-        this.unitDescription = unitDescription;
-    }
+   
 
     public String getSemester() {
         return semester;

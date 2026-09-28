@@ -24,9 +24,12 @@ export default function Dashboard() {
   const role = user?.role || user?.role_name || user?.roleName;
   const copy = dashboardCopy[role] || dashboardCopy.STUDENT;
 
+  if (role === 'ADMIN') {
+    return <AdminDashboard />;
+  }
+
   return (
     <PageContainer title={copy.title} description={copy.description}>
-      {role === 'ADMIN' ? <AdminDashboard /> : null}
       {role === 'TEACHER' ? <TeacherDashboard /> : null}
       {role !== 'ADMIN' && role !== 'TEACHER' ? (
         <EmptyState

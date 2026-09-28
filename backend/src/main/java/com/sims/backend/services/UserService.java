@@ -2,6 +2,7 @@ package com.sims.backend.services;
 
 import java.util.List;
 
+import com.sims.backend.enums.Role;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,13 @@ public class UserService {
     public List<UserResponseDTO> getAllUsers() {
 
         return userRepository.findAll()
+                .stream()
+                .map(UserMapper::toDTO)
+                .toList();
+    }
+
+    public List<UserResponseDTO> getUsersByRole(Role role) {
+        return userRepository.findByRole(role)
                 .stream()
                 .map(UserMapper::toDTO)
                 .toList();

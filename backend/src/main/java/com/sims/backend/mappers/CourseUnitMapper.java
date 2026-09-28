@@ -17,7 +17,7 @@ public class CourseUnitMapper {
         if (courseUnit.getUnitId() != null) {
             dto.setUnitId(courseUnit.getUnitId().getUnitId());
         }
-        dto.setUnitDescription(courseUnit.getUnitDescription());
+        
         dto.setSemester(courseUnit.getSemester());
         dto.setYearofstudy(courseUnit.getYearofstudy());
         return dto;
@@ -27,7 +27,6 @@ public class CourseUnitMapper {
         CourseUnits courseUnit = new CourseUnits();
         courseUnit.setCourseId(course);
         courseUnit.setUnitId(unit);
-        courseUnit.setUnitDescription(dto.getUnitDescription());
         courseUnit.setSemester(dto.getSemester());
         courseUnit.setYearofstudy(dto.getYearofstudy());
         return courseUnit;

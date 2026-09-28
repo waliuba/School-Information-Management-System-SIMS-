@@ -551,7 +551,7 @@ export default function LandingPage() {
     ].map(([status, title], index) => (
       <div
         className={`roadmap-item roadmap-item--${index}`}
-        key={status}
+        key={title}
       >
         <span className="roadmap-status">
           {status}

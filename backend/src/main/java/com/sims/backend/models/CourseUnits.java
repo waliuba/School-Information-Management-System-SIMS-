@@ -1,13 +1,13 @@
 package com.sims.backend.models;
 
 
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 
@@ -15,7 +15,7 @@ import jakarta.persistence.Table;
 
 
 @Entity
-@Table(name = "course_units")
+@Table(name = "course_subject")
 public class CourseUnits {
     
     @Id
@@ -31,9 +31,6 @@ public class CourseUnits {
     @ManyToOne
     @JoinColumn(name = "unit_id")
     private UnitsModel unitId;
-
-    @Column(name = "unit_description", length = 500)
-    private String unitDescription;
 
     @Column(name = "semester", length = 20)
     private String semester;
@@ -59,12 +56,7 @@ public class CourseUnits {
     public void setUnitId(UnitsModel unitId) {
         this.unitId = unitId;
     }
-    public String getUnitDescription() {
-        return unitDescription;
-    }
-    public void setUnitDescription(String unitDescription) {
-        this.unitDescription = unitDescription;
-    }
+   
     public String getSemester() {
         return semester;
     }

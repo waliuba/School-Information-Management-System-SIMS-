@@ -139,8 +139,6 @@ public class CourseUnitsService {
     private void normalizeCourseUnit(CourseUnits courseUnit) {
         courseUnit.setSemester(courseUnit.getSemester().trim());
         courseUnit.setYearofstudy(courseUnit.getYearofstudy().trim());
-        if (courseUnit.getUnitDescription() != null) {
-            courseUnit.setUnitDescription(courseUnit.getUnitDescription().trim());
-        }
+       
     }
 }

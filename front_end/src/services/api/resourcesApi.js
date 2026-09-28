@@ -56,6 +56,17 @@ export function getResults(params) {
   return getList('/results', params);
 }
 
+export async function getPerformanceRows() {
+  const response = await axiosClient.get('/dashboard/performance');
+  const rows = response.data?.rows;
+
+  if (!Array.isArray(rows)) {
+    throw new Error('The backend performance response did not contain a rows array.');
+  }
+
+  return rows;
+}
+
 export function getUsers(params) {
   return getList('/users', params);
 }
