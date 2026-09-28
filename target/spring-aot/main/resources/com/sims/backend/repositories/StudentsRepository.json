@@ -1,0 +1,471 @@
+{
+  "name": "com.sims.backend.repositories.StudentsRepository",
+  "module": "JPA",
+  "type": "IMPERATIVE",
+  "methods": [
+    {
+      "name": "existsByAdmissionNo",
+      "signature": "public abstract boolean com.sims.backend.repositories.StudentsRepository.existsByAdmissionNo(java.lang.String)",
+      "query": {
+        "query": "SELECT s.studentId FROM StudentsModel s WHERE s.admissionNo = :admissionNo"
+      }
+    },
+    {
+      "name": "existsByAdmissionNoAndStudentIdNot",
+      "signature": "public abstract boolean com.sims.backend.repositories.StudentsRepository.existsByAdmissionNoAndStudentIdNot(java.lang.String,java.lang.Long)",
+      "query": {
+        "query": "SELECT s.studentId FROM StudentsModel s WHERE s.admissionNo = :admissionNo AND s.studentId != :studentId"
+      }
+    },
+    {
+      "name": "existsByClassModel_ClassId",
+      "signature": "public abstract boolean com.sims.backend.repositories.StudentsRepository.existsByClassModel_ClassId(java.lang.Long)",
+      "query": {
+        "query": "SELECT s.studentId FROM StudentsModel s WHERE s.classModel.classId = :classId"
+      }
+    },
+    {
+      "name": "existsByDepartmentModel_DepartmentId",
+      "signature": "public abstract boolean com.sims.backend.repositories.StudentsRepository.existsByDepartmentModel_DepartmentId(java.lang.Long)",
+      "query": {
+        "query": "SELECT s.studentId FROM StudentsModel s WHERE s.departmentModel.departmentId = :departmentId"
+      }
+    },
+    {
+      "name": "existsByEmail",
+      "signature": "public abstract boolean com.sims.backend.repositories.StudentsRepository.existsByEmail(java.lang.String)",
+      "query": {
+        "query": "SELECT s.studentId FROM StudentsModel s WHERE s.email = :email"
+      }
+    },
+    {
+      "name": "existsByEmailAndStudentIdNot",
+      "signature": "public abstract boolean com.sims.backend.repositories.StudentsRepository.existsByEmailAndStudentIdNot(java.lang.String,java.lang.Long)",
+      "query": {
+        "query": "SELECT s.studentId FROM StudentsModel s WHERE s.email = :email AND s.studentId != :studentId"
+      }
+    },
+    {
+      "name": "findByAdmissionNo",
+      "signature": "public abstract java.util.Optional<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByAdmissionNo(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.admissionNo = :admissionNo"
+      }
+    },
+    {
+      "name": "findByClassModel_ClassId",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByClassModel_ClassId(java.lang.Long)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.classModel.classId = :classId"
+      }
+    },
+    {
+      "name": "findByClassModel_ClassIdAndStatus",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByClassModel_ClassIdAndStatus(java.lang.Long,java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.classModel.classId = :classId AND s.status = :status"
+      }
+    },
+    {
+      "name": "findByClassModel_ClassIdAndStatusAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByClassModel_ClassIdAndStatusAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(java.lang.Long,java.lang.String,java.lang.String,java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.classModel.classId = :classId AND s.status = :status AND UPPER(s.firstName) LIKE UPPER(:firstName) ESCAPE '\\' OR UPPER(s.lastName) LIKE UPPER(:lastName) ESCAPE '\\'"
+      }
+    },
+    {
+      "name": "findByClassModel_ClassName",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByClassModel_ClassName(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s LEFT JOIN s.classModel c WHERE c.className = :className"
+      }
+    },
+    {
+      "name": "findByClassModel_ClassNameAndStatus",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByClassModel_ClassNameAndStatus(java.lang.String,java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s LEFT JOIN s.classModel c WHERE c.className = :className AND s.status = :status"
+      }
+    },
+    {
+      "name": "findByClassModel_ClassNameAndStatusAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByClassModel_ClassNameAndStatusAndFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(java.lang.String,java.lang.String,java.lang.String,java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s LEFT JOIN s.classModel c WHERE c.className = :className AND s.status = :status AND UPPER(s.firstName) LIKE UPPER(:firstName) ESCAPE '\\' OR UPPER(s.lastName) LIKE UPPER(:lastName) ESCAPE '\\'"
+      }
+    },
+    {
+      "name": "findByDepartmentModel_DepartmentId",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByDepartmentModel_DepartmentId(java.lang.Long)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.departmentModel.departmentId = :departmentId"
+      }
+    },
+    {
+      "name": "findByEmail",
+      "signature": "public abstract java.util.Optional<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByEmail(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.email = :email"
+      }
+    },
+    {
+      "name": "findByFirstName",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByFirstName(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.firstName = :firstName"
+      }
+    },
+    {
+      "name": "findByFirstNameAndLastName",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByFirstNameAndLastName(java.lang.String,java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.firstName = :firstName AND s.lastName = :lastName"
+      }
+    },
+    {
+      "name": "findByFirstNameContainingIgnoreCase",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByFirstNameContainingIgnoreCase(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE UPPER(s.firstName) LIKE UPPER(:firstName) ESCAPE '\\'"
+      }
+    },
+    {
+      "name": "findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(java.lang.String,java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE UPPER(s.firstName) LIKE UPPER(:firstName) ESCAPE '\\' OR UPPER(s.lastName) LIKE UPPER(:lastName) ESCAPE '\\'"
+      }
+    },
+    {
+      "name": "findByGender",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByGender(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.gender = :gender"
+      }
+    },
+    {
+      "name": "findByLastName",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByLastName(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.lastName = :lastName"
+      }
+    },
+    {
+      "name": "findByLastNameContainingIgnoreCase",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByLastNameContainingIgnoreCase(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE UPPER(s.lastName) LIKE UPPER(:lastName) ESCAPE '\\'"
+      }
+    },
+    {
+      "name": "findByStatus",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.findByStatus(java.lang.String)",
+      "query": {
+        "query": "SELECT s FROM StudentsModel s WHERE s.status = :status"
+      }
+    },
+    {
+      "name": "searchStudents",
+      "signature": "public abstract java.util.List<com.sims.backend.models.StudentsModel> com.sims.backend.repositories.StudentsRepository.searchStudents(java.lang.String,java.lang.Long,java.lang.String,java.lang.Long,java.lang.String)",
+      "query": {
+        "query": "select s from StudentsModel s\nwhere (:name is null or :name = '' or\n    lower(s.firstName) like lower(concat('%', :name, '%')) or\n    lower(s.lastName) like lower(concat('%', :name, '%')) or\n    lower(s.admissionNo) like lower(concat('%', :name, '%')))\nand (:classId is null or s.classModel.classId = :classId)\nand (:className is null or :className = '' or lower(s.classModel.className) = lower(:className))\nand (:departmentId is null or s.departmentModel.departmentId = :departmentId)\nand (:status is null or :status = '' or lower(s.status) = lower(:status))\n"
+      }
+    },
+    {
+      "name": "deleteAllByIdInBatch",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "deleteAllInBatch",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "deleteAllInBatch",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "deleteInBatch",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "flush",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "getById",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "getOne",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "getReferenceById",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "saveAllAndFlush",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "saveAndFlush",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "count",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "delete",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "deleteAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "deleteAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "deleteAllById",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "deleteById",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "existsById",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findById",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "save",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAllById",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAllById",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "saveAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "saveAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "count",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "exists",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findAll",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findBy",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    },
+    {
+      "name": "findOne",
+      "signature": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+      "fragment": {
+        "interface": "org.springframework.data.jpa.repository.support.SimpleJpaRepository",
+        "fragment": "org.springframework.data.jpa.repository.support.SimpleJpaRepository"
+      }
+    }
+  ]
+}
