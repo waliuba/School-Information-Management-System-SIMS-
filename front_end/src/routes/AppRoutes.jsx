@@ -16,7 +16,6 @@ import {
   getUnits,
   getUsers,
 } from '../services/api/resourcesApi.js';
-import { getStudents } from '../services/api/resourcesApi.js';
 
 
 const MainLayout = lazy(() => import('../components/layout/MainLayout.jsx'));
