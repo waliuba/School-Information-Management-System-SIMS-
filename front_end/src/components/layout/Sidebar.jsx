@@ -1,69 +1,45 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
 
-const groups = [
-  {
-    label: 'Academic',
-    items: [
-      ['Students', '/students', '♙'],
-      ['Teachers', '/teachers', '♟'],
-      ['Courses', '/courses', '▤'],
-      ['Departments', '/departments', '▦'],
-      ['Enrollment', '/enrollments', '↗'],
-      ['Attendance', '/attendance', '◷'],
-      ['Examinations', '/results', '▣'],
-      ['Performance', '/performance', '↗'],
-    ],
-  },
-  {
-    label: 'Management',
-    items: [
-      ['Users', '/users', '♙'],
-      ['Roles & Permissions', '/roles', '⚿'],
-    ],
-  },
+const navItems = [
+  { label: 'Dashboard', to: '/dashboard' },
+  { label: 'Students', to: '/students' },
+  { label: 'Teachers', to: '/teachers' },
+  { label: 'Classes', to: '/classes' },
+  { label: 'Departments', to: '/departments' },
+  { label: 'Subjects', to: '/subjects' },
+  { label: 'Enrollments', to: '/enrollments' },
+  { label: 'Attendance', to: '/attendance' },
+  { label: 'Exams & Results', to: '/results' },
+  { label: 'Users', to: '/users', adminOnly: true },
+  { label: 'Roles', to: '/roles', adminOnly: true },
 ];
 
-export default function Sidebar({ isCollapsed, isMobileOpen, onToggle, onClose }) {
+export default function Sidebar() {
   const { user } = useAuth();
   const role = user?.role || user?.role_name || user?.roleName;
+  const visibleItems = navItems.filter((item) => !item.adminOnly || role === 'ADMIN');
 
   return (
-    <aside className={`sidebar${isMobileOpen ? ' sidebar--open' : ''}`}>
+    <aside className="sidebar">
       <div className="sidebar__brand">
         <span className="sidebar__brand-mark">S</span>
-        {!isCollapsed ? <div>
+        <div>
           <strong>SIMS</strong>
-          <small>Admin console</small>
-        </div> : null}
-        <button className="sidebar__toggle" type="button" onClick={onToggle} aria-label={isCollapsed ? 'Expand navigation' : 'Collapse navigation'} title={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}>
-          {isCollapsed ? '→' : '←'}
-        </button>
+          <small>Backend testing client</small>
+        </div>
       </div>
 
       <nav className="sidebar__nav" aria-label="Main navigation">
-        <NavLink to="/dashboard" end className={({ isActive }) => `sidebar__link${isActive ? ' sidebar__link--active' : ''}`} onClick={onClose}>
-          <span aria-hidden="true">⌂</span><span className="sidebar__link-label">Overview</span>
-        </NavLink>
-        {groups.map((group) => (
-          <div className="sidebar__group" key={group.label}>
-            {!isCollapsed ? <p className="sidebar__group-label">{group.label}</p> : null}
-            {group.items.map(([label, to, icon]) => {
-              if ((label === 'Users' || label === 'Roles & Permissions') && role !== 'ADMIN') return null;
-              return (
-                <NavLink key={`${label}-${to}`} to={to} className={({ isActive }) => `sidebar__link${isActive ? ' sidebar__link--active' : ''}`} onClick={onClose} title={isCollapsed ? label : undefined}>
-                  <span aria-hidden="true">{icon}</span><span className="sidebar__link-label">{label}</span>
-                </NavLink>
-              );
-            })}
-          </div>
-        ))}
-        <div className="sidebar__group">
-          {!isCollapsed ? <p className="sidebar__group-label">System</p> : null}
-          <NavLink to="/settings" className="sidebar__link" onClick={onClose} title={isCollapsed ? 'System settings' : undefined}>
-            <span aria-hidden="true">⚙</span><span className="sidebar__link-label">System settings</span>
+        {visibleItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => `sidebar__link${isActive ? ' sidebar__link--active' : ''}`}
+          >
+            {item.label}
           </NavLink>
-        </div>
+        ))}
       </nav>
     </aside>
   );

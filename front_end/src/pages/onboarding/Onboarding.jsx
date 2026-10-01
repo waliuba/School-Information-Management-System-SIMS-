@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import booksStackAnimation from '../../assets/lottie/Books stack.json';
-import welcomeAnimation from '../../assets/lottie/Welcome Animation.json';
-import teachersAnimation from '../../assets/lottie/Teamwork Gears.json';
+import welcomeAnimation from '../../assets/lottie/onboarding-welcome.json';
+import studentsAnimation from '../../assets/lottie/onboarding-students.json';
+import teachersAnimation from '../../assets/lottie/onboarding-teachers.json';
+import schoolAnimation from '../../assets/lottie/onboarding-school.json';
 import { pageTransition } from '../../animations/pageTransition.js';
 import OnboardingControls from './components/OnboardingControls.jsx';
 import OnboardingProgress from './components/OnboardingProgress.jsx';
@@ -11,24 +12,25 @@ import OnboardingSlide from './components/OnboardingSlide.jsx';
 
 const slides = [
   {
-   
-  title: 'Welcome to SIMS',
-  description:
-    'SIMS is an evolving School Information Management System built with React, Spring Boot, and Oracle to explore how a complete school information platform is designed, developed, and connected from database to user interface.',
-  animationData: welcomeAnimation,
-},
- {
-  title: 'Built as One System',
-  description:
-    'From student and teacher records to enrollment, academic performance, and school operations, SIMS brings related information together through a connected system architecture.',
-  animationData: booksStackAnimation,
-},
+    title: 'Welcome to SIMS',
+    description: 'A centralized School Information Management System designed to bring important academic and administrative information into one connected platform.',
+    animationData: welcomeAnimation,
+  },
   {
-  title: 'One System. Multiple Layers.',
-  description:
-    'SIMS connects the user interface, REST APIs, backend services, and Oracle database through a structured architecture where each layer has a clear responsibility.',
-  animationData: teachersAnimation,
-},
+    title: 'Everything Connected',
+    description: 'Students, teachers, courses, departments, enrollment, attendance, examinations, and academic performance — designed to work together.',
+    animationData: studentsAnimation,
+  },
+  {
+    title: 'One System. Multiple Layers.',
+    description: 'From the React frontend through REST and Spring Boot business logic to the Oracle database, each layer has a clear role.',
+    animationData: teachersAnimation,
+  },
+  {
+    title: 'The System Is Growing',
+    description: 'Core management is implemented. Integration, authentication, testing, and deployment are the next stages in the journey.',
+    animationData: schoolAnimation,
+  },
 ];
 
 export default function Onboarding() {
