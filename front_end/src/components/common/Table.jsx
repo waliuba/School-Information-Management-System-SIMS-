@@ -21,7 +21,7 @@ export default function Table({ columns, rows, isLoading, emptyMessage = 'No rec
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
-            <tr key={row.id || row.studentId || rowIndex}>
+            <tr key={row.id || rowIndex}>
               {columns.map((column) => (
                 <td key={column.key}>{column.render ? column.render(row) : row[column.key]}</td>
               ))}

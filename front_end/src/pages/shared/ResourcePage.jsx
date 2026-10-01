@@ -23,18 +23,10 @@ function getColumns(rows) {
   }));
 }
 
-export default function ResourcePage({ title, description, request, columns: configuredColumns }) {
+export default function ResourcePage({ title, description, request }) {
   const { data, error, isLoading } = useApi(request);
   const rows = Array.isArray(data) ? data : [];
-  const columns = useMemo(
-    () => configuredColumns
-      ? configuredColumns.map((column) => ({
-        ...column,
-        render: (row) => formatValue(row[column.key]),
-      }))
-      : getColumns(rows),
-    [configuredColumns, rows]
-  );
+  const columns = useMemo(() => getColumns(rows), [rows]);
 
   return (
     <PageContainer title={title} description={description}>
