@@ -1,4 +1,6 @@
 @import './variables.css';
+@import './landing.css';
+@import './login.css';
 
 * {
   box-sizing: border-box;
