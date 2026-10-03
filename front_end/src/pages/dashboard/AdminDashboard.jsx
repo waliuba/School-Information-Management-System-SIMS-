@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import AnimatedSection from '../../components/common/AnimatedSection.jsx';
-import ChartCard from '../../components/dashboard/ChartCard.jsx';
 import StudentPerformanceTable from '../../components/dashboard/StudentPerformanceTable.jsx';
 import ErrorState from '../../components/dashboard/ErrorState.jsx';
 import GradeDistributionChart from '../../components/dashboard/GradeDistributionChart.jsx';
@@ -11,71 +11,56 @@ import { getDashboardPerformance, getDashboardSummary } from '../../services/api
 import { useApi } from '../../hooks/useApi.js';
 
 const summaryCards = [
-  { key: 'totalStudents', label: 'Total Students', helper: 'Enrolled student records' },
-  { key: 'totalTeachers', label: 'Total Teachers', helper: 'Users with teacher role' },
-  { key: 'totalClasses', label: 'Total Classes', helper: 'Active class streams' },
-  { key: 'totalSubjects', label: 'Total Subjects/Courses', helper: 'Backend course records' },
-  { key: 'totalDepartments', label: 'Total Departments', helper: 'Academic departments' },
+  { key: 'totalStudents', label: 'Students', helper: 'Student records', icon: 'ST' },
+  { key: 'totalTeachers', label: 'Teachers', helper: 'Teacher accounts', icon: 'TE' },
+  { key: 'totalClasses', label: 'Classes', helper: 'Class streams', icon: 'CL' },
+  { key: 'totalSubjects', label: 'Subjects & courses', helper: 'Academic units', icon: 'SU' },
+  { key: 'totalDepartments', label: 'Departments', helper: 'Academic departments', icon: 'DE' },
 ];
+const dataLinks = [
+  ['Students', 'totalStudents', '/students'], ['Teachers', 'totalTeachers', '/teachers'], ['Courses', 'totalSubjects', '/courses'], ['Departments', 'totalDepartments', '/departments'],
+  ['Enrollments', null, '/enrollments'], ['Attendance', null, '/attendance'], ['Examinations & results', null, '/results'], ['Users & roles', null, '/users'],
+];
+const quickActions = [['Add student', '/students/new'], ['Add teacher', '/teachers/new'], ['Add course', '/courses/new'], ['Create enrollment', '/enrollments/new'],  ['Generate report', '/reports']];
 
 export default function AdminDashboard() {
-  const loadDashboard = useCallback(
-    async () => {
-      const [summary, performance] = await Promise.all([
-        getDashboardSummary(),
-        getDashboardPerformance(),
-      ]);
-      return { summary, performance };
-    },
-    []
-  );
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const loadDashboard = useCallback(async () => {
+    const [summary, performance] = await Promise.all([getDashboardSummary(), getDashboardPerformance()]);
+    return { summary, performance };
+  }, []);
   const { data, error, isLoading } = useApi(loadDashboard);
+  if (error) return <ErrorState error={error} title="Could not load admin dashboard" />;
+  const summary = data?.summary || {};
 
-  if (error) {
-    return <ErrorState error={error} title="Could not load admin dashboard" />;
-  }
+  return <div className="dashboard-page">
+    <AnimatedSection className="dashboard-welcome">
+      <div><p className="dashboard-eyebrow">SCHOOL OVERVIEW</p><h1>{greeting}, {summary.adminName || 'Admin'}</h1><p>Your school information and performance at a glance.</p></div>
+      <label className="academic-filter"><span>Academic year</span><select aria-label="Academic year" defaultValue="2026"><option value="2026">2026</option><option value="2025">2025</option></select></label>
+    </AnimatedSection>
 
-  return (
-    <div className="dashboard-page">
-      {isLoading ? (
-        <LoadingState message="Loading school summary..." />
-      ) : (
-        <AnimatedSection className="stats-grid dashboard-stats-grid">
-          {summaryCards.map((stat) => (
-            <StatCard
-              key={stat.key}
-              label={stat.label}
-              value={data?.summary?.[stat.key]}
-              helper={stat.helper}
-            />
-          ))}
-        </AnimatedSection>
-      )}
+    {isLoading ? <LoadingState message="Loading school summary..." /> : <AnimatedSection className="stats-grid dashboard-stats-grid">{summaryCards.map((stat) => <StatCard key={stat.key} label={stat.label} value={summary[stat.key]} helper={stat.helper} icon={stat.icon} />)}</AnimatedSection>}
 
-      <AnimatedSection className="dashboard-section">
-        <div className="dashboard-section__header">
-          <div>
-            <h2>Class/Stream Performance</h2>
-            <p>Summary of student performance across all classes/streams</p>
-          </div>
-        </div>
+    <div className="dashboard-overview-grid">
+      <AnimatedSection className="dashboard-section dashboard-performance">
+        <div className="dashboard-section__header"><div><p className="dashboard-eyebrow">ACADEMIC ANALYTICS</p><h2>Student performance</h2><p>Class and stream results from the connected performance service.</p></div><Link className="text-link" to="/results">View results <span aria-hidden="true">→</span></Link></div>
         <StudentPerformanceTable rows={data?.performance?.rows || []} />
       </AnimatedSection>
-
-      <AnimatedSection className="dashboard-chart-grid">
-        <MarksDistributionChart data={data?.performance?.marksDistribution || []} />
-        <GradeDistributionChart data={data?.performance?.gradeDistribution || []} />
-      </AnimatedSection>
-
-      <AnimatedSection className="dashboard-section">
-        <ChartCard
-          title="Additional Insights"
-          description="Trends and support signals."
-          isEmpty
-          emptyTitle="No insight data available yet"
-          emptyMessage="no data available."
-        />
+      <AnimatedSection className="dashboard-section dashboard-quick-actions">
+        <div className="dashboard-section__header"><div><p className="dashboard-eyebrow">SHORTCUTS</p><h2>Quick actions</h2></div></div>
+        <div className="quick-actions-grid">{quickActions.map(([label, to]) => <Link key={label} to={to}><span aria-hidden="true">＋</span>{label}<b aria-hidden="true">→</b></Link>)}</div>
       </AnimatedSection>
     </div>
-  );
+
+    <AnimatedSection className="dashboard-chart-grid"><MarksDistributionChart data={data?.performance?.marksDistribution || []} /><GradeDistributionChart data={data?.performance?.gradeDistribution || []} /></AnimatedSection>
+
+    <div className="dashboard-overview-grid dashboard-lower-grid">
+      <AnimatedSection className="dashboard-section"><div className="dashboard-section__header"><div><p className="dashboard-eyebrow">RECORDS</p><h2>Data management</h2><p>Open a module to search and manage school records.</p></div></div><div className="data-overview-list">{dataLinks.map(([label, key, to]) => <Link to={to} key={label}><span>{label}</span><strong>{key && summary[key] != null ? `${Number(summary[key]).toLocaleString()} records` : 'Open module'} <b aria-hidden="true">→</b></strong></Link>)}</div></AnimatedSection>
+      <div className="dashboard-side-stack">
+        <AnimatedSection className="dashboard-section"><div className="dashboard-section__header"><div><p className="dashboard-eyebrow">SYSTEM</p><h2>Connection status</h2></div></div><p className="status-note">Health endpoints are not connected yet.</p>{['Backend API', 'Database', 'Authentication', 'Frontend'].map((label) => <div className="health-row" key={label}><span className="health-dot" />{label}<strong>Not connected</strong></div>)}</AnimatedSection>
+        <AnimatedSection className="dashboard-section activity-placeholder"><div className="dashboard-section__header"><div><p className="dashboard-eyebrow">RECENT ACTIVITY</p><h2>Activity feed</h2></div></div><div className="activity-empty"><span aria-hidden="true">◷</span><p>Activity data will appear here when the dashboard activity service is available.</p></div></AnimatedSection>
+      </div>
+    </div>
+  </div>;
 }

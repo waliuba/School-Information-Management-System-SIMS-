@@ -41,10 +41,6 @@ public class StudentsController {
             @RequestParam(required = false) String status) {
         List<StudentsResponseDTO> students = studentsService.getStudents(name, classId, className, departmentId, status);
 
-        if (students.isEmpty()) {
-            throw new ResourceNotFoundException("No students found");
-        }
-
         return ResponseEntity.ok(ApiResponse.of("Students retrieved successfully", students));
     }
 

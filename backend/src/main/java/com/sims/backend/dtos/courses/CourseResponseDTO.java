@@ -8,6 +8,7 @@ public class CourseResponseDTO {
     private String description;
     private Integer durationYears;
     private String status;
+    private Long departmentId;
 
     public Long getCourseId() {
         return courseId;
@@ -56,4 +57,7 @@ public class CourseResponseDTO {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public Long getDepartmentId() { return departmentId; }
+    public void setDepartmentId(Long departmentId) { this.departmentId = departmentId; }
 }

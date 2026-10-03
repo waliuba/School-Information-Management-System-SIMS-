@@ -14,8 +14,8 @@ function formatValue(value) {
   return String(value);
 }
 
-function getColumns(rows) {
-  const keys = [...new Set(rows.flatMap((row) => Object.keys(row || {})))].slice(0, 8);
+function getColumns(rows, visibleColumns) {
+  const keys = visibleColumns || [...new Set(rows.flatMap((row) => Object.keys(row || {})))].slice(0, 8);
   return keys.map((key) => ({
     key,
     label: key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()),
@@ -23,10 +23,10 @@ function getColumns(rows) {
   }));
 }
 
-export default function ResourcePage({ title, description, request }) {
+export default function ResourcePage({ title, description, request, visibleColumns }) {
   const { data, error, isLoading } = useApi(request);
   const rows = Array.isArray(data) ? data : [];
-  const columns = useMemo(() => getColumns(rows), [rows]);
+  const columns = useMemo(() => getColumns(rows, visibleColumns), [rows, visibleColumns]);
 
   return (
     <PageContainer title={title} description={description}>

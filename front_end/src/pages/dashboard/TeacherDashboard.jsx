@@ -10,7 +10,7 @@ import StatCard from '../../components/dashboard/StatCard.jsx';
 import StudentPerformanceTable from '../../components/dashboard/StudentPerformanceTable.jsx';
 import { useApi } from '../../hooks/useApi.js';
 import { getClasses, getCourses } from '../../services/api/resourcesApi.js';
-import { getDashboardPerformance } from '../../services/api/dashboardApi.js';
+import { getDashboardPerformance, getDashboardSummary } from '../../services/api/dashboardApi.js';
 import { applyPerformanceFilters, rankStudents } from './dashboardMetrics.js';
 
 const initialFilters = {
@@ -24,25 +24,17 @@ const initialFilters = {
   topLimit: 'all',
 };
 
-const summaryCards = [
-  { label: 'Students', value: null, helper: 'Teacher-scoped roster pending' },
-  { label: 'Subjects/Classes Taught', value: null, helper: 'Assignments pending' },
-  { label: 'Average Score', value: null, helper: 'Requires results data' },
-  { label: 'Highest Score', value: null, helper: 'Requires results data' },
-  { label: 'Lowest Score', value: null, helper: 'Requires results data' },
-  { label: 'Pass Rate', value: null, helper: 'Requires grading rules' },
-];
-
 export default function TeacherDashboard() {
   const [filters, setFilters] = useState(initialFilters);
   const loadFilters = useCallback(
     async () => {
-      const [classes, subjects, performance] = await Promise.all([
+      const [classes, subjects, summary, performance] = await Promise.all([
         getClasses(),
         getCourses(),
+        getDashboardSummary(),
         getDashboardPerformance(),
       ]);
-      return { classes, subjects, performance };
+      return { classes, subjects, summary, performance };
     },
     []
   );
@@ -60,6 +52,21 @@ export default function TeacherDashboard() {
     return rankedRows;
   }, [data, filters]);
 
+  const scores = (data?.performance?.rows || [])
+    .map((row) => row.averageScore)
+    .filter((score) => score != null && score !== '' && Number.isFinite(Number(score)))
+    .map(Number);
+  const scoreAverage = scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : null;
+  const scoreLabel = (score) => score == null ? '—' : `${Number(score).toFixed(1)}%`;
+  const summaryCards = [
+    { label: 'Students', value: data?.summary?.totalStudents, helper: 'School student records', icon: 'ST' },
+    { label: 'Classes', value: data?.summary?.totalClasses, helper: 'School class streams', icon: 'CL' },
+    { label: 'Subjects / Courses', value: data?.summary?.totalSubjects, helper: 'School academic courses', icon: 'SU' },
+    { label: 'Average Score', value: scoreLabel(scoreAverage), helper: scores.length ? `Across ${scores.length} recorded scores` : 'No recorded scores yet', icon: 'AV' },
+    { label: 'Highest Score', value: scoreLabel(scores.length ? Math.max(...scores) : null), helper: 'From recorded performance', icon: '↑' },
+    { label: 'Lowest Score', value: scoreLabel(scores.length ? Math.min(...scores) : null), helper: 'From recorded performance', icon: '↓' },
+  ];
+
   if (error) {
     return <ErrorState error={error} title="Could not load teacher dashboard filters" />;
   }
@@ -67,8 +74,8 @@ export default function TeacherDashboard() {
   return (
     <div className="dashboard-page">
       <AnimatedSection className="stats-grid dashboard-stats-grid dashboard-stats-grid--teacher">
-        {summaryCards.map((stat) => (
-          <StatCard key={stat.label} label={stat.label} value={stat.value} helper={stat.helper} />
+          {summaryCards.map((stat) => (
+          <StatCard key={stat.label} label={stat.label} value={isLoading ? '—' : stat.value ?? '—'} helper={stat.helper} icon={stat.icon} />
         ))}
       </AnimatedSection>
 
@@ -89,7 +96,7 @@ export default function TeacherDashboard() {
         <div className="dashboard-section__header">
           <div>
             <h2>Student Performance</h2>
-            <p>Student-level results will remain empty until real examination data is available.</p>
+            <p>Student performance records from the connected school database.</p>
           </div>
         </div>
         <StudentPerformanceTable rows={filteredRows} />

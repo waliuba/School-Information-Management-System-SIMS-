@@ -13,6 +13,7 @@ public class CourseMapper {
         dto.setDescription(course.getDescription());
         dto.setDurationYears(course.getDurationYears());
         dto.setStatus(course.getStatus() == null ? null : course.getStatus().name());
+        dto.setDepartmentId(course.getDepartmentModel() == null ? null : course.getDepartmentModel().getDepartmentId());
         return dto;
     }
 

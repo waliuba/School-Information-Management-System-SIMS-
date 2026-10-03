@@ -1,0 +1,28 @@
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import PageContainer from '../../components/layout/PageContainer.jsx';
+import ErrorMessage from '../../components/common/ErrorMessage.jsx';
+import Table from '../../components/common/Table.jsx';
+import { getResults, getStudents, getCourses, createResult, updateResult, deleteResult, uploadResults } from '../../services/api/resourcesApi.js';
+
+export default function ResultsPage(){
+  const {id}=useParams();const location=useLocation();const navigate=useNavigate();const editing=location.pathname.endsWith('/edit');const viewing=Boolean(id)&&!editing;
+  const [rows,setRows]=useState([]),[students,setStudents]=useState([]),[courses,setCourses]=useState([]),[form,setForm]=useState({studentId:'',courseId:'',score:''}),[file,setFile]=useState(null),[error,setError]=useState(null),[fieldErrors,setFieldErrors]=useState({}),[loading,setLoading]=useState(true),[pending,setPending]=useState(false),[notice,setNotice]=useState(''),[confirmId,setConfirmId]=useState(null),[selected,setSelected]=useState(null);
+  const load=async()=>{setLoading(true);setError(null);try{const [r,s,c]=await Promise.all([getResults(),getStudents(),getCourses()]);setRows(r);setStudents(s);setCourses(c);if(id){const item=r.find(row=>String(row.performanceId)===String(id));if(!item)throw {message:'Result not found'};setSelected(item);if(editing)setForm({studentId:item.studentId,courseId:item.courseId,score:item.score});}}catch(e){setError(e);}finally{setLoading(false);}};
+  useEffect(()=>{load();},[id,editing]);
+  const submit=async e=>{e.preventDefault();setPending(true);setError(null);setFieldErrors({});try{const payload={studentId:Number(form.studentId),courseId:Number(form.courseId),score:Number(form.score)};if(editing)await updateResult(id,payload);else await createResult(payload);setNotice(editing?'Result updated.':'Result saved.');setForm({studentId:'',courseId:'',score:''});navigate('/results/upload');await load();}catch(e){setError(e);setFieldErrors(e.details||{});}finally{setPending(false);}};
+  const upload=async e=>{e.preventDefault();if(!file)return;setPending(true);setError(null);try{const saved=await uploadResults(file);setNotice(`${saved.length} result(s) uploaded.`);setFile(null);await load();}catch(e){setError(e);}finally{setPending(false);}};
+  const remove=async()=>{setPending(true);try{await deleteResult(confirmId);setConfirmId(null);setNotice('Result deleted.');await load();}catch(e){setError(e);}finally{setPending(false);}};
+  const cols=[['studentName','Student'],['admissionNo','Admission no.'],['courseName','Course'],['score','Score'],['grade','Grade'],['performance','Performance']].map(([key,label])=>({key,label,render:r=>r[key]??'—'}));
+  return <PageContainer title={viewing?'Result details':'Upload results'} description="Enter marks or upload CSV data. Grades and performance are returned by the backend." actions={<><button className="primary-button no-print" type="button" onClick={()=>window.print()}>Print / Save as PDF</button> <Link to="/reports">Generate report</Link></>}>
+    {notice?<p role="status" className="crud-notice">{notice}</p>:null}<ErrorMessage error={error}/>
+    {viewing&&selected?<section className="crud-panel"><h2>{selected.studentName}</h2><p>{selected.admissionNo} · {selected.courseName}</p><p>Score: {selected.score} · Grade: {selected.grade} · Performance: {selected.performance}</p><Link to={`/results/${id}/edit`}>Edit</Link> </section>:null}
+    {!viewing?<section className="crud-panel"><h2>{editing?'Edit result':'Enter a result'}</h2><form className="crud-form" onSubmit={submit}><div className="crud-fields">
+      <label className="crud-field"><span>Student *</span><select required value={form.studentId} onChange={e=>setForm(v=>({...v,studentId:e.target.value}))}><option value="">Select student</option>{students.map(s=><option key={s.studentId} value={s.studentId}>{s.admissionNo} — {s.firstName} {s.lastName}</option>)}</select>{fieldErrors.studentId?<small>{fieldErrors.studentId}</small>:null}</label>
+      <label className="crud-field"><span>Course *</span><select required value={form.courseId} onChange={e=>setForm(v=>({...v,courseId:e.target.value}))}><option value="">Select course</option>{courses.map(c=><option key={c.courseId} value={c.courseId}>{c.courseCode} — {c.courseName}</option>)}</select>{fieldErrors.courseId?<small>{fieldErrors.courseId}</small>:null}</label>
+      <label className="crud-field"><span>Score (0–100) *</span><input type="number" min="0" max="100" step="0.01" required value={form.score} onChange={e=>setForm(v=>({...v,score:e.target.value}))}/>{fieldErrors.score?<small>{fieldErrors.score}</small>:null}</label></div><button className="primary-button" disabled={pending||loading}>{pending?'Saving…':editing?'Update result':'Save result'}</button>{editing?<Link to="/results/upload">Cancel edit</Link>:null}</form></section>:null}
+    
+    <section className="crud-panel results-print-area"><h2>Results</h2><Table rows={rows} columns={[...cols,{key:'actions',label:'Actions',render:r=><span className="crud-actions no-print"><Link to={`/results/${r.performanceId}`}>View</Link><Link to={`/results/${r.performanceId}/edit`}>Edit</Link><button onClick={()=>setConfirmId(r.performanceId)}>Delete</button></span>}]} isLoading={loading} emptyMessage="No results found."/></section>
+    {confirmId!=null?<div className="crud-confirm" role="dialog" aria-modal="true"><h2>Delete result?</h2><button disabled={pending} onClick={()=>setConfirmId(null)}>Cancel</button><button disabled={pending} onClick={remove}>Confirm delete</button></div>:null}
+  </PageContainer>;
+}  

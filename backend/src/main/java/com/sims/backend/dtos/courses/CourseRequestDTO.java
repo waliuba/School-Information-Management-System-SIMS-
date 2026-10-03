@@ -3,6 +3,7 @@ package com.sims.backend.dtos.courses;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 import com.sims.backend.enums.Status;
 
 public class CourseRequestDTO {
@@ -22,6 +23,10 @@ public class CourseRequestDTO {
     private Integer durationYears;
 
     private Status status;
+
+    @NotNull(message = "Department is required")
+    @Positive(message = "Department id must be greater than zero")
+    private Long departmentId;
 
     public String getCourseName() {
         return courseName;
@@ -62,4 +67,7 @@ public class CourseRequestDTO {
     public void setStatus(Status status) {
         this.status = status;
     }
+
+    public Long getDepartmentId() { return departmentId; }
+    public void setDepartmentId(Long departmentId) { this.departmentId = departmentId; }
 }
