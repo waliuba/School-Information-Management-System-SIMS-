@@ -1,6 +1,7 @@
 package com.sims.backend.mappers;
 
-import com.sims.backend.dtos.CourseSubjectDTO;
+import com.sims.backend.dtos.subject.CourseSubjectRequestDTO;
+import com.sims.backend.dtos.subject.CourseSubjectResponseDTO;
 import com.sims.backend.models.CourseSubjectModel;
 import com.sims.backend.models.Courses;
 import com.sims.backend.models.StudentsModel;
@@ -8,13 +9,13 @@ import com.sims.backend.models.UnitsModel;
 
 public class CourseSubjectMapper {
 
-    public static CourseSubjectDTO toDTO(CourseSubjectModel model) {
+    public static CourseSubjectResponseDTO toDTO(CourseSubjectModel model) {
 
         if (model == null) {
             return null;
         }
 
-        CourseSubjectDTO dto = new CourseSubjectDTO();
+        CourseSubjectResponseDTO dto = new CourseSubjectResponseDTO();
 
         dto.setCourseSubjectId(model.getCourseSubjectId());
 
@@ -38,7 +39,7 @@ public class CourseSubjectMapper {
     }
 
     public static CourseSubjectModel toModel(
-            CourseSubjectDTO dto,
+            CourseSubjectRequestDTO dto,
             Courses course,
             UnitsModel unit,
             StudentsModel student) {
@@ -49,7 +50,6 @@ public class CourseSubjectMapper {
 
         CourseSubjectModel model = new CourseSubjectModel();
 
-        model.setCourseSubjectId(dto.getCourseSubjectId());
         model.setCourse(course);
         model.setUnit(unit);
         model.setSubjectName(dto.getSubjectName());

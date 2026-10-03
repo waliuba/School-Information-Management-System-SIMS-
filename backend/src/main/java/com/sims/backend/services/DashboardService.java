@@ -68,6 +68,7 @@ public class DashboardService {
     private StudentPerformanceResponseDTO toPerformanceDTO(StudentPerformanceModel performance) {
         StudentPerformanceResponseDTO dto = new StudentPerformanceResponseDTO();
         var student = performance.getStudentModel();
+        dto.setPerformanceId(performance.getPerformanceId());
         dto.setStudentId(student.getStudentId());
         dto.setStudentName(student.getFirstName() + " " + student.getLastName());
         dto.setAdmissionNo(student.getAdmissionNo());

@@ -5,7 +5,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.sims.backend.dtos.CourseSubjectDTO;
+import com.sims.backend.dtos.subject.CourseSubjectRequestDTO;
+import com.sims.backend.dtos.subject.CourseSubjectResponseDTO;
 import com.sims.backend.mappers.CourseSubjectMapper;
 import com.sims.backend.models.CourseSubjectModel;
 import com.sims.backend.models.Courses;
@@ -36,7 +37,7 @@ public class CourseSubjectService {
         this.studentsRepository = studentsRepository;
     }
 
-    public List<CourseSubjectDTO> getAllCourseSubjects() {
+    public List<CourseSubjectResponseDTO> getAllCourseSubjects() {
 
         return courseSubjectRepository.findAll()
                 .stream()
@@ -44,7 +45,7 @@ public class CourseSubjectService {
                 .collect(Collectors.toList());
     }
 
-    public CourseSubjectDTO getCourseSubjectById(Long id) {
+    public CourseSubjectResponseDTO getCourseSubjectById(Long id) {
 
         CourseSubjectModel model = courseSubjectRepository
                 .findById(id)
@@ -55,8 +56,8 @@ public class CourseSubjectService {
         return CourseSubjectMapper.toDTO(model);
     }
 
-    public CourseSubjectDTO createCourseSubject(
-            CourseSubjectDTO dto) {
+    public CourseSubjectResponseDTO createCourseSubject(
+            CourseSubjectRequestDTO dto) {
 
         Courses course = coursesRepository.findById(dto.getCourseId())
                 .orElseThrow(() ->
@@ -89,9 +90,9 @@ public class CourseSubjectService {
         return CourseSubjectMapper.toDTO(saved);
     }
 
-    public CourseSubjectDTO updateCourseSubject(
+    public CourseSubjectResponseDTO updateCourseSubject(
             Long id,
-            CourseSubjectDTO dto) {
+            CourseSubjectRequestDTO dto) {
 
         CourseSubjectModel existing =
                 courseSubjectRepository.findById(id)
@@ -142,7 +143,7 @@ public class CourseSubjectService {
         courseSubjectRepository.deleteById(id);
     }
 
-    public List<CourseSubjectDTO> getByCourse(Long courseId) {
+    public List<CourseSubjectResponseDTO> getByCourse(Long courseId) {
 
         return courseSubjectRepository
                 .findByCourseCourseId(courseId)
@@ -151,7 +152,7 @@ public class CourseSubjectService {
                 .collect(Collectors.toList());
     }
 
-    public List<CourseSubjectDTO> getByUnit(Long unitId) {
+    public List<CourseSubjectResponseDTO> getByUnit(Long unitId) {
 
         return courseSubjectRepository
                 .findByUnitUnitId(unitId)
@@ -160,7 +161,7 @@ public class CourseSubjectService {
                 .collect(Collectors.toList());
     }
 
-    public List<CourseSubjectDTO> getByStudent(Long studentId) {
+    public List<CourseSubjectResponseDTO> getByStudent(Long studentId) {
 
         return courseSubjectRepository
                 .findByStudentStudentId(studentId)
@@ -169,7 +170,7 @@ public class CourseSubjectService {
                 .collect(Collectors.toList());
     }
 
-    public List<CourseSubjectDTO> searchBySubjectName(
+    public List<CourseSubjectResponseDTO> searchBySubjectName(
             String subjectName) {
 
         return courseSubjectRepository

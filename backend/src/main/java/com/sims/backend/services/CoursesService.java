@@ -10,24 +10,30 @@ import com.sims.backend.enums.Status;
 import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.mappers.CourseMapper;
 import com.sims.backend.models.Courses;
-import com.sims.backend.repositories.CourseUnitsRepository;
+import com.sims.backend.repositories.CourseSubjectRepository;
 import com.sims.backend.repositories.CoursesRepository;
 import com.sims.backend.repositories.EnrollmentsRepository;
+import com.sims.backend.repositories.DepartmentRepository;
+import com.sims.backend.models.DepartmentModel;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 
 @Service
 public class CoursesService {
 
     private final CoursesRepository coursesRepository;
     private final EnrollmentsRepository enrollmentsRepository;
-    private final CourseUnitsRepository courseUnitsRepository;
+    private final CourseSubjectRepository courseUnitsRepository;
+    private final DepartmentRepository departmentRepository;
 
     public CoursesService(
             CoursesRepository coursesRepository,
             EnrollmentsRepository enrollmentsRepository,
-            CourseUnitsRepository courseUnitsRepository) {
+            CourseSubjectRepository courseUnitsRepository,
+            DepartmentRepository departmentRepository) {
         this.coursesRepository = coursesRepository;
         this.enrollmentsRepository = enrollmentsRepository;
         this.courseUnitsRepository = courseUnitsRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     public List<CourseResponseDTO> getAllCourses() {
@@ -65,13 +71,13 @@ public class CoursesService {
     }
 
     public CourseResponseDTO saveCourse(CourseRequestDTO courseRequest) {
-        Courses course = CourseMapper.toEntity(courseRequest);
+        Courses course = toEntity(courseRequest);
         validateCourse(course);
         return CourseMapper.toDTO(coursesRepository.save(course));
     }
 
     public CourseResponseDTO createCourse(CourseRequestDTO courseRequest) {
-        Courses course = CourseMapper.toEntity(courseRequest);
+        Courses course = toEntity(courseRequest);
         validateCourse(course);
 
         if (coursesRepository.existsByCourseCode(course.getCourseCode().trim())) {
@@ -98,7 +104,7 @@ public class CoursesService {
         }
 
         if (enrollmentsRepository.existsByCourseModel_CourseId(courseId)
-                || courseUnitsRepository.existsByCourseId_CourseId(courseId)) {
+                || courseUnitsRepository.existsByCourseCourseId(courseId)) {
             throw new BusinessRuleException("Cannot delete course with existing enrollments or course units");
         }
 
@@ -115,7 +121,7 @@ public class CoursesService {
             return null;
         }
 
-        Courses course = CourseMapper.toEntity(courseRequest);
+        Courses course = toEntity(courseRequest);
         validateCourse(course);
         normalizeCourse(course);
         course.setCourseId(courseId);
@@ -165,9 +171,18 @@ public class CoursesService {
         if (course.getCourseCode() == null || course.getCourseCode().isBlank()) {
             throw new IllegalArgumentException("Course code is required");
         }
+        if (course.getDepartmentModel() == null) throw new IllegalArgumentException("Department is required");
         if (course.getDurationYears() != null && course.getDurationYears() <= 0) {
             throw new IllegalArgumentException("Duration years must be greater than zero");
         }
+    }
+
+    private Courses toEntity(CourseRequestDTO request) {
+        Courses course = CourseMapper.toEntity(request);
+        DepartmentModel department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+        course.setDepartmentModel(department);
+        return course;
     }
 
     private void normalizeCourse(Courses course) {

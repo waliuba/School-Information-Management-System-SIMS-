@@ -4,12 +4,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sims.backend.dtos.authentication.AuthResponseDTO;
+import com.sims.backend.dtos.authentication.ChangePasswordRequestDTO;
 import com.sims.backend.dtos.authentication.LoginRequestDTO;
 import com.sims.backend.dtos.authentication.RegisterRequestDTO;
 import com.sims.backend.dtos.user.UserResponseDTO;
@@ -55,6 +57,15 @@ public class AuthController {
         return ResponseEntity.ok(
                 authService.getCurrentUser(authentication.getName())
         );
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequestDTO request
+    ) {
+        authService.changePassword(authentication.getName(), request);
+        return ResponseEntity.ok(java.util.Map.of("message", "Password updated successfully."));
     }
 
     @PostMapping("/logout")

@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sims.backend.enums.Role;
 import com.sims.backend.enums.Status;
 import com.sims.backend.models.ClassModel;
-import com.sims.backend.models.CourseUnits;
 import com.sims.backend.models.Courses;
 import com.sims.backend.models.DepartmentModel;
 import com.sims.backend.models.EnrollmentsModel;
@@ -23,8 +22,8 @@ import com.sims.backend.models.StudentsModel;
 import com.sims.backend.models.UnitsModel;
 import com.sims.backend.models.UserModel;
 import com.sims.backend.repositories.ClassRepository;
-import com.sims.backend.repositories.CourseUnitsRepository;
 import com.sims.backend.repositories.CoursesRepository;
+import com.sims.backend.repositories.CourseSubjectRepository;
 import com.sims.backend.repositories.DepartmentRepository;
 import com.sims.backend.repositories.EnrollmentsRepository;
 import com.sims.backend.repositories.StudentPerformanceRepository;
@@ -57,15 +56,16 @@ public class DataSeeder implements ApplicationRunner {
     };
     private static final String[] LAST_NAMES = {
             "Abdi", "Barasa", "Chebet", "Davis", "Elias", "Farah", "Gichuru", "Hassan",
-            "Ibrahim", "Juma", "Kamau", "Lagat", "Maina", "Njeri", "Otieno", "Wambui"
+            "Ibrahim", "Juma", "Kamau", "Lagat", "Maina", "Njeri", "Otieno", "Wambui",
+            "Adhiambo", "Bett", "Chesang", "Dulo", "Ekwam", "Kiptoo", "Muthoni"
     };
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final DepartmentRepository departmentRepository;
     private final ClassRepository classRepository;
+    private final CourseSubjectRepository courseUnitsRepository;
     private final CoursesRepository coursesRepository;
-    private final CourseUnitsRepository courseUnitsRepository;
     private final UnitsRepository unitsRepository;
     private final StudentsRepository studentsRepository;
     private final EnrollmentsRepository enrollmentsRepository;
@@ -80,10 +80,9 @@ public class DataSeeder implements ApplicationRunner {
         seedTeachers();
 
         List<DepartmentModel> departments = seedDepartments();
-        List<UnitsModel> units = seedUnits();
+        seedUnits();
         List<ClassModel> classes = seedClasses(departments);
-        List<Courses> courses = seedSubjects();
-        seedCourseUnits(courses, units);
+        List<Courses> courses = seedSubjects(departments);
         seedStudents(departments, classes, courses);
     }
 
@@ -149,7 +148,7 @@ public class DataSeeder implements ApplicationRunner {
         return classes;
     }
 
-    private List<Courses> seedSubjects() {
+    private List<Courses> seedSubjects(List<DepartmentModel> departments) {
         List<Courses> courses = new ArrayList<>();
         for (int index = 0; index < SUBJECT_NAMES.length; index++) {
             String code = "SUB" + String.format("%03d", index + 1);
@@ -159,25 +158,13 @@ public class DataSeeder implements ApplicationRunner {
             course.setDescription(SUBJECT_NAMES[index] + " subject");
             course.setDurationYears(1);
             course.setStatus(Status.Active);
+            course.setDepartmentModel(departments.get(index % departments.size()));
             courses.add(coursesRepository.save(course));
         }
         return courses;
     }
 
-    private void seedCourseUnits(List<Courses> courses, List<UnitsModel> units) {
-        for (int index = 0; index < courses.size(); index++) {
-            Courses course = courses.get(index);
-            if (!courseUnitsRepository.existsByCourseId_CourseId(course.getCourseId())) {
-                CourseUnits courseUnit = new CourseUnits();
-                courseUnit.setCourseId(course);
-                courseUnit.setUnitId(units.get(index % units.size()));
-                courseUnit.setUnitDescription(course.getCourseName() + " course subject");
-                courseUnit.setSemester("1");
-                courseUnit.setYearofstudy("1");
-                courseUnitsRepository.save(courseUnit);
-            }
-        }
-    }
+    
 
     private void seedStudents(
             List<DepartmentModel> departments,
