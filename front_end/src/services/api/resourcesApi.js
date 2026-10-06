@@ -37,6 +37,8 @@ export const getEnrollment = (id) => axiosClient.get(`/enrollments/${id}`).then(
 export const createResult = (data) => send('post', '/results', data);
 export const updateResult = (id, data) => send('put', `/results/${id}`, data);
 export const deleteResult = (id) => send('delete', `/results/${id}`);
+export const createAttendance = (data) => send('post', '/attendance', data);
+export const updateAttendance = (id, data) => send('put', `/attendance/${id}`, data);
 export async function uploadResults(file) {
   const form = new FormData(); form.append('file', file);
   const response = await axiosClient.post('/results/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -79,6 +81,14 @@ export function getEnrollments(params) {
 
 export function getAttendance(params) {
   return getList('/attendance', params);
+}
+
+export function getMyAttendance() {
+  return getList('/attendance/my');
+}
+
+export function getAttendanceByDate(date) {
+  return getList(`/attendance/date/${date}`);
 }
 
 export function getResults(params) {

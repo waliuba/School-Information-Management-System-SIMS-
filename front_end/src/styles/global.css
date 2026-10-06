@@ -461,6 +461,21 @@ button {
 .sidebar__link--active::before { position:absolute; top:8px; bottom:8px; left:-14px; width:3px; border-radius:0 3px 3px 0; background:#70a2ff; content:''; }
 .sidebar__icon { display:grid; flex:0 0 24px; width:24px; height:24px; place-items:center; border-radius:6px; background:rgba(255,255,255,.07); color:#a9c7ff; font-size:9px; font-weight:800; letter-spacing:-.04em; }
 .sidebar__link--active .sidebar__icon { background:#3568c9; color:white; }
+.sidebar__attendance-toggle { width:100%; border:0; background:transparent; text-align:left; font:inherit; cursor:pointer; }
+.sidebar__attendance-chevron { margin-left:auto; color:#a7b3c5; }
+.sidebar__submenu { display:grid; gap:3px; margin:3px 0 5px 46px; padding-left:10px; border-left:1px solid rgba(255,255,255,.16); }
+.sidebar__submenu-link { padding:7px 8px; border-radius:6px; color:#bac6d6; font-size:12px; }
+.sidebar__submenu-link:hover,.sidebar__submenu-link--active { background:rgba(255,255,255,.1); color:#fff; }
+.sidebar__attendance-toggle:focus-visible,.sidebar__submenu-link:focus-visible { outline:2px solid #9fc0ff; outline-offset:2px; }
+.attendance-mark-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; max-width:780px; padding:22px; border:1px solid var(--color-border); border-radius:var(--radius-md); background:var(--color-surface); }
+.attendance-mark-form__remarks { grid-column:1 / -1; }
+.attendance-mark-form__remarks small { color:var(--color-text-muted); font-weight:400; }
+.attendance-mark-form__actions { grid-column:1 / -1; display:flex; justify-content:flex-end; }
+.attendance-form-notice,.attendance-form-error,.attendance-form-success { grid-column:1 / -1; margin:0; padding:12px; border-radius:var(--radius-sm); }
+.attendance-form-notice { background:var(--color-surface-muted); color:var(--color-text); }
+.attendance-form-error { background:#fff1f0; color:var(--color-danger); }
+.attendance-form-success { background:#edf7ef; color:var(--color-success); }
+@media(max-width:640px) { .attendance-mark-form { grid-template-columns:1fr; padding:16px; } .attendance-mark-form__remarks,.attendance-mark-form__actions,.attendance-form-notice,.attendance-form-error,.attendance-form-success { grid-column:1; } }
 .sidebar__footer { display:flex; align-items:center; gap:9px; position:absolute; right:14px; bottom:16px; left:14px; padding:12px; border-top:1px solid rgba(255,255,255,.1); color:#a9b6c7; font-size:11px; white-space:nowrap; }
 .sidebar__footer-dot,.health-dot { width:7px; height:7px; flex:0 0 7px; border-radius:50%; background:#9aa4b2; }
 .app-shell--collapsed .app-main { padding-left:72px; }
