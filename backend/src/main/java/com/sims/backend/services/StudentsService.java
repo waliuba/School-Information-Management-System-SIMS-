@@ -110,7 +110,7 @@ public class StudentsService {
 
         StudentsModel existing = studentsRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        StudentsModel submitted = toEntity(studentRequest, true);
+        StudentsModel submitted = toEntity(studentRequest);
         validateStudent(submitted);
         normalizeStudent(submitted);
         if (studentsRepository.existsByAdmissionNoAndStudentIdNot(submitted.getAdmissionNo(), studentId)) {
@@ -223,10 +223,6 @@ public class StudentsService {
     }
 
     private StudentsModel toEntity(StudentsRequestDTO studentRequest) {
-        return toEntity(studentRequest, false);
-    }
-
-    private StudentsModel toEntity(StudentsRequestDTO studentRequest, boolean useDepartmentFormMapping) {
         if (studentRequest == null) {
             throw new IllegalArgumentException("Student data is required");
         }
@@ -244,37 +240,13 @@ public class StudentsService {
         }
 
         if (classModel != null && departmentModel != null) {
-            boolean sameDepartment = classModel.getDepartmentModel() != null
-                    && classModel.getDepartmentModel().getDepartmentId().equals(departmentModel.getDepartmentId());
-            Integer assignedForm = useDepartmentFormMapping ? formForDepartment(departmentModel.getDepartmentName()) : null;
-            if (assignedForm != null) {
-                if (!matchesForm(classModel, assignedForm)) {
-                    throw new BusinessRuleException("Class does not match the selected department's assigned form");
-                }
-            } else if (classModel.getDepartmentModel() != null && !sameDepartment) {
+            if (classModel.getDepartmentModel() != null
+                    && !classModel.getDepartmentModel().getDepartmentId().equals(departmentModel.getDepartmentId())) {
                 throw new BusinessRuleException("Class does not belong to the selected department");
             }
         }
 
         return StudentMapper.toEntity(studentRequest, classModel, departmentModel);
-    }
-
-    private Integer formForDepartment(String departmentName) {
-        if (departmentName == null) {
-            return null;
-        }
-        return switch (departmentName.trim().toLowerCase()) {
-            case "education", "business", "hospitality", "general studies", "social sciences" -> 1;
-            case "computing", "media studies", "health sciences" -> 2;
-            case "law", "agriculture" -> 3;
-            case "engineering" -> 4;
-            default -> null;
-        };
-    }
-
-    private boolean matchesForm(ClassModel classModel, Integer form) {
-        return classModel.getClassName() != null
-                && classModel.getClassName().matches("(?i)^form\\s*" + form + "(?:\\D.*)?$");
     }
 
     private List<StudentsResponseDTO> toDTOList(List<StudentsModel> students) {

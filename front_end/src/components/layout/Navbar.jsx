@@ -7,7 +7,7 @@ const routeDetails = [
   ['/account-settings', 'Account settings', 'Manage your account and session.'], ['/security', 'Security', 'Manage your password and account security.'],
   ['/notifications', 'Notifications', 'Review your notifications.'], ['/students', 'Students', 'Manage student records.'], ['/teachers', 'Teachers', 'Manage and monitor the school\'s teaching staff.'],
   ['/courses', 'Courses', 'Manage courses and academic units.'], ['/subjects', 'Subjects', 'Manage academic units.'], ['/departments', 'Departments', 'Manage academic departments.'],
-  ['/enrollments', 'Enrollments', 'Manage student enrollments.'], ['/attendance', 'Attendance', 'Review attendance records.'], ['/results', 'Results', 'Manage examination results.'],
+  ['/enrollments', 'Enrollments', 'Manage student enrollments.'], ['/attendance/mark', 'Mark Attendance', 'Record student attendance for your class.'], ['/attendance', 'Attendance', 'Review attendance records.'], ['/results', 'Results', 'Manage examination results.'],
   ['/users', 'Users', 'Manage user accounts.'], ['/roles', 'Roles & permissions', 'Manage roles and permissions.'], ['/reports', 'Reports', 'Review school reports.'], ['/classes', 'Classes', 'Manage classes.'],
 ];
 

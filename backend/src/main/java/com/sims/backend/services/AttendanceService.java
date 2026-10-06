@@ -6,6 +6,7 @@ import com.sims.backend.mappers.AttendanceMapper;
 import com.sims.backend.models.AttendanceModel;
 import com.sims.backend.repositories.AttendanceRepository;
 import com.sims.backend.repositories.StudentsRepository;
+import com.sims.backend.repositories.UserRepository;
 import com.sims.backend.models.StudentsModel;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,14 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final AttendanceMapper attendanceMapper;
     private final StudentsRepository studentsRepository;
+    private final UserRepository userRepository;
+
+    public List<AttendanceResponseDTO> getAttendanceForUsername(String username) {
+        return userRepository.findByUsername(username)
+                .flatMap(user -> studentsRepository.findByEmailIgnoreCase(user.getEmail()))
+                .map(student -> getAttendanceByStudent(student.getStudentId()))
+                .orElse(List.of());
+    }
 
     public AttendanceResponseDTO createAttendance(
             AttendanceRequestDTO request

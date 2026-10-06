@@ -4,7 +4,8 @@ import Modal from '../../components/common/Modal.jsx';
 import Table from '../../components/common/Table.jsx';
 import PageContainer from '../../components/layout/PageContainer.jsx';
 import { useApi } from '../../hooks/useApi.js';
-import { getAttendance } from '../../services/api/resourcesApi.js';
+import { getAttendance, getMyAttendance } from '../../services/api/resourcesApi.js';
+import { useAuth } from '../../hooks/useAuth.js';
 
 function formatDate(value) {
   if (!value) return '—';
@@ -12,7 +13,9 @@ function formatDate(value) {
 }
 
 export default function AttendancePage() {
-  const { data, error, isLoading } = useApi(getAttendance);
+  const { user } = useAuth();
+  const role = user?.role || user?.role_name || user?.roleName;
+  const { data, error, isLoading } = useApi(role === 'STUDENT' ? getMyAttendance : getAttendance);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const records = Array.isArray(data) ? data : [];
 
@@ -51,9 +54,9 @@ export default function AttendancePage() {
   ];
 
   return (
-    <PageContainer title="Attendance" description="Attendance summarized by student. View a student to see every recorded day.">
+    <PageContainer title="Attendance" description={role === 'STUDENT' ? 'Your attendance history.' : 'Attendance summarized by student. View a student to see every recorded day.'}>
       <ErrorMessage error={error} />
-      {!error ? <Table columns={summaryColumns} rows={students} isLoading={isLoading} emptyMessage="No attendance records were returned by the backend." /> : null}
+      {!error ? <Table columns={role === 'STUDENT' ? detailColumns : summaryColumns} rows={role === 'STUDENT' ? records : students} isLoading={isLoading} emptyMessage="No attendance records were returned by the backend." /> : null}
       <Modal title={selectedStudent ? `${selectedStudent.studentName} attendance` : 'Student attendance'} isOpen={Boolean(selectedStudent)} onClose={() => setSelectedStudent(null)}>
         {selectedStudent ? <Table columns={detailColumns} rows={selectedStudent.attendance} isLoading={false} emptyMessage="No attendance days recorded." /> : null}
       </Modal>

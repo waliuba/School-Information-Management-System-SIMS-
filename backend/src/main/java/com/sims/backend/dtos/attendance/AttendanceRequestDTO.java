@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Builder
 public class AttendanceRequestDTO {
 
-    @NotNull(message = "Student ID is required")
+    @NotNull(message = "Student is required")
     private Long studentId;
 
     @NotNull(message = "Attendance date is required")

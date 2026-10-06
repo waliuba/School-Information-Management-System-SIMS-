@@ -11,6 +11,7 @@ import CrudModulePage from '../pages/shared/CrudModulePage.jsx';
 import ResultsPage from '../pages/shared/ResultsPage.jsx';
 import ReportsPage from '../pages/shared/ReportsPage.jsx';
 import AttendancePage from '../pages/shared/AttendancePage.jsx';
+import MarkAttendancePage from '../pages/shared/MarkAttendancePage.jsx';
 import TeachersPage from '../pages/teachers/TeachersPage.jsx';
 import ProfilePage from '../pages/account/ProfilePage.jsx';
 import AccountSettingsPage from '../pages/account/AccountSettingsPage.jsx';
@@ -51,10 +52,12 @@ export default function AppRoutes() {
           <Route path="/students/new" element={<CrudModulePage module="students" />} />
           <Route path="/students/:id" element={<CrudModulePage module="students" />} />
           <Route path="/students/:id/edit" element={<CrudModulePage module="students" />} />
-          <Route path="/teachers" element={<TeachersPage />} />
-          <Route path="/teachers/new" element={<CrudModulePage module="teachers" />} />
-          <Route path="/teachers/:id" element={<CrudModulePage module="teachers" />} />
-          <Route path="/teachers/:id/edit" element={<CrudModulePage module="teachers" />} />
+          <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+            <Route path="/teachers" element={<TeachersPage />} />
+            <Route path="/teachers/new" element={<CrudModulePage module="teachers" />} />
+            <Route path="/teachers/:id" element={<CrudModulePage module="teachers" />} />
+            <Route path="/teachers/:id/edit" element={<CrudModulePage module="teachers" />} />
+          </Route>
           <Route path="/classes" element={<ResourcePage title="Classes" description="Classes returned by the backend." request={getClasses} />} />
           <Route path="/departments" element={<ResourcePage title="Departments" description="Departments returned by the backend." request={getDepartments} />} />
           <Route path="/subjects" element={<ResourcePage title="Subjects" description="Academic units returned by the backend." request={getUnits} />} />
@@ -63,6 +66,9 @@ export default function AppRoutes() {
           <Route path="/enrollments/:id" element={<CrudModulePage module="enrollments" />} />
           <Route path="/enrollments/:id/edit" element={<CrudModulePage module="enrollments" />} />
           <Route path="/attendance" element={<AttendancePage />} />
+          <Route element={<RoleRoute allowedRoles={['TEACHER']} />}>
+            <Route path="/attendance/mark" element={<MarkAttendancePage />} />
+          </Route>
           <Route path="/courses" element={<CrudModulePage module="courses" />} />
           <Route path="/courses/new" element={<CrudModulePage module="courses" />} />
           <Route path="/courses/:id" element={<CrudModulePage module="courses" />} />
