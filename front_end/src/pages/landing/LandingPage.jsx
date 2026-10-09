@@ -523,15 +523,18 @@ export default function LandingPage() {
     </span>
 
     <h2>
-      Built today.<br />
-      <em>Still evolving.</em>
+      From records<br />
+      <em>to one connected school.</em>
     </h2>
 
-        <p>
-      The core database, Spring Boot backend, and React frontend are in place.
-      The project is now moving into the DevOps stage, where Docker, containerization,
-      CI/CD, testing, and deployment are being introduced to make SIMS easier to
-      build, run, and deliver.
+    <p>
+      SIMS began with a simple goal: bring scattered school records into one
+      reliable place. We built the database and backend first, then started
+      connecting them to an admin interface for managing students, staff, and
+      academic records. The next stage is to complete the day-to-day experience
+      and give students their own view. The roadmap ends with a connected system
+      where administrators, teachers, and students can work from the same trusted
+      information.
     </p>
 
     <Link
@@ -544,11 +547,14 @@ export default function LandingPage() {
 
   <div className="roadmap-list">
     {[
-      ['COMPLETED', 'Core database & backend foundation'],
-      ['COMPLETED', 'React frontend foundation'],
-      ['IN PROGRESS', 'DevOps, Docker & containerization'],
-      ['NEXT', 'CI/CD, testing & deployment'],
-    ].map(([status, title], index) => (
+      ['IMPLEMENTED', 'Core records & backend', 'Database and APIs for students, teachers, classes, departments, courses, enrollments, results, and performance.'],
+      ['IMPLEMENTED', 'Admin web foundation', 'React interface with admin dashboards, record management, authentication foundation, and reports.'],
+      ['IN PROGRESS', 'Complete core workflows', 'Finish attendance and connect the remaining frontend flows to their backend services.'],
+      ['STAGE 2', 'Notifications with Supabase', 'Build the notifications page and connect it to Supabase for live notification data.'],
+      ['STAGE 2', 'Settings & security', 'Complete account settings and security controls for users.'],
+      ['STAGE 2', 'Student dashboard', 'Give students a focused view of their courses, attendance, results, and updates.'],
+      ['DESTINATION', 'One connected school system', 'Bring admin, teacher, and student experiences together, then strengthen delivery with testing and deployment.'],
+    ].map(([status, title, description], index) => (
       <div
         className={`roadmap-item roadmap-item--${index}`}
         key={title}
@@ -557,9 +563,7 @@ export default function LandingPage() {
           {status}
         </span>
 
-        <strong>
-          {title}
-        </strong>
+        <div className="roadmap-item__content"><strong>{title}</strong><p>{description}</p></div>
 
         <span>
           0{index + 1}
