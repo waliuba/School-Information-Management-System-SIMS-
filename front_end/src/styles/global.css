@@ -566,6 +566,10 @@ button {
 .activity-empty { display:flex; align-items:center; gap:12px; min-height:72px; padding:9px; border:1px dashed var(--color-border); border-radius:7px; }
 .activity-empty > span { color:#8092ac; font-size:20px; }
 .activity-empty p { margin:0; color:var(--color-text-muted); font-size:10px; line-height:1.5; }
+.activity-entry > span { color:#16a34a; }
+.activity-entry p { display:flex; flex:1; align-items:center; justify-content:space-between; gap:10px; }
+.activity-entry strong { color:var(--color-text); font-size:11px; font-weight:650; }
+.activity-entry time { color:var(--color-text-muted); font-size:10px; white-space:nowrap; }
 .performance-table-wrap { overflow-x:auto; }
 .performance-table { min-width:580px; }
 .performance-table th,.performance-table td { padding:10px 11px; font-size:11px; }

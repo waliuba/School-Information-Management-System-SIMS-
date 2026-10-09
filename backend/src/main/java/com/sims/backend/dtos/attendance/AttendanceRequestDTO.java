@@ -2,6 +2,7 @@ package com.sims.backend.dtos.attendance;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class AttendanceRequestDTO {
     private LocalDate attendanceDate;
 
     @NotBlank(message = "Attendance status is required")
+    @Pattern(regexp = "(?i)^(PRESENT|ABSENT|LATE)$", message = "Attendance status must be Present, Absent, or Late")
     @Size(max = 20, message = "Attendance status cannot exceed 20 characters")
     private String status;
 
