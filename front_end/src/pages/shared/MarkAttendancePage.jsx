@@ -17,6 +17,11 @@ function fullName(student) {
   return [student.firstName, student.middleName, student.lastName].filter(Boolean).join(' ') || `Student ${student.studentId}`;
 }
 
+function displayStatus(value) {
+  const normalized = String(value || 'Present').toLowerCase();
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+}
+
 export default function MarkAttendancePage() {
   const today = useMemo(schoolToday, []);
   const [students, setStudents] = useState([]);
@@ -61,7 +66,7 @@ export default function MarkAttendancePage() {
 
   useEffect(() => {
     if (existing) {
-      setStatus(existing.status);
+      setStatus(displayStatus(existing.status));
       setRemarks(existing.remarks || '');
     } else {
       setStatus('Present');

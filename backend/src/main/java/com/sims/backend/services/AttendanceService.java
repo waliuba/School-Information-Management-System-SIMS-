@@ -14,7 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Locale;
+import java.util.Map;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ public class AttendanceService {
 
         AttendanceModel attendance =
                 attendanceMapper.toEntity(request);
+        attendance.setStatus(normalizeStatus(request.getStatus()));
 
         AttendanceModel savedAttendance =
                 attendanceRepository.save(attendance);
@@ -46,11 +50,7 @@ public class AttendanceService {
     }
 
     public List<AttendanceResponseDTO> getAllAttendance() {
-
-        return attendanceRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+        return toResponseDTOs(attendanceRepository.findAll());
     }
 
     public AttendanceResponseDTO getAttendanceById(
@@ -73,33 +73,21 @@ public class AttendanceService {
             Long studentId
     ) {
 
-        return attendanceRepository
-                .findByStudentId(studentId)
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+        return toResponseDTOs(attendanceRepository.findByStudentId(studentId));
     }
 
     public List<AttendanceResponseDTO> getAttendanceByDate(
             LocalDate attendanceDate
     ) {
 
-        return attendanceRepository
-                .findByAttendanceDate(attendanceDate)
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+        return toResponseDTOs(attendanceRepository.findByAttendanceDate(attendanceDate));
     }
 
     public List<AttendanceResponseDTO> getAttendanceByStatus(
             String status
     ) {
 
-        return attendanceRepository
-                .findByStatus(status)
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+        return toResponseDTOs(attendanceRepository.findByStatus(status));
     }
 
     public AttendanceResponseDTO updateAttendance(
@@ -123,7 +111,7 @@ public class AttendanceService {
         );
 
         existingAttendance.setStatus(
-                request.getStatus()
+                normalizeStatus(request.getStatus())
         );
 
         existingAttendance.setRemarks(
@@ -143,11 +131,37 @@ public class AttendanceService {
         return attendanceMapper.toResponseDTO(attendance, studentName);
     }
 
+    private List<AttendanceResponseDTO> toResponseDTOs(List<AttendanceModel> attendanceRows) {
+        if (attendanceRows.isEmpty()) return List.of();
+
+        List<Long> studentIds = attendanceRows.stream()
+                .map(AttendanceModel::getStudentId)
+                .distinct()
+                .toList();
+        Map<Long, String> studentNames = studentsRepository.findAllById(studentIds).stream()
+                .collect(Collectors.toMap(
+                        StudentsModel::getStudentId,
+                        this::formatStudentName,
+                        (first, ignored) -> first
+                ));
+
+        return attendanceRows.stream()
+                .map(row -> attendanceMapper.toResponseDTO(
+                        row,
+                        studentNames.getOrDefault(row.getStudentId(), "Unknown student")
+                ))
+                .toList();
+    }
+
     private String formatStudentName(StudentsModel student) {
         return java.util.stream.Stream.of(
                         student.getFirstName(), student.getMiddleName(), student.getLastName())
                 .filter(name -> name != null && !name.isBlank())
                 .collect(java.util.stream.Collectors.joining(" "));
+    }
+
+    private String normalizeStatus(String status) {
+        return status == null ? null : status.trim().toUpperCase(Locale.ROOT);
     }
 
     public void deleteAttendance(Long attendanceId) {

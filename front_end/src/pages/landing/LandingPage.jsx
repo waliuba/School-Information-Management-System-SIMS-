@@ -226,7 +226,7 @@ export default function LandingPage() {
             <Link className="button button--dark" to="/login">Explore SIMS system <span>→</span></Link>
             <button className="text-button" onClick={() => scrollTo('journey')}>View project journey <span>↓</span></button>
           </div>
-          <div className="hero-meta"><span>01</span><i /> <span>From idea to implementation</span></div>
+         
         </div>
         <Reveal className="hero-visual"><Placeholder label="" tone="blue" />
           <div className="float-card float-card--top"><span className="mini-icon">↗</span><div><strong>Connected by design</strong><small>One platform · many workflows</small></div></div>

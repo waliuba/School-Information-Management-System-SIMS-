@@ -7,6 +7,7 @@ import GradeDistributionChart from '../../components/dashboard/GradeDistribution
 import LoadingState from '../../components/dashboard/LoadingState.jsx';
 import MarksDistributionChart from '../../components/dashboard/MarksDistributionChart.jsx';
 import StatCard from '../../components/dashboard/StatCard.jsx';
+import RecentActivity from '../../components/dashboard/RecentActivity.jsx';
 import { getDashboardPerformance, getDashboardSummary } from '../../services/api/dashboardApi.js';
 import { useApi } from '../../hooks/useApi.js';
 
@@ -59,7 +60,7 @@ export default function AdminDashboard() {
       <AnimatedSection className="dashboard-section"><div className="dashboard-section__header"><div><p className="dashboard-eyebrow">RECORDS</p><h2>Data management</h2><p>Open a module to search and manage school records.</p></div></div><div className="data-overview-list">{dataLinks.map(([label, key, to]) => <Link to={to} key={label}><span>{label}</span><strong>{key && summary[key] != null ? `${Number(summary[key]).toLocaleString()} records` : 'Open module'} <b aria-hidden="true">→</b></strong></Link>)}</div></AnimatedSection>
       <div className="dashboard-side-stack">
         <AnimatedSection className="dashboard-section"><div className="dashboard-section__header"><div><p className="dashboard-eyebrow">SYSTEM</p><h2>Connection status</h2></div></div><p className="status-note">Health endpoints are not connected yet.</p>{['Backend API', 'Database', 'Authentication', 'Frontend'].map((label) => <div className="health-row" key={label}><span className="health-dot" />{label}<strong>Not connected</strong></div>)}</AnimatedSection>
-        <AnimatedSection className="dashboard-section activity-placeholder"><div className="dashboard-section__header"><div><p className="dashboard-eyebrow">RECENT ACTIVITY</p><h2>Activity feed</h2></div></div><div className="activity-empty"><span aria-hidden="true">◷</span><p>Activity data will appear here when the dashboard activity service is available.</p></div></AnimatedSection>
+        <RecentActivity />
       </div>
     </div>
   </div>;
