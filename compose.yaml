@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    image: sims-backend:latest
+    env_file:
+      - .env
+    network_mode: host
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./front_end
+    image: sims-frontend:latest
+    ports:
+      - "5173:80"
+    restart: unless-stopped

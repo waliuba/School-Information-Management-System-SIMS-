@@ -39,10 +39,6 @@ public class CoursesController {
             @RequestParam(required = false) String courseCode) {
         List<CourseResponseDTO> courses = coursesService.getCourses(name, status, courseCode);
 
-        if (courses.isEmpty()) {
-            throw new ResourceNotFoundException("No courses found");
-        }
-
         return ResponseEntity.ok(ApiResponse.of("Courses retrieved successfully", courses));
     }
 

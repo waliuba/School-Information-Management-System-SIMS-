@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class StudentPerformanceResponseDTO {
 
+    private Long performanceId;
     private Long studentId;
     private String studentName;
     private String admissionNo;
@@ -12,6 +13,14 @@ public class StudentPerformanceResponseDTO {
     private BigDecimal averageScore;
     private String grade;
     private String performance;
+
+    public Long getPerformanceId() {
+        return performanceId;
+    }
+
+    public void setPerformanceId(Long performanceId) {
+        this.performanceId = performanceId;
+    }
 
     public Long getStudentId() {
         return studentId;

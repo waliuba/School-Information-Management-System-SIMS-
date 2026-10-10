@@ -108,20 +108,38 @@ public class StudentsService {
             throw new IllegalArgumentException("Student id must be greater than zero");
         }
 
-        ensureStudentExists(studentId);
-
-        StudentsModel student = toEntity(studentRequest);
-        validateStudent(student);
-        normalizeStudent(student);
-        if (studentsRepository.existsByAdmissionNoAndStudentIdNot(student.getAdmissionNo(), studentId)) {
+        StudentsModel existing = studentsRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        StudentsModel submitted = toEntity(studentRequest);
+        validateStudent(submitted);
+        normalizeStudent(submitted);
+        if (studentsRepository.existsByAdmissionNoAndStudentIdNot(submitted.getAdmissionNo(), studentId)) {
             throw new BusinessRuleException("Admission number already exists");
         }
-        if (student.getEmail() != null && !student.getEmail().isBlank()
-                && studentsRepository.existsByEmailAndStudentIdNot(student.getEmail(), studentId)) {
+        if (submitted.getEmail() != null && !submitted.getEmail().isBlank()
+                && studentsRepository.existsByEmailAndStudentIdNot(submitted.getEmail(), studentId)) {
             throw new BusinessRuleException("Email already exists");
         }
-        student.setStudentId(studentId);
-        return StudentMapper.toDTO(studentsRepository.save(student));
+
+        existing.setAdmissionNo(submitted.getAdmissionNo());
+        existing.setFirstName(submitted.getFirstName());
+        existing.setMiddleName(submitted.getMiddleName());
+        existing.setLastName(submitted.getLastName());
+        existing.setGender(submitted.getGender());
+        existing.setDateOfBirth(submitted.getDateOfBirth());
+        existing.setNationalId(submitted.getNationalId());
+        existing.setEmail(submitted.getEmail());
+        existing.setPhone(submitted.getPhone());
+        existing.setAddress(submitted.getAddress());
+        existing.setCounty(submitted.getCounty());
+        existing.setAdmissionDate(submitted.getAdmissionDate());
+        existing.setClassModel(submitted.getClassModel());
+        existing.setDepartmentModel(submitted.getDepartmentModel());
+        existing.setGuardianName(submitted.getGuardianName());
+        existing.setGuardianPhone(submitted.getGuardianPhone());
+        existing.setStatus(submitted.getStatus());
+
+        return StudentMapper.toDTO(studentsRepository.save(existing));
     }
 
 
@@ -221,10 +239,11 @@ public class StudentsService {
                     .orElseThrow(() -> new IllegalArgumentException("Department not found"));
         }
 
-        if (classModel != null && departmentModel != null
-                && classModel.getDepartmentModel() != null
-                && !classModel.getDepartmentModel().getDepartmentId().equals(departmentModel.getDepartmentId())) {
-            throw new BusinessRuleException("Class does not belong to the selected department");
+        if (classModel != null && departmentModel != null) {
+            if (classModel.getDepartmentModel() != null
+                    && !classModel.getDepartmentModel().getDepartmentId().equals(departmentModel.getDepartmentId())) {
+                throw new BusinessRuleException("Class does not belong to the selected department");
+            }
         }
 
         return StudentMapper.toEntity(studentRequest, classModel, departmentModel);

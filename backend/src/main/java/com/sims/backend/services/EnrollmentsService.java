@@ -149,6 +149,10 @@ public class EnrollmentsService {
                 && !student.getDepartmentModel().getDepartmentId().equals(department.getDepartmentId())) {
             throw new BusinessRuleException("Enrollment department must match the student's department");
         }
+        if (course.getDepartmentModel() == null
+                || !course.getDepartmentModel().getDepartmentId().equals(department.getDepartmentId())) {
+            throw new BusinessRuleException("Course must belong to the selected department");
+        }
 
         return EnrollmentMapper.toEntity(enrollmentRequest, student, department, course);
     }

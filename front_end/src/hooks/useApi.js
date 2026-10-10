@@ -17,7 +17,7 @@ export function useApi(requestFn, options = {}) {
         return result;
       } catch (apiError) {
         setError(apiError);
-        throw apiError;
+        return null;
       } finally {
         setIsLoading(false);
       }

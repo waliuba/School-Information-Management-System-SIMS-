@@ -9,6 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import com.sims.backend.models.DepartmentModel;
 import com.sims.backend.enums.Status;
 
 
@@ -37,6 +40,10 @@ public class Courses {
     @Column(name = "status", length = 20)
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private DepartmentModel departmentModel;
 
     public Long getCourseId() {
         return courseId;
@@ -74,5 +81,8 @@ public class Courses {
     public void setStatus(Status status) {
         this.status = status;
     }
+
+    public DepartmentModel getDepartmentModel() { return departmentModel; }
+    public void setDepartmentModel(DepartmentModel departmentModel) { this.departmentModel = departmentModel; }
 
 }

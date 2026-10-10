@@ -35,10 +35,6 @@ public class EnrollmentController {
     public ResponseEntity<ApiResponse<List<EnrollmentResponseDTO>>> getAllEnrollments() {
         List<EnrollmentResponseDTO> enrollments = enrollmentsService.getAllEnrollments();
 
-        if (enrollments.isEmpty()) {
-            throw new ResourceNotFoundException("No enrollments found");
-        }
-
         return ResponseEntity.ok(ApiResponse.of("Enrollments retrieved successfully", enrollments));
     }
 

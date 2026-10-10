@@ -1,6 +1,7 @@
 package com.sims.backend.services;
 
 import com.sims.backend.dtos.authentication.AuthResponseDTO;
+import com.sims.backend.dtos.authentication.ChangePasswordRequestDTO;
 import com.sims.backend.dtos.authentication.LoginRequestDTO;
 import com.sims.backend.dtos.authentication.RegisterRequestDTO;
 import com.sims.backend.dtos.user.UserResponseDTO;
@@ -47,8 +48,10 @@ public class AuthService {
 
     public AuthResponseDTO login(LoginRequestDTO request) {
 
-        UserModel user = userRepository
-                .findByUsername(request.getUsername())
+        String identifier = request.getUsername();
+        UserModel user = (identifier != null && identifier.contains("@")
+                ? userRepository.findByEmail(identifier)
+                : userRepository.findByUsername(identifier))
                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
 
         if (!Boolean.TRUE.equals(user.getEnabled())) {
@@ -73,6 +76,21 @@ public class AuthService {
                 );
 
         return UserMapper.toDTO(user);
+    }
+
+    public void changePassword(String username, ChangePasswordRequestDTO request) {
+        UserModel user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect.");
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("New password must differ from the current password.");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     private AuthResponseDTO buildAuthResponse(UserModel user) {

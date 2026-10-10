@@ -1,0 +1,3 @@
+import { Link } from 'react-router-dom';
+import PageContainer from '../../components/layout/PageContainer.jsx';
+export default function ReportsPage(){return <PageContainer title="Reports" description="Report generation is not connected to a backend report service yet."><section className="crud-panel"><p className="dashboard-eyebrow">SERVICE STATUS</p><h2>Reports are unavailable</h2><p>This SIMS backend does not expose report types or report filters yet, so this page cannot generate a school report without inventing data or calculations.</p><p>You can still review and print real result records as a PDF from the results page.</p><Link className="primary-button" to="/results/upload">Open results</Link></section></PageContainer>;}
