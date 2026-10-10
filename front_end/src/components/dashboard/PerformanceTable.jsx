@@ -22,7 +22,7 @@ export default function PerformanceTable({
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
-            <tr key={row.id || row.studentId || row.classId || rowIndex}>
+            <tr key={row.performanceId ?? row.id ?? `${row.studentId ?? 'student'}-${row.classId ?? 'class'}-${rowIndex}`}>
               {columns.map((column) => (
                 <td key={column.key} data-label={column.label}>
                   {column.render ? column.render(row, rowIndex) : row[column.key]}

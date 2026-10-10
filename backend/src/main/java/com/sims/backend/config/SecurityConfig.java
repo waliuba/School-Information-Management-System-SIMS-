@@ -9,6 +9,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,6 +41,20 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/logout"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/students/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/students/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/students/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/students/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/enrollments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/enrollments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/enrollments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/enrollments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/attendance/my").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/attendance").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/attendance/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers(HttpMethod.POST, "/api/attendance/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers(HttpMethod.PUT, "/api/attendance/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/attendance/**").hasRole("ADMIN")
                         .requestMatchers("/api/auth/**").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -77,4 +92,3 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 }
-

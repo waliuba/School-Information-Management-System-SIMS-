@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.sims.backend.dtos.CourseSubjectDTO;
+import com.sims.backend.dtos.subject.CourseSubjectRequestDTO;
+import com.sims.backend.dtos.subject.CourseSubjectResponseDTO;
 import com.sims.backend.services.CourseSubjectService;
 
 @RestController
@@ -22,14 +23,14 @@ public class CourseSubjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CourseSubjectDTO>> getAllCourseSubjects() {
+    public ResponseEntity<List<CourseSubjectResponseDTO>> getAllCourseSubjects() {
 
         return ResponseEntity.ok(
                 courseSubjectService.getAllCourseSubjects());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CourseSubjectDTO> getCourseSubjectById(
+    public ResponseEntity<CourseSubjectResponseDTO> getCourseSubjectById(
             @PathVariable Long id) {
 
         return ResponseEntity.ok(
@@ -37,10 +38,10 @@ public class CourseSubjectController {
     }
 
     @PostMapping
-    public ResponseEntity<CourseSubjectDTO> createCourseSubject(
-            @RequestBody CourseSubjectDTO dto) {
+    public ResponseEntity<CourseSubjectResponseDTO> createCourseSubject(
+            @RequestBody CourseSubjectRequestDTO dto) {
 
-        CourseSubjectDTO created =
+        CourseSubjectResponseDTO created =
                 courseSubjectService.createCourseSubject(dto);
 
         return ResponseEntity
@@ -49,9 +50,9 @@ public class CourseSubjectController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CourseSubjectDTO> updateCourseSubject(
+    public ResponseEntity<CourseSubjectResponseDTO> updateCourseSubject(
             @PathVariable Long id,
-            @RequestBody CourseSubjectDTO dto) {
+            @RequestBody CourseSubjectRequestDTO dto) {
 
         return ResponseEntity.ok(
                 courseSubjectService.updateCourseSubject(id, dto));
@@ -67,7 +68,7 @@ public class CourseSubjectController {
     }
 
     @GetMapping("/course/{courseId}")
-    public ResponseEntity<List<CourseSubjectDTO>> getByCourse(
+    public ResponseEntity<List<CourseSubjectResponseDTO>> getByCourse(
             @PathVariable Long courseId) {
 
         return ResponseEntity.ok(
@@ -75,7 +76,7 @@ public class CourseSubjectController {
     }
 
     @GetMapping("/unit/{unitId}")
-    public ResponseEntity<List<CourseSubjectDTO>> getByUnit(
+    public ResponseEntity<List<CourseSubjectResponseDTO>> getByUnit(
             @PathVariable Long unitId) {
 
         return ResponseEntity.ok(
@@ -83,7 +84,7 @@ public class CourseSubjectController {
     }
 
     @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<CourseSubjectDTO>> getByStudent(
+    public ResponseEntity<List<CourseSubjectResponseDTO>> getByStudent(
             @PathVariable Long studentId) {
 
         return ResponseEntity.ok(
@@ -91,7 +92,7 @@ public class CourseSubjectController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<CourseSubjectDTO>> searchBySubjectName(
+    public ResponseEntity<List<CourseSubjectResponseDTO>> searchBySubjectName(
             @RequestParam String name) {
 
         return ResponseEntity.ok(

@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
+import Button from '../../components/common/Button.jsx';
 import LoadingScreen from '../../components/common/LoadingScreen.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
+
+const genericAuthError = 'Unable to sign in. Please check your credentials and try again.';
 
 const demoAccounts = [
   {
@@ -20,17 +23,15 @@ const demoAccounts = [
 
 function validateForm(form) {
   const errors = {};
+  const username = form.username.trim();
 
-  if (!form.username.trim()) {
+  if (!username) {
     errors.username = 'Email or username is required.';
-  } else if (form.username.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.username)) {
+  } else if (username.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
     errors.username = 'Enter a valid email address.';
   }
 
-  if (!form.password) {
-    errors.password = 'Password is required.';
-  }
-
+  if (!form.password) errors.password = 'Password is required.';
   return errors;
 }
 
@@ -43,13 +44,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  if (isAuthLoading) {
-    return <LoadingScreen message="Checking current session..." />;
-  }
-
-  if (isAuthenticated) {
-    return <Navigate to="/onboarding" replace />;
-  }
+  if (isAuthLoading) return <LoadingScreen message="Checking current session..." />;
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   function updateField(event) {
     const { name, value } = event.target;
@@ -66,21 +62,18 @@ export default function Login() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isSubmitting) return;
     const nextErrors = validateForm(form);
-
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      return;
-    }
+    setErrors(nextErrors);
+    setAuthError('');
+    if (Object.keys(nextErrors).length) return;
 
     setIsSubmitting(true);
-    setAuthError('');
-
     try {
       await login({ username: form.username.trim(), password: form.password });
-      navigate('/onboarding', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch {
-      setAuthError('Unable to sign in. Please check your credentials and try again.');
+      setAuthError(genericAuthError);
     } finally {
       setIsSubmitting(false);
     }
@@ -89,18 +82,15 @@ export default function Login() {
   return (
     <main className="login-page">
       <header className="login-nav">
-        <Link className="login-back" to="/">
-          <span aria-hidden="true">←</span> Back to Home
-        </Link>
-        <span className="login-nav__current">SIMS / Login</span>
+        <Link className="login-back" to="/"><span aria-hidden="true">←</span> Back to Home</Link>
+        <span className="login-nav__current" aria-current="page">Login</span>
       </header>
 
       <div className="login-layout">
         <section className="login-card" aria-labelledby="login-title">
-          <div className="login-brand" aria-label="SIMS home">
-            <span className="login-brand__mark">S</span>
-            <span>SIMS<span className="login-brand__dot">.</span></span>
-          </div>
+          <Link className="login-brand" to="/" aria-label="SIMS home">
+            <span className="login-brand__mark">S</span><span>SIMS<span className="login-brand__dot">.</span></span>
+          </Link>
 
           <div className="login-intro">
             <p className="login-eyebrow">Secure access</p>
@@ -108,72 +98,41 @@ export default function Login() {
             <p>Sign in to continue to your SIMS account.</p>
           </div>
 
-          {authError ? (
-            <div className="login-alert" role="alert">
-              <span aria-hidden="true">!</span>
-              <div>
-                <strong>Unable to sign in</strong>
-                <p>{authError.replace('Unable to sign in. ', '')}</p>
-              </div>
-            </div>
-          ) : null}
+          {authError && <div className="login-alert" role="alert" aria-live="assertive">
+            <span aria-hidden="true">!</span><div><strong>Unable to sign in</strong><p>Please check your credentials and try again.</p></div>
+          </div>}
 
-          <form className="login-form" onSubmit={handleSubmit} noValidate>
+          <form className="login-form" onSubmit={handleSubmit} noValidate aria-busy={isSubmitting}>
             <label className="login-field" htmlFor="username">
               <span>Email or Username</span>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                placeholder="Enter your email or username"
-                autoComplete="username"
-                value={form.username}
-                onChange={updateField}
-                aria-invalid={Boolean(errors.username)}
-                aria-describedby={errors.username ? 'username-error' : undefined}
-              />
-              {errors.username ? <small id="username-error">{errors.username}</small> : null}
+              <input id="username" name="username" type="text" placeholder="Enter your email or username"
+                autoComplete="username" value={form.username} onChange={updateField}
+                aria-invalid={Boolean(errors.username)} aria-describedby={errors.username ? 'username-error' : undefined} />
+              {errors.username && <small id="username-error">{errors.username}</small>}
             </label>
 
             <label className="login-field" htmlFor="password">
-              <span className="login-field__label">
-                Password
-                <Link to="/forgot-password">Forgot password?</Link>
-              </span>
+              <span className="login-field__label"><span>Password</span><Link to="/forgot-password">Forgot password?</Link></span>
               <span className="password-control">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                  value={form.password}
-                  onChange={updateField}
-                  aria-invalid={Boolean(errors.password)}
-                  aria-describedby={errors.password ? 'password-error' : undefined}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword((current) => !current)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  aria-pressed={showPassword}
-                >
+                <input id="password" name="password" type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password" autoComplete="current-password" value={form.password}
+                  onChange={updateField} aria-invalid={Boolean(errors.password)}
+                  aria-describedby={errors.password ? 'password-error' : undefined} />
+                <button type="button" className="password-toggle" onClick={() => setShowPassword((current) => !current)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword}>
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
               </span>
-              {errors.password ? <small id="password-error">{errors.password}</small> : null}
+              {errors.password && <small id="password-error">{errors.password}</small>}
             </label>
 
-            <button className="login-submit" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'LOGIN'}
-              {!isSubmitting ? <span aria-hidden="true">↗</span> : null}
-            </button>
+            <Button className="login-submit" type="submit" disabled={isSubmitting}>
+              <span>{isSubmitting ? 'Signing in...' : 'LOGIN'}</span>
+              {isSubmitting ? <span className="login-spinner" aria-hidden="true" /> : <span aria-hidden="true">↗</span>}
+            </Button>
           </form>
 
-          <p className="login-signup">
-            Don&apos;t have an account? <Link to="/signup">Sign up</Link>
-          </p>
+          <p className="login-signup">Don&apos;t have an account? <Link to="/signup">Sign up</Link></p>
         </section>
 
         <aside className="login-info" aria-labelledby="account-info-title">
@@ -196,14 +155,8 @@ export default function Login() {
                   </div>
                 </div>
                 <dl className="credential-details">
-                  <div>
-                    <dt>Username</dt>
-                    <dd>{account.username}</dd>
-                  </div>
-                  <div>
-                    <dt>Password</dt>
-                    <dd>{account.password}</dd>
-                  </div>
+                  <div><dt>Username</dt><dd>{account.username}</dd></div>
+                  <div><dt>Password</dt><dd>{account.password}</dd></div>
                 </dl>
                 <button type="button" className="credential-use" onClick={() => useDemoAccount(account)}>
                   Use this account <span aria-hidden="true">→</span>
@@ -216,9 +169,9 @@ export default function Login() {
             <span aria-hidden="true">✓</span>
             <p>Secure account access, role-based permissions, and centralized school information.</p>
           </div>
-         
         </aside>
       </div>
+      <span className="sr-only" aria-live="polite">{isSubmitting ? 'Signing in' : ''}</span>
     </main>
   );
 }

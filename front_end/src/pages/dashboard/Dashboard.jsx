@@ -25,15 +25,17 @@ export default function Dashboard() {
   const copy = dashboardCopy[role] || dashboardCopy.STUDENT;
 
   return (
-    <PageContainer title={copy.title} description={copy.description}>
-      {role === 'ADMIN' ? <AdminDashboard /> : null}
+    <>
+      {role === 'ADMIN' ? <section className="page-container admin-page-container"><AdminDashboard /></section> : null}
+      {role !== 'ADMIN' ? <PageContainer title={copy.title} description={copy.description}>
       {role === 'TEACHER' ? <TeacherDashboard /> : null}
-      {role !== 'ADMIN' && role !== 'TEACHER' ? (
+      {role !== 'TEACHER' ? (
         <EmptyState
           title="Dashboard not available yet"
           message="This role is authenticated, but a dedicated dashboard has not been connected yet."
         />
       ) : null}
-    </PageContainer>
+      </PageContainer> : null}
+    </>
   );
 }

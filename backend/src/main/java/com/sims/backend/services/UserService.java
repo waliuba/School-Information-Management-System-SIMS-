@@ -9,6 +9,9 @@ import com.sims.backend.dtos.user.UserRequestDTO;
 import com.sims.backend.dtos.user.UserResponseDTO;
 import com.sims.backend.mappers.UserMapper;
 import com.sims.backend.models.UserModel;
+import com.sims.backend.enums.Role;
+import com.sims.backend.exceptions.ResourceNotFoundException;
+import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -52,6 +55,35 @@ public class UserService {
                 .stream()
                 .map(UserMapper::toDTO)
                 .toList();
+    }
+
+    public List<UserResponseDTO> getTeachers() {
+        return userRepository.findByRole(Role.TEACHER).stream().map(UserMapper::toDTO).toList();
+    }
+
+    public UserResponseDTO getTeacherById(Long id) {
+        UserModel teacher = userRepository.findById(id).filter(u -> u.getRole() == Role.TEACHER)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+        return UserMapper.toDTO(teacher);
+    }
+
+    public UserResponseDTO updateTeacher(Long id, String username, String email, Boolean enabled) {
+        UserModel teacher = userRepository.findById(id).filter(u -> u.getRole() == Role.TEACHER)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+        if (username != null && userRepository.findByUsername(username).filter(u -> !u.getUserId().equals(id)).isPresent())
+            throw new BusinessRuleException("Username already exists");
+        if (email != null && userRepository.findByEmail(email).filter(u -> !u.getUserId().equals(id)).isPresent())
+            throw new BusinessRuleException("Email already exists");
+        if (username != null) teacher.setUsername(username);
+        if (email != null) teacher.setEmail(email);
+        if (enabled != null) teacher.setEnabled(enabled);
+        return UserMapper.toDTO(userRepository.save(teacher));
+    }
+
+    public void deleteTeacher(Long id) {
+        UserModel teacher = userRepository.findById(id).filter(u -> u.getRole() == Role.TEACHER)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+        userRepository.delete(teacher);
     }
 
     public UserResponseDTO getUserById(Long userId) {
