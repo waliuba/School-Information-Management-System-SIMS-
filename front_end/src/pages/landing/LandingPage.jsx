@@ -529,7 +529,7 @@ export default function LandingPage() {
 
     <p>
       SIMS began with a simple goal: bring scattered school records into one
-      reliable place. We built the database and backend first, then started
+      reliable place. Built the database and backend first, then started
       connecting them to an admin interface for managing students, staff, and
       academic records. The next stage is to complete the day-to-day experience
       and give students their own view. The roadmap ends with a connected system
