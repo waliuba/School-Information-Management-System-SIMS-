@@ -60,3 +60,6 @@ Thumbs.db
 *.bak
 *.swp
 *~
+
+# Local deployment secrets
+.env
