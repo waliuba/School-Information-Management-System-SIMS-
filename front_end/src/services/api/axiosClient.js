@@ -8,6 +8,8 @@ const axiosClient = axios.create({
   },
 });
 
+console.log("API base URL:", axiosClient.defaults.baseURL);
+
 function normalizeApiError(error) {
   if (!error.response) {
     return {

@@ -28,6 +28,10 @@ export default function MarkAttendancePage() {
   const [records, setRecords] = useState([]);
   const [studentId, setStudentId] = useState('');
   const [attendanceDate, setAttendanceDate] = useState(today);
+  const [attendanceLoadedDate, setAttendanceLoadedDate] = useState('');
+  const [attendanceLoading, setAttendanceLoading] = useState(true);
+  const [attendanceLoadError, setAttendanceLoadError] = useState(false);
+  const [attendanceLookupAttempt, setAttendanceLookupAttempt] = useState(0);
   const [status, setStatus] = useState('Present');
   const [remarks, setRemarks] = useState('');
   const [loading, setLoading] = useState(true);
@@ -42,12 +46,6 @@ export default function MarkAttendancePage() {
     try {
       const studentRows = await getStudents();
       setStudents(studentRows);
-      try {
-        setRecords(await getAttendanceByDate(attendanceDate));
-      } catch {
-        // The student picker remains usable; attendance lookup is retried on date changes.
-        setRecords([]);
-      }
     } catch {
       setLoadError(true);
     } finally {
@@ -58,9 +56,34 @@ export default function MarkAttendancePage() {
   useEffect(() => { loadFormData(); }, []);
 
   useEffect(() => {
-    if (!attendanceDate || attendanceDate > today) return;
-    getAttendanceByDate(attendanceDate).then(setRecords).catch(() => setRecords([]));
-  }, [attendanceDate, today]);
+    let active = true;
+    if (!attendanceDate || attendanceDate > today) {
+      setRecords([]);
+      setAttendanceLoadError(false);
+      setAttendanceLoadedDate(attendanceDate);
+      setAttendanceLoading(false);
+      return () => { active = false; };
+    }
+
+    setAttendanceLoading(true);
+    setAttendanceLoadError(false);
+    setAttendanceLoadedDate('');
+    setRecords([]);
+    getAttendanceByDate(attendanceDate)
+      .then((dateRecords) => {
+        if (active) {
+          setRecords(dateRecords);
+          setAttendanceLoadedDate(attendanceDate);
+        }
+      })
+      .catch(() => {
+        if (active) setAttendanceLoadError(true);
+      })
+      .finally(() => {
+        if (active) setAttendanceLoading(false);
+      });
+    return () => { active = false; };
+  }, [attendanceDate, today, attendanceLookupAttempt]);
 
   const existing = records.find((record) => String(record.studentId) === String(studentId) && record.attendanceDate === attendanceDate);
 
@@ -76,7 +99,7 @@ export default function MarkAttendancePage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if (!studentId || !attendanceDate || attendanceDate > today || !status || remarks.length > 255) return;
+    if (!studentId || !attendanceDate || attendanceDate > today || !status || remarks.length > 255 || attendanceLoading || attendanceLoadError || attendanceLoadedDate !== attendanceDate) return;
     setSaving(true);
     setSaveError('');
     setMessage('');
@@ -102,16 +125,18 @@ export default function MarkAttendancePage() {
 
   return <PageContainer title="Mark Attendance" description="Record a student's attendance for a selected date.">
     {loading ? <p role="status">Loading students…</p> : loadError ? <div className="attendance-form-notice" role="alert"><p>Unable to load students. Please try again.</p><Button type="button" variant="secondary" onClick={loadFormData}>Retry</Button></div> : students.length === 0 ? <p className="attendance-form-notice">No students are available to mark.</p> : <form className="attendance-mark-form" onSubmit={handleSubmit}>
+      {attendanceLoadError && <div className="attendance-form-notice" role="alert"><p>Unable to check attendance records for this date. Please try again before saving.</p><Button type="button" variant="secondary" onClick={() => setAttendanceLookupAttempt((attempt) => attempt + 1)}>Retry</Button></div>}
+      {attendanceLoading && <p role="status">Checking attendance records…</p>}
       <label className="field" htmlFor="attendance-student"><span>Student</span><select id="attendance-student" className="input" value={studentId} onChange={(event) => { setStudentId(event.target.value); setMessage(''); }} required>
         <option value="">Select a student</option>{students.map((student) => <option key={student.studentId} value={student.studentId}>{fullName(student)}{student.admissionNo ? ` · ${student.admissionNo}` : ''}</option>)}
       </select></label>
-      <label className="field" htmlFor="attendance-date"><span>Attendance date</span><input id="attendance-date" className="input" type="date" value={attendanceDate} max={today} onChange={(event) => { setAttendanceDate(event.target.value); setMessage(''); }} required /></label>
+      <label className="field" htmlFor="attendance-date"><span>Attendance date</span><input id="attendance-date" className="input" type="date" value={attendanceDate} max={today} onChange={(event) => { setAttendanceDate(event.target.value); setRecords([]); setAttendanceLoadedDate(''); setAttendanceLoading(true); setAttendanceLoadError(false); setMessage(''); setSaveError(''); }} required /></label>
       <label className="field" htmlFor="attendance-status"><span>Status</span><select id="attendance-status" className="input" value={status} onChange={(event) => setStatus(event.target.value)} required>{STATUS_OPTIONS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
       <label className="field attendance-mark-form__remarks" htmlFor="attendance-remarks"><span>Remarks <small>({remarks.length}/255)</small></span><input id="attendance-remarks" className="input" type="text" value={remarks} maxLength={255} onChange={(event) => setRemarks(event.target.value)} /></label>
       {existing && <p className="attendance-form-notice" role="status">A record exists for this student and date. Saving will update it.</p>}
       {saveError && <p className="attendance-form-error" role="alert">{saveError}</p>}
       {message && <p className="attendance-form-success" role="status">{message}</p>}
-      <div className="attendance-mark-form__actions"><Button type="submit" disabled={saving || !studentId || !attendanceDate || attendanceDate > today}>{saving ? 'Saving…' : existing ? 'Update attendance' : 'Save attendance'}</Button></div>
+      <div className="attendance-mark-form__actions"><Button type="submit" disabled={saving || attendanceLoading || attendanceLoadError || attendanceLoadedDate !== attendanceDate || !studentId || !attendanceDate || attendanceDate > today}>{saving ? 'Saving…' : existing ? 'Update attendance' : 'Save attendance'}</Button></div>
     </form>}
   </PageContainer>;
 }
