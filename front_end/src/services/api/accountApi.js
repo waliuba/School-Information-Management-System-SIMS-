@@ -1,8 +1,10 @@
 import axiosClient from './axiosClient.js';
 
-// TODO(api): connect profile updates when the backend exposes an account endpoint.
-export async function updateProfile() {
-  throw new Error('Profile updates are not connected yet.');
+export async function updateProfile(profile) {
+  const response = await axiosClient.put('/auth/me', {
+    email: profile.email,
+  });
+  return response.data;
 }
 
 export async function changePassword(passwords) {

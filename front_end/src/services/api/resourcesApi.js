@@ -99,6 +99,11 @@ export function getUsers(params) {
   return getList('/users', params);
 }
 
+export const createUser = (data) => send('post', '/users', data);
+export const updateUser = (id, data) => send('put', `/users/${id}`, data);
+export const deleteUser = (id) => send('delete', `/users/${id}`);
+export const getUser = (id) => axiosClient.get(`/users/${id}`).then((response) => response.data?.data ?? response.data);
+
 export function getRoles(params) {
   return getList('/roles', params);
 }

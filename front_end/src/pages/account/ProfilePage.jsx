@@ -1,39 +1,87 @@
 import { useState } from 'react';
 import PageContainer from '../../components/layout/PageContainer.jsx';
+import Avatar from '../../components/common/Avatar.jsx';
+import Badge from '../../components/common/Badge.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
 import { updateProfile } from '../../services/api/accountApi.js';
 
-const fieldDefinitions = [
-  ['name', 'Full name', 'text'], ['fullName', 'Full name', 'text'], ['firstName', 'First name', 'text'], ['lastName', 'Last name', 'text'],
-  ['email', 'Email', 'email'], ['username', 'Username', 'text'], ['phone', 'Phone', 'tel'],
-];
-const labelForRole = (user) => user?.role || user?.role_name || user?.roleName;
+function Detail({ label, value }) {
+  if (value === undefined || value === null || value === '') return null;
+
+  return <div><dt>{label}</dt><dd>{String(value)}</dd></div>;
+}
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const fields = fieldDefinitions.filter(([key]) => user?.[key] !== undefined && user?.[key] !== null);
+  const { user, updateCurrentUser } = useAuth();
   const [editing, setEditing] = useState(false);
-  const [values, setValues] = useState(() => Object.fromEntries(fields.map(([key]) => [key, user[key]])));
-  const [notice, setNotice] = useState('');
+  const [email, setEmail] = useState('');
   const [pending, setPending] = useState(false);
-  const fullName = user?.name || user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ');
-  const role = labelForRole(user);
-  const facts = [['Role', role], ['Email', user?.email], ['Username', user?.username], ['Status', typeof user?.enabled === 'boolean' ? (user.enabled ? 'Enabled' : 'Disabled') : user?.status], ['Last login', user?.lastLogin || user?.last_login]];
+  const [notice, setNotice] = useState(null);
+  const status = typeof user?.enabled === 'boolean'
+    ? (user.enabled ? 'Enabled' : 'Disabled')
+    : null;
+  const role = user?.role;
+  const displayName = user?.username || user?.email || 'Profile';
+
+  function cancelEdit() {
+    setEditing(false);
+    setEmail('');
+    setNotice(null);
+  }
 
   async function saveProfile(event) {
     event.preventDefault();
     setPending(true);
-    setNotice('');
-    try { await updateProfile(values); }
-    catch (error) { setNotice(error.message || 'Profile updates are not connected yet.'); }
-    finally { setPending(false); }
+    setNotice(null);
+    try {
+      const updatedUser = await updateProfile({ email });
+      updateCurrentUser(updatedUser);
+      setEditing(false);
+      setEmail('');
+      setNotice({ type: 'success', message: 'Email address updated.' });
+    } catch (error) {
+      setNotice({ type: 'error', message: error.message || 'Could not update your email address.' });
+    } finally {
+      setPending(false);
+    }
   }
 
-  return <PageContainer title="Profile" description="Manage your personal information and account details.">
-    <section className="account-card profile-overview" aria-labelledby="profile-overview-title"><div className="profile-overview__identity"><span className="account-avatar" aria-hidden="true">{String(fullName || user?.username || user?.email || '?').slice(0, 1).toUpperCase()}</span><div><h2 id="profile-overview-title">{fullName || user?.username || user?.email || 'Profile'}</h2>{role && <p>{role}</p>}</div></div><dl className="account-facts">{facts.filter(([, value]) => value !== undefined && value !== null && value !== '').map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{String(value)}</dd></div>)}</dl></section>
-    <section className="account-card"><div className="account-card__heading"><div><h2>Personal information</h2><p>Review the details currently available for your account.</p></div>{fields.length > 0 && <button className="button button--secondary" type="button" onClick={() => { setEditing((value) => !value); setNotice(''); }}>{editing ? 'Cancel editing' : 'Edit profile'}</button>}</div>
-      {fields.length ? <form className="account-form" onSubmit={saveProfile}>{fields.map(([key, label, type]) => <label className="field" key={key} htmlFor={`profile-${key}`}><span>{label}</span><input className="input" id={`profile-${key}`} type={type} value={values[key] ?? ''} readOnly={!editing} onChange={(event) => setValues((current) => ({ ...current, [key]: event.target.value }))} required={editing} aria-describedby={editing && notice ? 'profile-status' : undefined} /></label>)}{editing && <div className="account-form__actions"><button className="button button--primary" type="submit" disabled={pending}>{pending ? 'Saving…' : 'Save changes'}</button></div>}</form> : <p className="account-muted">Personal information fields are not available in the current user record. <span className="account-todo">TODO(api): extend the current user response with editable profile fields.</span></p>}
-      {notice && <p className="account-notice" id="profile-status" role="status">{notice}</p>}
+  return <PageContainer title="My Profile" description="View your profile and account information.">
+    <section className="account-card profile-overview" aria-labelledby="profile-overview-title">
+      <div className="profile-overview__identity">
+        <Avatar name={displayName} className="account-avatar" />
+        <div className="profile-overview__copy">
+          <h2 id="profile-overview-title">{displayName}</h2>
+          {user?.email && <p>{user.email}</p>}
+          {role && <Badge tone="info" className="profile-overview__role">{role}</Badge>}
+        </div>
+      </div>
+      {status && <Badge tone={status === 'Enabled' ? 'success' : 'neutral'}>Account {status.toLowerCase()}</Badge>}
+    </section>
+
+    <section className="account-card" aria-labelledby="profile-details-title">
+      <div className="account-card__heading">
+        <div>
+          <h2 id="profile-details-title">Personal information</h2>
+          <p>Details available for your signed-in account.</p>
+        </div>
+        {user && !editing && <button className="button button--secondary" type="button" onClick={() => { setEmail(user.email || ''); setNotice(null); setEditing(true); }}>Edit email</button>}
+      </div>
+      {user ? <dl className="account-facts profile-details">
+        <Detail label="Username" value={user.username} />
+        <Detail label="Email" value={user.email} />
+        <Detail label="Account ID" value={user.userId} />
+        <Detail label="Role" value={role} />
+        <Detail label="Status" value={status} />
+      </dl> : <p className="account-muted">Account details are unavailable. Refresh the page or sign in again to reload your profile.</p>}
+      {editing && <form className="account-form account-form--single profile-edit-form" onSubmit={saveProfile}>
+        <label className="field" htmlFor="profile-email"><span>Email</span><input className="input" id="profile-email" type="email" autoComplete="email" maxLength="100" required value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+        <div className="account-form__actions">
+          <button className="button button--primary" type="submit" disabled={pending}>{pending ? 'Saving…' : 'Save changes'}</button>
+          <button className="button button--secondary" type="button" disabled={pending} onClick={cancelEdit}>Cancel</button>
+        </div>
+      </form>}
+      {notice && <p className={`account-notice${notice.type === 'success' ? ' account-notice--success' : ''}`} role={notice.type === 'error' ? 'alert' : 'status'}>{notice.message}</p>}
     </section>
   </PageContainer>;
 }

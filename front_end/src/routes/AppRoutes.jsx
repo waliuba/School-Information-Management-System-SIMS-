@@ -27,7 +27,6 @@ import {
   getStudents,
   getTeachers,
   getUnits,
-  getUsers,
 } from '../services/api/resourcesApi.js';
 
 export default function AppRoutes() {
@@ -79,7 +78,10 @@ export default function AppRoutes() {
           <Route path="/results/:id" element={<ResultsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
-            <Route path="/users" element={<ResourcePage title="Users" description="Users returned by the backend." request={getUsers} />} />
+            <Route path="/users" element={<CrudModulePage module="users" />} />
+            <Route path="/users/new" element={<CrudModulePage module="users" />} />
+            <Route path="/users/:id" element={<CrudModulePage module="users" />} />
+            <Route path="/users/:id/edit" element={<CrudModulePage module="users" />} />
             <Route path="/roles" element={<ResourcePage title="Roles" description="Roles returned by the backend." request={getRoles} />} />
           </Route>
         </Route>

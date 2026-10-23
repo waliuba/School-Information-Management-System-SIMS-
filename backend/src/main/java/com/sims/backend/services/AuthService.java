@@ -4,9 +4,11 @@ import com.sims.backend.dtos.authentication.AuthResponseDTO;
 import com.sims.backend.dtos.authentication.ChangePasswordRequestDTO;
 import com.sims.backend.dtos.authentication.LoginRequestDTO;
 import com.sims.backend.dtos.authentication.RegisterRequestDTO;
+import com.sims.backend.dtos.authentication.UpdateProfileRequestDTO;
 import com.sims.backend.dtos.user.UserResponseDTO;
 import com.sims.backend.mappers.UserMapper;
 import com.sims.backend.models.UserModel;
+import com.sims.backend.exceptions.BusinessRuleException;
 import com.sims.backend.repositories.UserRepository;
 import com.sims.backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +78,20 @@ public class AuthService {
                 );
 
         return UserMapper.toDTO(user);
+    }
+
+    public UserResponseDTO updateCurrentUser(String username, UpdateProfileRequestDTO request) {
+        UserModel user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        userRepository.findByEmail(request.getEmail())
+                .filter(existingUser -> !existingUser.getUserId().equals(user.getUserId()))
+                .ifPresent(existingUser -> {
+                    throw new BusinessRuleException("Email already exists");
+                });
+
+        user.setEmail(request.getEmail());
+        return UserMapper.toDTO(userRepository.save(user));
     }
 
     public void changePassword(String username, ChangePasswordRequestDTO request) {

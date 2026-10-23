@@ -14,6 +14,7 @@ import com.sims.backend.dtos.authentication.AuthResponseDTO;
 import com.sims.backend.dtos.authentication.ChangePasswordRequestDTO;
 import com.sims.backend.dtos.authentication.LoginRequestDTO;
 import com.sims.backend.dtos.authentication.RegisterRequestDTO;
+import com.sims.backend.dtos.authentication.UpdateProfileRequestDTO;
 import com.sims.backend.dtos.user.UserResponseDTO;
 import com.sims.backend.services.AuthService;
 
@@ -56,6 +57,16 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 authService.getCurrentUser(authentication.getName())
+        );
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UserResponseDTO> updateCurrentUser(
+            Authentication authentication,
+            @Valid @RequestBody UpdateProfileRequestDTO request
+    ) {
+        return ResponseEntity.ok(
+                authService.updateCurrentUser(authentication.getName(), request)
         );
     }
 

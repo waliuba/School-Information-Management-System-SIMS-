@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.sims.backend.dtos.user.UserRequestDTO;
 import com.sims.backend.dtos.user.UserResponseDTO;
+import com.sims.backend.dtos.user.UserUpdateRequestDTO;
 import com.sims.backend.mappers.UserMapper;
 import com.sims.backend.models.UserModel;
 import com.sims.backend.enums.Role;
@@ -102,5 +103,44 @@ public class UserService {
                 );
 
         return UserMapper.toDTO(user);
+    }
+
+    public UserResponseDTO updateUser(Long userId, UserUpdateRequestDTO request, String authenticatedUsername) {
+        UserModel user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (user.getUsername().equals(authenticatedUsername)) {
+            throw new BusinessRuleException("Use My Profile to update your own account details");
+        }
+        if (user.getEnabled() && user.getRole() == Role.ADMIN
+                && (request.getRole() != Role.ADMIN || !request.getEnabled())
+                && userRepository.countByRoleAndEnabled(Role.ADMIN, true) <= 1) {
+            throw new BusinessRuleException("At least one enabled administrator account must remain");
+        }
+
+        userRepository.findByUsername(request.getUsername())
+                .filter(existing -> !existing.getUserId().equals(userId))
+                .ifPresent(existing -> { throw new BusinessRuleException("Username already exists"); });
+        userRepository.findByEmail(request.getEmail())
+                .filter(existing -> !existing.getUserId().equals(userId))
+                .ifPresent(existing -> { throw new BusinessRuleException("Email already exists"); });
+
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setRole(request.getRole());
+        user.setEnabled(request.getEnabled());
+        return UserMapper.toDTO(userRepository.save(user));
+    }
+
+    public void deleteUser(Long userId, String authenticatedUsername) {
+        UserModel user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (user.getUsername().equals(authenticatedUsername)) {
+            throw new BusinessRuleException("You cannot delete your own signed-in account");
+        }
+        if (user.getEnabled() && user.getRole() == Role.ADMIN
+                && userRepository.countByRoleAndEnabled(Role.ADMIN, true) <= 1) {
+            throw new BusinessRuleException("At least one enabled administrator account must remain");
+        }
+        userRepository.delete(user);
     }
 }
