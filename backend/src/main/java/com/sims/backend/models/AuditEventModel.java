@@ -26,4 +26,10 @@ public class AuditEventModel {
         this.occurredAt = occurredAt;
         this.details = details;
     }
+
+    public Long getEventId() { return eventId; }
+    public String getActor() { return actor; }
+    public String getAction() { return action; }
+    public String getTarget() { return target; }
+    public Instant getOccurredAt() { return occurredAt; }
 }

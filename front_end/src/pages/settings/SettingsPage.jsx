@@ -3,18 +3,19 @@ import { Link, useLocation } from 'react-router-dom';
 import PageContainer from '../../components/layout/PageContainer.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
 import { getPreferences, updatePreferences } from '../../services/api/accountApi.js';
+import { getAuditEvents, getSchoolProfile, updateSchoolProfile } from '../../services/api/settingsApi.js';
 import { applyTheme, DEFAULT_PREFERENCES, readPreferences, savePreferences } from '../../services/preferences.js';
 import './settings.css';
 
 const sections = [
   { slug: 'account', title: 'Administrator Account', phase: null },
   { slug: 'security', title: 'Security & Access', phase: null },
-  { slug: 'school', title: 'School Configuration', phase: null, status: 'preview' },
+  { slug: 'school', title: 'School Configuration', phase: null },
   { slug: 'notifications', title: 'Notifications', phase: null, status: 'preview' },
   { slug: 'preferences', title: 'Appearance & Preferences', phase: null },
   { slug: 'data', title: 'Data Management & Backups', phase: null, status: 'preview' },
   { slug: 'system', title: 'System Health & Information', phase: null, status: 'preview' },
-  { slug: 'audit', title: 'Audit & Activity History', phase: null, status: 'preview' },
+  { slug: 'audit', title: 'Audit & Activity History', phase: null },
   { slug: 'danger', title: 'Danger Zone', phase: null, status: 'preview' },
 ];
 
@@ -31,6 +32,10 @@ const systemChecks = [
   { name: 'Audit stream', detail: 'Audit writes exist in code, but no external export or retention job is configured.', state: 'pending' },
 ];
 
+const supportedTimeZones = typeof Intl.supportedValuesOf === 'function'
+  ? Intl.supportedValuesOf('timeZone')
+  : ['Africa/Nairobi', 'Europe/London', 'America/New_York'];
+
 function formatTimestamp() {
   return new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
 }
@@ -43,26 +48,35 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState(null);
-  const [schoolProfile, setSchoolProfile] = useState(() => ({
-    schoolName: 'SIMS Academy',
-    shortName: 'SIMS',
-    academicYear: '2026/2027',
-    timezone: 'UTC',
-    language: 'English',
-  }));
+  const [schoolProfile, setSchoolProfile] = useState({
+    schoolName: '',
+    shortName: '',
+    academicYear: '',
+    timezone: '',
+    language: '',
+  });
+  const [schoolLoading, setSchoolLoading] = useState(false);
+  const [schoolSaving, setSchoolSaving] = useState(false);
+  const [auditEvents, setAuditEvents] = useState([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditError, setAuditError] = useState(null);
   const [notificationPrefs, setNotificationPrefs] = useState({
     emailAlerts: true,
     pushAlerts: false,
     securityAlerts: true,
     weeklySummary: true,
   });
+  const timeZoneOptions = useMemo(
+    () => [...new Set([...supportedTimeZones, 'UTC', schoolProfile.timezone].filter(Boolean))].sort(),
+    [schoolProfile.timezone]
+  );
 
   useEffect(() => {
-    if (isAuthLoading || !user) return;
+    if (isAuthLoading || !user || active.slug !== 'preferences') return;
     let live = true;
     getPreferences().then((next) => {
       if (!live) return;
-      const value = { ...DEFAULT_PREFERENCES, ...next };
+      const value = { ...DEFAULT_PREFERENCES, ...next, theme: 'light' };
       setPreferences(value); savePreferences(value); setLoading(false);
     }).catch((error) => {
       if (!live) return;
@@ -70,7 +84,37 @@ export default function SettingsPage() {
       setLoading(false);
     });
     return () => { live = false; };
-  }, [isAuthLoading, user]);
+  }, [active.slug, isAuthLoading, user]);
+
+  useEffect(() => {
+    if (isAuthLoading || !user || active.slug !== 'school') return;
+    let live = true;
+    setSchoolLoading(true);
+    setNotice(null);
+    getSchoolProfile().then((profile) => {
+      if (live) setSchoolProfile(profile);
+    }).catch((error) => {
+      if (live) setNotice({ type: 'error', text: error.message || 'School profile could not be loaded.' });
+    }).finally(() => {
+      if (live) setSchoolLoading(false);
+    });
+    return () => { live = false; };
+  }, [active.slug, isAuthLoading, user]);
+
+  useEffect(() => {
+    if (isAuthLoading || !user || active.slug !== 'audit') return;
+    let live = true;
+    setAuditLoading(true);
+    setAuditError(null);
+    getAuditEvents().then((events) => {
+      if (live) setAuditEvents(events);
+    }).catch((error) => {
+      if (live) setAuditError(error.message || 'Audit events could not be loaded.');
+    }).finally(() => {
+      if (live) setAuditLoading(false);
+    });
+    return () => { live = false; };
+  }, [active.slug, isAuthLoading, user]);
 
   function change(key, value) {
     setPreferences((current) => ({ ...current, [key]: value }));
@@ -97,10 +141,21 @@ export default function SettingsPage() {
     finally { setSaving(false); }
   }
 
-  useEffect(() => { applyTheme(preferences.theme); }, [preferences.theme]);
+  useEffect(() => { applyTheme(); }, []);
 
-  function handleSchoolSave() {
-    setNotice({ type: 'success', text: 'Preview updated in this page only. School configuration is not persisted because its server API is not connected.' });
+  async function saveSchoolProfile(event) {
+    event.preventDefault();
+    setSchoolSaving(true);
+    setNotice(null);
+    try {
+      const saved = await updateSchoolProfile(schoolProfile);
+      setSchoolProfile(saved);
+      setNotice({ type: 'success', text: 'School profile saved.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: error.message || 'School profile could not be saved.' });
+    } finally {
+      setSchoolSaving(false);
+    }
   }
 
   function handleNotificationSave() {
@@ -124,7 +179,7 @@ export default function SettingsPage() {
         {active.slug === 'security' && <div className="settings-content"><p>Password changes invalidate all previously issued access tokens, including this session. Sign in again with the new password.</p><Link className="button button--primary" to="/security">Open password change</Link><p className="account-muted">Active session listing and sign-out-other-sessions are planned after session revocation storage is available.</p></div>}
         {active.slug === 'preferences' && <form className="settings-form" onSubmit={save}>
           {loading ? <p role="status">Loading preferences…</p> : <>
-            <label className="field" htmlFor="settings-theme"><span>Theme</span><select className="input" id="settings-theme" value={preferences.theme} onChange={(event) => change('theme', event.target.value)}><option value="system">Use device setting</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+            <label className="field" htmlFor="settings-theme"><span>Theme</span><select className="input" id="settings-theme" value="light" disabled><option value="light">Light mode (always on)</option></select></label>
             <label className="settings-check"><input type="checkbox" checked={preferences.sidebarCollapsed === 'true'} onChange={(event) => change('sidebarCollapsed', String(event.target.checked))} /><span>Start with the sidebar collapsed</span></label>
             <label className="field" htmlFor="settings-page-size"><span>Default table page size</span><select className="input" id="settings-page-size" value={preferences.tablePageSize} onChange={(event) => change('tablePageSize', event.target.value)}>{['10', '25', '50', '100'].map((size) => <option key={size} value={size}>{size} rows</option>)}</select></label>
             <div className="settings-actions"><button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save preferences'}</button><button className="button button--secondary" type="button" disabled={saving} onClick={resetPreferences}>Reset to defaults</button></div>
@@ -132,17 +187,20 @@ export default function SettingsPage() {
           {notice && <p className={`settings-notice settings-notice--${notice.type}`} role={notice.type === 'error' ? 'alert' : 'status'}>{notice.text}</p>}
         </form>}
         {active.slug === 'school' && <div className="settings-content">
-          <div className="settings-card">
+          <form className="settings-card" onSubmit={saveSchoolProfile}>
             <h3>School profile</h3>
-            <div className="settings-grid settings-grid--two">
-              <label className="field"><span>School name</span><input className="input" value={schoolProfile.schoolName} onChange={(event) => setSchoolProfile((value) => ({ ...value, schoolName: event.target.value }))} /></label>
-              <label className="field"><span>Short name</span><input className="input" value={schoolProfile.shortName} onChange={(event) => setSchoolProfile((value) => ({ ...value, shortName: event.target.value }))} /></label>
-              <label className="field"><span>Academic year</span><input className="input" value={schoolProfile.academicYear} onChange={(event) => setSchoolProfile((value) => ({ ...value, academicYear: event.target.value }))} /></label>
-              <label className="field"><span>Timezone</span><select className="input" value={schoolProfile.timezone} onChange={(event) => setSchoolProfile((value) => ({ ...value, timezone: event.target.value }))}><option>UTC</option><option>Africa/Nairobi</option><option>Europe/London</option><option>America/New_York</option></select></label>
-              <label className="field settings-grid__full"><span>Default language</span><select className="input" value={schoolProfile.language} onChange={(event) => setSchoolProfile((value) => ({ ...value, language: event.target.value }))}><option>English</option><option>Kiswahili</option><option>French</option></select></label>
-            </div>
-            <div className="settings-actions"><button className="button button--primary" type="button" onClick={handleSchoolSave}>Save school profile</button></div>
-          </div>
+            {schoolLoading ? <p role="status">Loading school profile…</p> : <>
+              <div className="settings-grid settings-grid--two">
+                <label className="field"><span>School name</span><input className="input" maxLength="100" required disabled={schoolSaving} value={schoolProfile.schoolName} onChange={(event) => setSchoolProfile((value) => ({ ...value, schoolName: event.target.value }))} /></label>
+                <label className="field"><span>Short name</span><input className="input" maxLength="20" required disabled={schoolSaving} value={schoolProfile.shortName} onChange={(event) => setSchoolProfile((value) => ({ ...value, shortName: event.target.value }))} /></label>
+                <label className="field"><span>Academic year</span><input className="input" maxLength="20" required disabled={schoolSaving} value={schoolProfile.academicYear} onChange={(event) => setSchoolProfile((value) => ({ ...value, academicYear: event.target.value }))} /></label>
+                <label className="field"><span>Timezone</span><select className="input" required disabled={schoolSaving} value={schoolProfile.timezone} onChange={(event) => setSchoolProfile((value) => ({ ...value, timezone: event.target.value }))}><option value="">Select a timezone</option>{timeZoneOptions.map((timezone) => <option key={timezone} value={timezone}>{timezone}</option>)}</select></label>
+                <label className="field settings-grid__full"><span>Default language</span><select className="input" required disabled={schoolSaving} value={schoolProfile.language} onChange={(event) => setSchoolProfile((value) => ({ ...value, language: event.target.value }))}><option value="">Select a language</option><option value="English">English</option><option value="Kiswahili">Kiswahili</option><option value="French">French</option></select></label>
+              </div>
+              <div className="settings-actions"><button className="button button--primary" type="submit" disabled={schoolSaving}>{schoolSaving ? 'Saving…' : 'Save school profile'}</button></div>
+            </>}
+            {notice && <p className={`settings-notice settings-notice--${notice.type}`} role={notice.type === 'error' ? 'alert' : 'status'}>{notice.text}</p>}
+          </form>
         </div>}
         {active.slug === 'notifications' && <div className="settings-content">
           <div className="settings-card">
@@ -166,16 +224,23 @@ export default function SettingsPage() {
                     <th>Actor</th>
                     <th>Action</th>
                     <th>Target</th>
-                    <th>Outcome</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td colSpan="5" className="audit-empty">No live audit records are available. The read-only audit API is not connected.</td></tr>
+                  {auditLoading ? <tr><td colSpan="4" className="audit-empty">Loading audit events…</td></tr>
+                    : auditError ? <tr><td colSpan="4" className="audit-empty" role="alert">{auditError}</td></tr>
+                      : auditEvents.length === 0 ? <tr><td colSpan="4" className="audit-empty">No audit events have been recorded.</td></tr>
+                        : auditEvents.map((event) => <tr key={event.eventId}>
+                          <td>{new Date(event.occurredAt).toLocaleString()}</td>
+                          <td>{event.actor}</td>
+                          <td>{event.action}</td>
+                          <td>{event.target}</td>
+                        </tr>)}
                 </tbody>
               </table>
             </div>
           </div>
-          <p className="settings-muted">This is a preview; it does not display fabricated or sample audit events.</p>
+          <p className="settings-muted">The audit viewer displays up to the 100 most recent records.</p>
         </div>}
         {active.slug === 'data' && <div className="settings-content">
           <div className="settings-status-grid">

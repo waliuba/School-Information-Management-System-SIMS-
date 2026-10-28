@@ -41,6 +41,14 @@ Oracle Database
 The system uses Oracle Database with relational tables,
 primary keys, foreign keys, constraints, and relationships.
 
+## Settings APIs
+
+- `GET` and `PUT /api/settings/me/preferences` read and update the signed-in user's appearance preferences.
+- `GET` and `PUT /api/settings/school-profile` read and update the single-school profile. Until a school entity is introduced, the profile uses `SIMS_SETTING` scope `SCHOOL` and owner ID `1`.
+- `GET /api/settings/audit` returns up to the 100 most recent audit-event summaries; event details are not exposed by this endpoint.
+
+School profile and audit endpoints require an administrator role. Apply the Oracle migration in `db/migration/V1__settings_foundation.sql` before using these endpoints.
+
 ## Project Purpose
 
 This project was developed as a portfolio project to demonstrate

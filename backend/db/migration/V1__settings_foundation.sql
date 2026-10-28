@@ -1,4 +1,4 @@
--- Phase 1 additive Oracle migration. Apply once with the SIMS schema owner.
+-- Phase 1 additive Oracle migration. 
 ALTER TABLE USERS ADD (TOKEN_VERSION NUMBER(10) DEFAULT 0 NOT NULL);
 
 CREATE TABLE SIMS_SETTING (
