@@ -28,7 +28,7 @@ public class JwtService {
         this.expiration = expiration;
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, long tokenVersion) {
 
         Date now = new Date();
 
@@ -38,10 +38,17 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(username)
+                .claim("ver", tokenVersion)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public long extractTokenVersion(String token) {
+        Object value = Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().get("ver");
+        return value instanceof Number number ? number.longValue() : 0L;
     }
 
     public String extractUsername(String token) {

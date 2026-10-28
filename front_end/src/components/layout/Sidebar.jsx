@@ -7,8 +7,12 @@ const groups = [
     ['Students', '/students', 'ST'], ['Teachers', '/teachers', 'TE', true], ['Courses', '/subjects', 'CO'],
     ['Departments', '/departments', 'DE'], ['Enrollment', '/enrollments', 'EN'], ['Attendance', '/attendance', 'AT'], ['Examinations', '/results', 'EX'],
   ] },
-  { title: 'MANAGEMENT', items: [['Users', '/users', 'US', true], ['Roles & permissions', '/roles', 'RP', true]] },
+  { title: 'MANAGEMENT', items: [['Users', '/users', 'US', true], ['Roles & permissions', '/roles', 'RP', true], ['Settings', '/settings/account', 'SE', true]] },
 ];
+
+function isPrivilegedRole(role) {
+  return ['ADMIN', 'SUPER_ADMIN'].includes(String(role || '').toUpperCase());
+}
 
 export default function Sidebar({ collapsed, mobileOpen, onClose, onToggle }) {
   const { user } = useAuth();
@@ -18,7 +22,7 @@ export default function Sidebar({ collapsed, mobileOpen, onClose, onToggle }) {
   const visibleGroups = groups
     .map((group) => ({
       ...group,
-      items: group.items.filter(([, , , adminOnly]) => !adminOnly || role === 'ADMIN'),
+      items: group.items.filter(([, , , adminOnly]) => !adminOnly || isPrivilegedRole(role)),
     }))
     .filter((group) => group.items.length > 0);
   return <>

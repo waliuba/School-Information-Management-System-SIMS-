@@ -16,6 +16,7 @@ import TeachersPage from '../pages/teachers/TeachersPage.jsx';
 import ProfilePage from '../pages/account/ProfilePage.jsx';
 import AccountSettingsPage from '../pages/account/AccountSettingsPage.jsx';
 import SecurityPage from '../pages/account/SecurityPage.jsx';
+import SettingsPage from '../pages/settings/SettingsPage.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import RoleRoute from './RoleRoute.jsx';
 import {
@@ -46,12 +47,16 @@ export default function AppRoutes() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/account-settings" element={<AccountSettingsPage />} />
           <Route path="/security" element={<SecurityPage />} />
+          <Route element={<RoleRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']} />}>
+            <Route path="/settings" element={<Navigate to="/settings/account" replace />} />
+            {['account', 'security', 'school', 'notifications', 'preferences', 'data', 'system', 'audit', 'danger'].map((section) => <Route key={section} path={`/settings/${section}`} element={<SettingsPage />} />)}
+          </Route>
           <Route path="/notifications" element={<PlaceholderPage title="Notifications" resourcePath="/dashboard/activity" />} />
           <Route path="/students" element={<CrudModulePage module="students" />} />
           <Route path="/students/new" element={<CrudModulePage module="students" />} />
           <Route path="/students/:id" element={<CrudModulePage module="students" />} />
           <Route path="/students/:id/edit" element={<CrudModulePage module="students" />} />
-          <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+          <Route element={<RoleRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']} />}>
             <Route path="/teachers" element={<TeachersPage />} />
             <Route path="/teachers/new" element={<CrudModulePage module="teachers" />} />
             <Route path="/teachers/:id" element={<CrudModulePage module="teachers" />} />
@@ -77,7 +82,7 @@ export default function AppRoutes() {
           <Route path="/results/:id/edit" element={<ResultsPage />} />
           <Route path="/results/:id" element={<ResultsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
-          <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+          <Route element={<RoleRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']} />}>
             <Route path="/users" element={<CrudModulePage module="users" />} />
             <Route path="/users/new" element={<CrudModulePage module="users" />} />
             <Route path="/users/:id" element={<CrudModulePage module="users" />} />

@@ -9,6 +9,10 @@ const dashboardCopy = {
     title: 'Admin Dashboard',
     description: 'School performance overview and management workspace.',
   },
+  SUPER_ADMIN: {
+    title: 'Admin Dashboard',
+    description: 'School performance overview and management workspace.',
+  },
   TEACHER: {
     title: 'Teachers Dashboard',
     description: 'Class Performance Hub',
@@ -19,15 +23,20 @@ const dashboardCopy = {
   },
 };
 
+function isPrivilegedRole(role) {
+  return ['ADMIN', 'SUPER_ADMIN'].includes(String(role || '').toUpperCase());
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const role = user?.role || user?.role_name || user?.roleName;
   const copy = dashboardCopy[role] || dashboardCopy.STUDENT;
+  const isAdminView = isPrivilegedRole(role);
 
   return (
     <>
-      {role === 'ADMIN' ? <section className="page-container admin-page-container"><AdminDashboard /></section> : null}
-      {role !== 'ADMIN' ? <PageContainer title={copy.title} description={copy.description}>
+      {isAdminView ? <section className="page-container admin-page-container"><AdminDashboard /></section> : null}
+      {!isAdminView ? <PageContainer title={copy.title} description={copy.description}>
       {role === 'TEACHER' ? <TeacherDashboard /> : null}
       {role !== 'TEACHER' ? (
         <EmptyState

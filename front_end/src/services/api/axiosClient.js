@@ -27,6 +27,7 @@ function normalizeApiError(error) {
     404: 'The requested backend resource was not found.',
     409: 'This request conflicts with existing backend data.',
     422: 'The backend rejected the submitted data.',
+    429: 'Too many attempts. Wait before trying again.',
     500: 'The backend server encountered an error.',
   };
 

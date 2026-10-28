@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import PerformanceTable from './PerformanceTable.jsx';
 import Pagination from '../common/Pagination.jsx';
+import { getPreferredPageSize, PAGE_SIZE_OPTIONS } from '../../services/preferences.js';
 
 const EMPTY_ROWS = [];
-const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 const columns = [
   { key: 'studentName', label: 'Student' },
@@ -17,7 +17,7 @@ const columns = [
 export default function StudentPerformanceTable({ rows }) {
   const safeRows = Array.isArray(rows) ? rows : EMPTY_ROWS;
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
+  const [pageSize, setPageSize] = useState(getPreferredPageSize);
   const previousRows = useRef(safeRows);
   const pageCount = Math.max(1, Math.ceil(safeRows.length / pageSize));
   const effectivePage = Math.min(page, pageCount);

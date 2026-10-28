@@ -20,12 +20,15 @@ public class UserMapper {
     }
 
     public static UserResponseDTO toDTO(UserModel user) {
+        com.sims.backend.enums.Role effectiveRole = user.getRole() == com.sims.backend.enums.Role.SUPER_ADMIN
+                ? com.sims.backend.enums.Role.ADMIN
+                : user.getRole();
 
         return UserResponseDTO.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(user.getRole())
+                .role(effectiveRole)
                 .enabled(user.getEnabled())
                 .build();
     }

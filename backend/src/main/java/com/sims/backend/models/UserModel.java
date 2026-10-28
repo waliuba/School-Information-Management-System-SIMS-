@@ -44,6 +44,9 @@ public class UserModel {
     @Column(name = "ENABLED", nullable = false)
     private boolean enabled = true;
 
+    @Column(name = "TOKEN_VERSION", nullable = false)
+    private long tokenVersion = 0;
+
     public UserModel() {
     }
 
@@ -115,6 +118,10 @@ public class UserModel {
     public void setEnabled(Boolean enabled) {
         this.enabled = Boolean.TRUE.equals(enabled);
     }
+
+    public long getTokenVersion() { return tokenVersion; }
+
+    public void setTokenVersion(long tokenVersion) { this.tokenVersion = tokenVersion; }
 
     public static class UserModelBuilder {
 

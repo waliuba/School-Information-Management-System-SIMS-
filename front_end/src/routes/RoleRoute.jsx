@@ -3,9 +3,10 @@ import { useAuth } from '../hooks/useAuth.js';
 
 export default function RoleRoute({ allowedRoles = [] }) {
   const { user } = useAuth();
-  const roleName = user?.role || user?.role_name || user?.roleName;
+  const roleName = String(user?.role || user?.role_name || user?.roleName || '').toUpperCase();
+  const roles = allowedRoles.map((role) => String(role).toUpperCase());
 
-  if (!allowedRoles.length || allowedRoles.includes(roleName)) {
+  if (!roles.length || roles.includes(roleName) || roles.includes(`ROLE_${roleName}`)) {
     return <Outlet />;
   }
 

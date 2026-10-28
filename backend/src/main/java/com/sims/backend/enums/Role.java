@@ -3,5 +3,6 @@ package com.sims.backend.enums;
 public enum Role {
     ADMIN,
     TEACHER,
-    STUDENT
+    STUDENT,
+    SUPER_ADMIN
 }

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,7 @@ import com.sims.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -41,21 +43,22 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/logout"
                         ).permitAll()
-                        .requestMatchers("/api/users", "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/students/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/students/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/students/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/students/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/enrollments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/enrollments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/enrollments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/enrollments/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users", "/api/users/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/settings/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/students/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/students/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/students/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/students/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/enrollments/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/enrollments/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/enrollments/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/enrollments/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/attendance/my").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.GET, "/api/attendance").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers(HttpMethod.GET, "/api/attendance/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers(HttpMethod.POST, "/api/attendance/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers(HttpMethod.PUT, "/api/attendance/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/attendance/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/attendance").hasAnyRole("ADMIN", "SUPER_ADMIN", "TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/attendance/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "TEACHER")
+                        .requestMatchers(HttpMethod.POST, "/api/attendance/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "TEACHER")
+                        .requestMatchers(HttpMethod.PUT, "/api/attendance/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "TEACHER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/attendance/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/auth/**").authenticated()
                         .anyRequest().authenticated()
                 )
