@@ -18,3 +18,13 @@ export async function changePassword(passwords) {
 export async function getNotifications() {
   throw new Error('Notifications are not connected yet.');
 }
+
+export async function getPreferences() {
+  const response = await axiosClient.get('/settings/me/preferences');
+  return response.data;
+}
+
+export async function updatePreferences(preferences) {
+  const response = await axiosClient.put('/settings/me/preferences', preferences);
+  return response.data;
+}

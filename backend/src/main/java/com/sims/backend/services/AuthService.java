@@ -16,6 +16,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AuditService auditService;
 
     public AuthResponseDTO register(RegisterRequestDTO request) {
 
@@ -39,7 +41,8 @@ public class AuthService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
+                // Public registration must never assign an administrative role.
+                .role(com.sims.backend.enums.Role.STUDENT)
                 .enabled(true)
                 .build();
 
@@ -80,6 +83,7 @@ public class AuthService {
         return UserMapper.toDTO(user);
     }
 
+    @Transactional
     public UserResponseDTO updateCurrentUser(String username, UpdateProfileRequestDTO request) {
         UserModel user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -91,9 +95,13 @@ public class AuthService {
                 });
 
         user.setEmail(request.getEmail());
-        return UserMapper.toDTO(userRepository.save(user));
+        UserModel saved = userRepository.save(user);
+        auditService.record(username, "PROFILE_EMAIL_UPDATED", "user:" + user.getUserId(),
+                "email changed; previous and new addresses omitted");
+        return UserMapper.toDTO(saved);
     }
 
+    @Transactional
     public void changePassword(String username, ChangePasswordRequestDTO request) {
         UserModel user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -106,12 +114,17 @@ public class AuthService {
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setTokenVersion(user.getTokenVersion() + 1);
         userRepository.save(user);
+        auditService.record(username, "PASSWORD_CHANGED", "user:" + user.getUserId(), "password changed; credential values omitted");
     }
 
     private AuthResponseDTO buildAuthResponse(UserModel user) {
 
-        String token = jwtService.generateToken(user.getUsername());
+        String token = jwtService.generateToken(user.getUsername(), user.getTokenVersion());
+        com.sims.backend.enums.Role effectiveRole = user.getRole() == com.sims.backend.enums.Role.SUPER_ADMIN
+                ? com.sims.backend.enums.Role.ADMIN
+                : user.getRole();
 
         return AuthResponseDTO.builder()
                 .accessToken(token)
@@ -119,7 +132,7 @@ public class AuthService {
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(user.getRole())
+                .role(effectiveRole)
                 .enabled(user.getEnabled())
                 .build();
     }

@@ -5,11 +5,12 @@ import ErrorMessage from '../../components/common/ErrorMessage.jsx';
 import Table from '../../components/common/Table.jsx';
 import Pagination from '../../components/common/Pagination.jsx';
 import { getResults } from '../../services/api/resourcesApi.js';
+import { getPreferredPageSize, PAGE_SIZE_OPTIONS } from '../../services/preferences.js';
 
 export default function ResultsPage(){
   const {id}=useParams();
   const [rows,setRows]=useState([]),[error,setError]=useState(null),[loading,setLoading]=useState(true);
-  const [page,setPage]=useState(1),[pageSize,setPageSize]=useState(10);
+  const [page,setPage]=useState(1),[pageSize,setPageSize]=useState(getPreferredPageSize);
   const load=async()=>{setLoading(true);setError(null);try{setRows(await getResults());}catch(e){setError(e);}finally{setLoading(false);}};
   useEffect(()=>{load();},[]);
   const cols=[['studentName','Student'],['admissionNo','Admission no.'],['courseName','Course'],['score','Score'],['grade','Grade'],['performance','Performance']].map(([key,label])=>({key,label,render:r=>r[key]??'—'}));
@@ -23,7 +24,7 @@ export default function ResultsPage(){
     <ErrorMessage error={error}/>
     <section className="crud-panel results-print-area"><h2>{id?'Result details':'Results'}</h2>
       <div className="no-print"><Table rows={visibleRows} columns={cols} isLoading={loading} emptyMessage="No results found."/>
-        {!id&&!error&&!loading&&listRows.length>0&&<Pagination total={listRows.length} page={currentPage} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={size=>{setPageSize(size);setPage(1);}} pageSizeOptions={[10,25,50]}/>}
+        {!id&&!error&&!loading&&listRows.length>0&&<Pagination total={listRows.length} page={currentPage} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={size=>{setPageSize(size);setPage(1);}} pageSizeOptions={PAGE_SIZE_OPTIONS}/>}
       </div>
       <div className="results-print-copy"><Table rows={listRows} columns={cols} isLoading={loading} emptyMessage="No results found."/></div>
     </section>

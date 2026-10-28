@@ -4,6 +4,15 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import './styles/global.css';
+import { applyTheme, readPreferences } from './services/preferences.js';
+
+applyTheme(readPreferences().theme);
+if (window.matchMedia) {
+  const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+  colorScheme.addEventListener('change', () => {
+    if (readPreferences().theme === 'system') applyTheme('system');
+  });
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

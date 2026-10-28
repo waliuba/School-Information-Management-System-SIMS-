@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
+import com.sims.backend.security.PasswordChangeRateLimiter;
 
 import com.sims.backend.dtos.authentication.AuthResponseDTO;
 import com.sims.backend.dtos.authentication.ChangePasswordRequestDTO;
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final PasswordChangeRateLimiter passwordChangeRateLimiter;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
@@ -73,8 +76,12 @@ public class AuthController {
     @PutMapping("/change-password")
     public ResponseEntity<?> changePassword(
             Authentication authentication,
+            HttpServletRequest servletRequest,
             @Valid @RequestBody ChangePasswordRequestDTO request
     ) {
+        if (!passwordChangeRateLimiter.allow(authentication.getName() + ":" + servletRequest.getRemoteAddr())) {
+            return ResponseEntity.status(429).body(java.util.Map.of("message", "Too many password change attempts. Try again later."));
+        }
         authService.changePassword(authentication.getName(), request);
         return ResponseEntity.ok(java.util.Map.of("message", "Password updated successfully."));
     }

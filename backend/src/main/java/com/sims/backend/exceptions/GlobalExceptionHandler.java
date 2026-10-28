@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -51,6 +52,11 @@ public class GlobalExceptionHandler {
         return buildError("Operation violates existing data relationships or unique constraints", HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLock(OptimisticLockingFailureException ex) {
+        return buildError("This setting changed elsewhere. Reload it and try again.", HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new LinkedHashMap<>();
@@ -73,11 +79,11 @@ public class GlobalExceptionHandler {
         return buildError("Validation failed", HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
-        return buildError("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
+   @ExceptionHandler(Exception.class)
+public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+    logger.error("Unexpected exception while handling request", ex);
+    return buildError("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+}
     private ResponseEntity<ErrorResponse> buildError(String message, HttpStatus status) {
         return ResponseEntity.status(status)
                 .body(ErrorResponse.of(message, status.value()));

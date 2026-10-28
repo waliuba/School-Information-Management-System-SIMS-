@@ -24,6 +24,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private boolean isPrivilegedRole(Role role) {
+        return role == Role.ADMIN || role == Role.SUPER_ADMIN;
+    }
+
+    private boolean isPrivilegedRoleChange(Role currentRole, Role nextRole) {
+        return isPrivilegedRole(currentRole) && !isPrivilegedRole(nextRole);
+    }
+
+    private long countPrivilegedEnabledAccounts() {
+        return userRepository.countByRoleAndEnabled(Role.ADMIN, true)
+                + userRepository.countByRoleAndEnabled(Role.SUPER_ADMIN, true);
+    }
+
     public UserResponseDTO createUser(UserRequestDTO request) {
 
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -111,9 +124,11 @@ public class UserService {
         if (user.getUsername().equals(authenticatedUsername)) {
             throw new BusinessRuleException("Use My Profile to update your own account details");
         }
-        if (user.getEnabled() && user.getRole() == Role.ADMIN
-                && (request.getRole() != Role.ADMIN || !request.getEnabled())
-                && userRepository.countByRoleAndEnabled(Role.ADMIN, true) <= 1) {
+
+        Role nextRole = request.getRole();
+        if (user.getEnabled() && isPrivilegedRole(user.getRole())
+                && (isPrivilegedRoleChange(user.getRole(), nextRole) || !request.getEnabled())
+                && countPrivilegedEnabledAccounts() <= 1) {
             throw new BusinessRuleException("At least one enabled administrator account must remain");
         }
 
@@ -126,7 +141,7 @@ public class UserService {
 
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setRole(request.getRole());
+        user.setRole(nextRole);
         user.setEnabled(request.getEnabled());
         return UserMapper.toDTO(userRepository.save(user));
     }
@@ -137,8 +152,8 @@ public class UserService {
         if (user.getUsername().equals(authenticatedUsername)) {
             throw new BusinessRuleException("You cannot delete your own signed-in account");
         }
-        if (user.getEnabled() && user.getRole() == Role.ADMIN
-                && userRepository.countByRoleAndEnabled(Role.ADMIN, true) <= 1) {
+        if (user.getEnabled() && isPrivilegedRole(user.getRole())
+                && countPrivilegedEnabledAccounts() <= 1) {
             throw new BusinessRuleException("At least one enabled administrator account must remain");
         }
         userRepository.delete(user);

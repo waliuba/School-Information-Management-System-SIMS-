@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.sims.backend.services.CustomUserDetailsService;
+import com.sims.backend.repositories.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -56,7 +58,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            if (jwtService.isTokenValid(token, userDetails.getUsername()) && userDetails.isEnabled()) {
+            long currentVersion = userRepository.findByUsername(username).map(user -> user.getTokenVersion()).orElse(-1L);
+            if (jwtService.isTokenValid(token, userDetails.getUsername())
+                    && jwtService.extractTokenVersion(token) == currentVersion && userDetails.isEnabled()) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,

@@ -4,8 +4,9 @@ import PageContainer from '../../components/layout/PageContainer.jsx';
 import Pagination from '../../components/common/Pagination.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
 import { getTeachers } from '../../services/api/resourcesApi.js';
+import { getPreferredPageSize, PAGE_SIZE_OPTIONS } from '../../services/preferences.js';
 
-const PAGE_SIZES = [10, 25, 50];
+const PAGE_SIZES = PAGE_SIZE_OPTIONS;
 const SORT_KEYS = ['username', 'email'];
 const statusLabel = (teacher) => teacher.enabled ? 'Active' : 'Inactive';
 const safeText = (value) => value == null || value === '' ? '—' : String(value);
@@ -13,13 +14,13 @@ const safeText = (value) => value == null || value === '' ? '—' : String(value
 export default function TeachersPage() {
   const [params, setParams] = useSearchParams();
   const { user } = useAuth();
-  const canAdd = (user?.role || user?.role_name || user?.roleName) === 'ADMIN';
+  const canAdd = ['ADMIN', 'SUPER_ADMIN'].includes(String(user?.role || user?.role_name || user?.roleName || '').toUpperCase());
   const search = params.get('search') || '';
   const status = params.get('status') || 'all';
   const sortKey = SORT_KEYS.includes(params.get('sort')) ? params.get('sort') : 'username';
   const sortDirection = params.get('direction') === 'desc' ? 'desc' : 'asc';
   const requestedSize = Number(params.get('size'));
-  const pageSize = PAGE_SIZES.includes(requestedSize) ? requestedSize : PAGE_SIZES[0];
+  const pageSize = PAGE_SIZES.includes(requestedSize) ? requestedSize : getPreferredPageSize();
   const requestedPage = Number(params.get('page'));
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);

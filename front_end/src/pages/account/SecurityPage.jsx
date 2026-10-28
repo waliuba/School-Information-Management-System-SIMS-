@@ -1,10 +1,14 @@
 import { useMemo, useState } from 'react';
 import PageContainer from '../../components/layout/PageContainer.jsx';
 import { changePassword } from '../../services/api/accountApi.js';
+import { useAuth } from '../../hooks/useAuth.js';
+import { useNavigate } from 'react-router-dom';
 
 const emptyForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
 
 export default function SecurityPage() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [values, setValues] = useState(emptyForm);
   const [visible, setVisible] = useState({});
   const [touched, setTouched] = useState({});
@@ -27,6 +31,8 @@ export default function SecurityPage() {
       setTouched({});
       setVisible({});
       setNotice({ type: 'success', message: 'Password updated successfully.' });
+      await logout();
+      navigate('/login', { replace: true });
     }
     catch (error) { setNotice({ type: 'error', message: error.message || 'Could not update your password.' }); }
     finally { setPending(false); }

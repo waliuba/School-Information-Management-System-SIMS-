@@ -8,6 +8,7 @@ import { recordActivity } from '../../utils/activityLog.js';
 import Table from '../../components/common/Table.jsx';
 import Pagination from '../../components/common/Pagination.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
+import { getPreferredPageSize, PAGE_SIZE_OPTIONS } from '../../services/preferences.js';
 import {
   createStudent, updateStudent, deleteStudent, getStudent, getStudents,
   createTeacher, updateTeacher, deleteTeacher, getTeacher, getTeachers,
@@ -26,7 +27,7 @@ const definitions = {
   teachers: { title: 'Teachers', id: 'userId', list: getTeachers, get: getTeacher, create: createTeacher, update: updateTeacher, remove: deleteTeacher,
     fields:[['username','Username (teacher identifier)','text',true],['email','Email','email',true],['password','Password','password',true],['role','Role','fixed:TEACHER'],['enabled','Enabled','checkbox']], columns:['username','email','enabled'] },
   users: { title: 'Users', id: 'userId', list: getUsers, get: getUser, create: createUser, update: updateUser, remove: deleteUser,
-    fields:[['username','Username','text',true],['email','Email','email',true],['password','Initial password','password',true],['role','Role','select',true,['ADMIN','TEACHER','STUDENT']],['enabled','Enabled','checkbox']], columns:['username','email','role','enabled'] },
+    fields:[['username','Username','text',true],['email','Email','email',true],['password','Initial password','password',true],['role','Role','select',true,['ADMIN','SUPER_ADMIN','TEACHER','STUDENT']],['enabled','Enabled','checkbox']], columns:['username','email','role','enabled'] },
   courses: { title: 'Courses', id: 'courseId', list: getCourses, get: getCourse, create: createCourse, update: updateCourse, remove: deleteCourse,
     fields:[['courseName','Course name','text',true],['courseCode','Course code','text',true],['departmentId','Department','remote:departments',true],['description','Description'],['durationYears','Duration (years)','number'],['status','Status','select',false,['Active','Inactive']]], columns:['courseCode','courseName','departmentId','status'] },
   enrollments: { title:'Enrollments', id:'enrollmentId', list:getEnrollments, get:getEnrollment, create:createEnrollment, update:updateEnrollment, remove:deleteEnrollment,
@@ -47,15 +48,16 @@ export default function CrudModulePage({ module }) {
   const config = definitions[module]; const { id } = useParams(); const location = useLocation(); const navigate = useNavigate();
   const { user } = useAuth();
   const { showToast } = useToast();
-  const isAdmin = (user?.role || user?.role_name || user?.roleName) === 'ADMIN';
+  const role = user?.role || user?.role_name || user?.roleName;
+  const isAdmin = ['ADMIN', 'SUPER_ADMIN'].includes(String(role || '').toUpperCase());
   const canManage = !['students', 'enrollments'].includes(module) || isAdmin;
   const mode = location.pathname.endsWith('/new') ? 'new' : location.pathname.endsWith('/edit') ? 'edit' : id ? 'detail' : 'list';
   const [rows,setRows]=useState([]); const [record,setRecord]=useState(null); const [options,setOptions]=useState({}); const [loading,setLoading]=useState(true);
   const [error,setError]=useState(null); const [fieldErrors,setFieldErrors]=useState({}); const [pending,setPending]=useState(false); const [confirmId,setConfirmId]=useState(null); const [values,setValues]=useState({});
   const [studentName,setStudentName]=useState({firstName:'',middleName:''});
   const [studentSearch,setStudentSearch]=useState(''); const [studentStatus,setStudentStatus]=useState(''); const [studentClass,setStudentClass]=useState(''); const [studentDepartment,setStudentDepartment]=useState('');
-  const [studentSort,setStudentSort]=useState('admissionNo'); const [studentSortDirection,setStudentSortDirection]=useState('asc'); const [studentPage,setStudentPage]=useState(1); const [studentPageSize,setStudentPageSize]=useState(10);
-  const [enrollmentPage,setEnrollmentPage]=useState(1); const [enrollmentPageSize,setEnrollmentPageSize]=useState(10);
+  const [studentSort,setStudentSort]=useState('admissionNo'); const [studentSortDirection,setStudentSortDirection]=useState('asc'); const [studentPage,setStudentPage]=useState(1); const [studentPageSize,setStudentPageSize]=useState(getPreferredPageSize);
+  const [enrollmentPage,setEnrollmentPage]=useState(1); const [enrollmentPageSize,setEnrollmentPageSize]=useState(getPreferredPageSize);
   const listHref=`/${module}`;
   const studentStatuses=useMemo(()=>[...new Set(rows.map(row=>row.status).filter(value=>value!=null&&value!==''))].sort((a,b)=>String(a).localeCompare(String(b))),[rows]);
   const filteredStudents=useMemo(()=>{
@@ -120,8 +122,8 @@ export default function CrudModulePage({ module }) {
       <button type="button" className="student-toolbar__clear" onClick={()=>{setStudentSearch('');setStudentStatus('');setStudentClass('');setStudentDepartment('');setStudentSort('admissionNo');setStudentSortDirection('asc');setStudentPage(1);}}>Clear filters</button>
     </section>}
     {!error?<Table columns={[...columns,{key:'actions',label:'Actions',render:r=>{const isSignedInUser=module==='users'&&String(r.userId)===String(user?.userId);return <span className="crud-actions"><Link to={`${listHref}/${r[config.id]}`}>View</Link>{canManage&&!isSignedInUser?<><Link to={`${listHref}/${r[config.id]}/edit`}>Edit</Link><button type="button" onClick={()=>setConfirmId(r[config.id])}>Delete</button></>:isSignedInUser?<span aria-label="Signed-in account; edit it from My Profile">Your account</span>:null}</span>;}}]} rows={module==='students'?pagedStudents:module==='enrollments'?pagedEnrollments:rows} isLoading={loading} emptyMessage={module==='students'&&rows.length?'No students match the selected filters.':`No ${config.title.toLowerCase()} found.`}/>:null}
-    {module==='students'&&!error&&!loading&&rows.length>0&&<Pagination total={filteredStudents.length} page={studentPage} pageSize={studentPageSize} onPageChange={setStudentPage} onPageSizeChange={size=>{setStudentPageSize(size);setStudentPage(1);}} pageSizeOptions={[10,25,50]}/>}
-    {module==='enrollments'&&!error&&!loading&&rows.length>0&&<Pagination total={rows.length} page={Math.min(enrollmentPage,enrollmentPageCount)} pageSize={enrollmentPageSize} onPageChange={setEnrollmentPage} onPageSizeChange={size=>{setEnrollmentPageSize(size);setEnrollmentPage(1);}} pageSizeOptions={[10,25,50]}/>}
+    {module==='students'&&!error&&!loading&&rows.length>0&&<Pagination total={filteredStudents.length} page={studentPage} pageSize={studentPageSize} onPageChange={setStudentPage} onPageSizeChange={size=>{setStudentPageSize(size);setStudentPage(1);}} pageSizeOptions={PAGE_SIZE_OPTIONS}/>}
+    {module==='enrollments'&&!error&&!loading&&rows.length>0&&<Pagination total={rows.length} page={Math.min(enrollmentPage,enrollmentPageCount)} pageSize={enrollmentPageSize} onPageChange={setEnrollmentPage} onPageSizeChange={size=>{setEnrollmentPageSize(size);setEnrollmentPage(1);}} pageSizeOptions={PAGE_SIZE_OPTIONS}/>}
     <ConfirmDialog title="Delete record?" isOpen={confirmId!=null} onCancel={()=>setConfirmId(null)} onConfirm={doDelete} isBusy={pending} error={confirmId!=null?error:null} confirmLabel="Confirm delete" busyLabel="Deleting…">This action cannot be undone. Backend relationship rules may prevent deletion.</ConfirmDialog>
   </PageContainer>;
   if(mode==='detail')return <PageContainer title={`${config.title.slice(0,-1)} details`} actions={<>{canManage?<Link to={`${listHref}/${id}/edit`}>Edit</Link>:null} <Link to={listHref}>Back to list</Link></>}><ErrorMessage error={error}/>{record?<dl className="crud-details">{Object.entries(record).map(([k,v])=><div key={k}><dt>{k.replace(/[A-Z]/g,' $&')}</dt><dd>{labelValue(v)}</dd></div>)}</dl>:null}</PageContainer>;
