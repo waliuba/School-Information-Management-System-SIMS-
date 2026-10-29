@@ -75,7 +75,6 @@ public class DataSeeder implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         seedUser("admin", "admin@sims.com", "Admin@123", Role.ADMIN);
-        seedUser("superadmin", "superadmin@sims.com", "SuperAdmin@123", Role.SUPER_ADMIN);
         seedUser("teacher", "teacher@sims.com", "Teacher@123", Role.TEACHER);
         seedUser("student", "student@sims.com", "Student@123", Role.STUDENT);
         seedTeachers();

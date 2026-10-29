@@ -14,7 +14,6 @@ import AttendancePage from '../pages/shared/AttendancePage.jsx';
 import MarkAttendancePage from '../pages/shared/MarkAttendancePage.jsx';
 import TeachersPage from '../pages/teachers/TeachersPage.jsx';
 import ProfilePage from '../pages/account/ProfilePage.jsx';
-import AccountSettingsPage from '../pages/account/AccountSettingsPage.jsx';
 import SecurityPage from '../pages/account/SecurityPage.jsx';
 import SettingsPage from '../pages/settings/SettingsPage.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
@@ -45,7 +44,7 @@ export default function AppRoutes() {
           <Route path="/app" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/account-settings" element={<AccountSettingsPage />} />
+          <Route path="/account-settings" element={<Navigate to="/settings/account" replace />} />
           <Route path="/security" element={<SecurityPage />} />
           <Route element={<RoleRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']} />}>
             <Route path="/settings" element={<Navigate to="/settings/account" replace />} />

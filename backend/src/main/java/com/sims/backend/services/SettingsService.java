@@ -7,6 +7,9 @@ import java.time.ZoneId;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.sims.backend.dtos.settings.SystemSettingResponse;
+import com.sims.backend.exceptions.BusinessRuleException;
+import com.sims.backend.exceptions.ResourceNotFoundException;
 import com.sims.backend.models.SettingModel;
 import com.sims.backend.models.UserModel;
 import com.sims.backend.repositories.SettingRepository;
@@ -25,6 +28,8 @@ public class SettingsService {
             "timezone", "",
             "language", "");
     private static final long SCHOOL_SETTINGS_OWNER_ID = 1L;
+    private static final long SYSTEM_SETTINGS_OWNER_ID = 1L;
+    private static final String SYSTEM_SETTING_KEY_PATTERN = "[A-Za-z][A-Za-z0-9._-]{0,79}";
     private static final Set<String> ALLOWED_LANGUAGES = Set.of("English", "Kiswahili", "French");
     private static final Set<String> ALLOWED_THEMES = Set.of("light");
     private static final Set<String> ALLOWED_PAGE_SIZES = Set.of("10", "25", "50", "100");
@@ -96,6 +101,75 @@ public class SettingsService {
                     "before=" + prior + "; after=" + value);
         }
         return normalized;
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<SystemSettingResponse> getSystemSettings() {
+        return settings.findByScopeAndOwnerId("SYSTEM", SYSTEM_SETTINGS_OWNER_ID).stream()
+                .sorted(java.util.Comparator.comparing(SettingModel::getKey))
+                .map(setting -> new SystemSettingResponse(setting.getKey(), setting.getValue()))
+                .toList();
+    }
+
+    @Transactional
+    public SystemSettingResponse createSystemSetting(String username, Map<String, String> values) {
+        validateSystemSetting(values);
+        String key = values.get("key").trim();
+        String value = values.get("value").trim();
+        if (settings.findByScopeAndOwnerIdAndKey("SYSTEM", SYSTEM_SETTINGS_OWNER_ID, key).isPresent()) {
+            throw new BusinessRuleException("A system setting with this key already exists.");
+        }
+        settings.save(new SettingModel("SYSTEM", SYSTEM_SETTINGS_OWNER_ID, key, value));
+        audit.record(username, "SYSTEM_SETTING_CREATED", "system:" + key, "key=" + key);
+        return new SystemSettingResponse(key, value);
+    }
+
+    @Transactional
+    public SystemSettingResponse updateSystemSetting(String username, String key, Map<String, String> values) {
+        validateSystemSettingKey(key);
+        if (values == null || !values.keySet().equals(Set.of("value"))
+                || values.get("value") == null || values.get("value").isBlank()
+                || values.get("value").trim().length() > 1000) {
+            throw new IllegalArgumentException("Provide a non-empty value of at most 1000 characters.");
+        }
+        String normalizedKey = key.trim();
+        String value = values.get("value").trim();
+        SettingModel setting = settings.findByScopeAndOwnerIdAndKey("SYSTEM", SYSTEM_SETTINGS_OWNER_ID, normalizedKey)
+                .orElseThrow(() -> new ResourceNotFoundException("System setting not found."));
+        String prior = setting.getValue();
+        if (!prior.equals(value)) {
+            setting.setValue(value);
+            settings.save(setting);
+            audit.record(username, "SYSTEM_SETTING_UPDATED", "system:" + normalizedKey, "key=" + normalizedKey);
+        }
+        return new SystemSettingResponse(normalizedKey, value);
+    }
+
+    @Transactional
+    public void deleteSystemSetting(String username, String key) {
+        validateSystemSettingKey(key);
+        String normalizedKey = key.trim();
+        SettingModel setting = settings.findByScopeAndOwnerIdAndKey("SYSTEM", SYSTEM_SETTINGS_OWNER_ID, normalizedKey)
+                .orElseThrow(() -> new ResourceNotFoundException("System setting not found."));
+        settings.delete(setting);
+        audit.record(username, "SYSTEM_SETTING_DELETED", "system:" + normalizedKey, "key=" + normalizedKey);
+    }
+
+    private void validateSystemSetting(Map<String, String> values) {
+        if (values == null || !values.keySet().equals(Set.of("key", "value"))) {
+            throw new IllegalArgumentException("Provide a setting key and value.");
+        }
+        validateSystemSettingKey(values.get("key"));
+        if (values.get("value") == null || values.get("value").isBlank()
+                || values.get("value").trim().length() > 1000) {
+            throw new IllegalArgumentException("value must not be blank and must be at most 1000 characters.");
+        }
+    }
+
+    private void validateSystemSettingKey(String key) {
+        if (key == null || !key.trim().matches(SYSTEM_SETTING_KEY_PATTERN)) {
+            throw new IllegalArgumentException("key must start with a letter and contain only letters, numbers, dots, underscores, or hyphens (up to 80 characters).");
+        }
     }
 
     private void validateSchoolProfile(Map<String, String> values) {
