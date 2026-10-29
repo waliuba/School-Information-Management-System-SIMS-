@@ -28,8 +28,16 @@
 .settings-status-card--warning { border-color:rgba(223,120,21,0.4); }
 .settings-status-card--pending { border-color:rgba(41,98,255,0.35); }
 .settings-status-card--not-connected { border-color:rgba(255,153,0,0.35); }
+.settings-status-card--up { border-color:rgba(42,151,87,0.4); }
+.settings-status-card--down { border-color:rgba(214,78,78,0.55); }
 .settings-status-card__heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .settings-status-card__heading em { font-style:normal; font-size:var(--font-size-xs); font-weight:700; color:var(--color-text-muted); }
+.settings-health-summary { margin:0; }
+.settings-health-summary--up { color:var(--color-success); }
+.settings-health-summary--down { color:var(--color-danger); }
+.system-setting-form { display:grid; grid-template-columns:1fr 2fr auto; align-items:end; gap:12px; margin:16px 0; }
+.system-setting-form .field { min-width:0; }
+.system-setting-value { overflow-wrap:anywhere; }
 .settings-card h3 { margin:0 0 8px; font-size:var(--font-size-md); }
 .settings-card p { margin:0; color:var(--color-text-muted); }
 .settings-card--warning { border-color:rgba(214,78,78,0.4); background:rgba(214,78,78,0.04); }
@@ -47,5 +55,5 @@
 .settings-notice--error { color:var(--color-danger); }
 .button--danger { background:var(--color-danger); color:#fff; opacity:1; }
 .button--danger:disabled { opacity:0.5; cursor:not-allowed; }
-@media(max-width:767px) { .settings-layout { grid-template-columns:1fr; } .settings-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } .settings-nav__link { align-items:flex-start; min-height:48px; } .settings-panel { padding:16px; } .settings-grid--two { grid-template-columns:1fr; } }
+@media(max-width:767px) { .settings-layout { grid-template-columns:1fr; } .settings-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } .settings-nav__link { align-items:flex-start; min-height:48px; } .settings-panel { padding:16px; } .settings-grid--two { grid-template-columns:1fr; } .system-setting-form { grid-template-columns:1fr; } }
 @media(max-width:420px) { .settings-nav { grid-template-columns:1fr; } .settings-panel__header { align-items:flex-start; flex-direction:column; } }

@@ -3,7 +3,16 @@ import { Link, useLocation } from 'react-router-dom';
 import PageContainer from '../../components/layout/PageContainer.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
 import { getPreferences, updatePreferences } from '../../services/api/accountApi.js';
-import { getAuditEvents, getSchoolProfile, updateSchoolProfile } from '../../services/api/settingsApi.js';
+import {
+  createSystemSetting,
+  deleteSystemSetting,
+  getAuditEvents,
+  getSchoolProfile,
+  getSystemHealth,
+  getSystemSettings,
+  updateSchoolProfile,
+  updateSystemSetting,
+} from '../../services/api/settingsApi.js';
 import { applyTheme, DEFAULT_PREFERENCES, readPreferences, savePreferences } from '../../services/preferences.js';
 import './settings.css';
 
@@ -14,7 +23,7 @@ const sections = [
   { slug: 'notifications', title: 'Notifications', phase: null, status: 'preview' },
   { slug: 'preferences', title: 'Appearance & Preferences', phase: null },
   { slug: 'data', title: 'Data Management & Backups', phase: null, status: 'preview' },
-  { slug: 'system', title: 'System Health & Information', phase: null, status: 'preview' },
+  { slug: 'system', title: 'System Health & Information', phase: null },
   { slug: 'audit', title: 'Audit & Activity History', phase: null },
   { slug: 'danger', title: 'Danger Zone', phase: null, status: 'preview' },
 ];
@@ -25,20 +34,9 @@ const dataCards = [
   { label: 'Restore path', value: 'Manual recovery only', tone: 'warning' },
 ];
 
-const systemChecks = [
-  { name: 'Application API', detail: 'No deployment health source is connected.', state: 'not-connected' },
-  { name: 'Oracle database', detail: 'No Oracle health export or Actuator collector is configured.', state: 'not-connected' },
-  { name: 'Authentication', detail: 'JWT validation is active, but no operational session health source is connected.', state: 'pending' },
-  { name: 'Audit stream', detail: 'Audit writes exist in code, but no external export or retention job is configured.', state: 'pending' },
-];
-
 const supportedTimeZones = typeof Intl.supportedValuesOf === 'function'
   ? Intl.supportedValuesOf('timeZone')
   : ['Africa/Nairobi', 'Europe/London', 'America/New_York'];
-
-function formatTimestamp() {
-  return new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
-}
 
 export default function SettingsPage() {
   const location = useLocation();
@@ -60,6 +58,18 @@ export default function SettingsPage() {
   const [auditEvents, setAuditEvents] = useState([]);
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditError, setAuditError] = useState(null);
+  const [systemHealth, setSystemHealth] = useState(null);
+  const [systemHealthLoading, setSystemHealthLoading] = useState(false);
+  const [systemHealthError, setSystemHealthError] = useState(null);
+  const [healthRefresh, setHealthRefresh] = useState(0);
+  const [systemSettings, setSystemSettings] = useState([]);
+  const [systemSettingsLoading, setSystemSettingsLoading] = useState(false);
+  const [systemSettingsError, setSystemSettingsError] = useState(null);
+  const [systemSettingsNotice, setSystemSettingsNotice] = useState(null);
+  const [systemSettingDraft, setSystemSettingDraft] = useState({ key: '', value: '' });
+  const [editingSystemSetting, setEditingSystemSetting] = useState(null);
+  const [savingSystemSetting, setSavingSystemSetting] = useState(false);
+  const [deletingSystemSetting, setDeletingSystemSetting] = useState(null);
   const [notificationPrefs, setNotificationPrefs] = useState({
     emailAlerts: true,
     pushAlerts: false,
@@ -116,6 +126,36 @@ export default function SettingsPage() {
     return () => { live = false; };
   }, [active.slug, isAuthLoading, user]);
 
+  useEffect(() => {
+    if (isAuthLoading || !user || active.slug !== 'system') return;
+    let live = true;
+    setSystemHealthLoading(true);
+    setSystemHealthError(null);
+    getSystemHealth().then((health) => {
+      if (live) setSystemHealth(health);
+    }).catch((error) => {
+      if (live) setSystemHealthError(error.message || 'System health could not be loaded.');
+    }).finally(() => {
+      if (live) setSystemHealthLoading(false);
+    });
+    return () => { live = false; };
+  }, [active.slug, healthRefresh, isAuthLoading, user]);
+
+  useEffect(() => {
+    if (isAuthLoading || !user || active.slug !== 'system') return;
+    let live = true;
+    setSystemSettingsLoading(true);
+    setSystemSettingsError(null);
+    getSystemSettings().then((settings) => {
+      if (live) setSystemSettings(settings);
+    }).catch((error) => {
+      if (live) setSystemSettingsError(error.message || 'System settings could not be loaded.');
+    }).finally(() => {
+      if (live) setSystemSettingsLoading(false);
+    });
+    return () => { live = false; };
+  }, [active.slug, isAuthLoading, user]);
+
   function change(key, value) {
     setPreferences((current) => ({ ...current, [key]: value }));
     setNotice(null);
@@ -160,6 +200,58 @@ export default function SettingsPage() {
 
   function handleNotificationSave() {
     setNotice({ type: 'success', text: 'Preview updated in this page only. Notification preferences are not persisted, and no delivery service is connected.' });
+  }
+
+  async function saveSystemSetting(event) {
+    event.preventDefault();
+    setSavingSystemSetting(true);
+    setSystemSettingsNotice(null);
+    try {
+      const saved = editingSystemSetting
+        ? await updateSystemSetting(editingSystemSetting, systemSettingDraft.value)
+        : await createSystemSetting(systemSettingDraft);
+      setSystemSettings((current) => {
+        const next = editingSystemSetting
+          ? current.map((setting) => setting.key === saved.key ? saved : setting)
+          : [...current, saved];
+        return next.sort((left, right) => left.key.localeCompare(right.key));
+      });
+      setSystemSettingDraft({ key: '', value: '' });
+      setEditingSystemSetting(null);
+      setSystemSettingsNotice({ type: 'success', text: editingSystemSetting ? 'System setting updated.' : 'System setting created.' });
+    } catch (error) {
+      setSystemSettingsNotice({ type: 'error', text: error.message || 'System setting could not be saved.' });
+    } finally {
+      setSavingSystemSetting(false);
+    }
+  }
+
+  function editSystemSetting(setting) {
+    setEditingSystemSetting(setting.key);
+    setSystemSettingDraft(setting);
+    setSystemSettingsNotice(null);
+  }
+
+  function cancelSystemSettingEdit() {
+    setEditingSystemSetting(null);
+    setSystemSettingDraft({ key: '', value: '' });
+    setSystemSettingsNotice(null);
+  }
+
+  async function removeSystemSetting(key) {
+    if (!window.confirm(`Delete the system setting "${key}"?`)) return;
+    setDeletingSystemSetting(key);
+    setSystemSettingsNotice(null);
+    try {
+      await deleteSystemSetting(key);
+      setSystemSettings((current) => current.filter((setting) => setting.key !== key));
+      if (editingSystemSetting === key) cancelSystemSettingEdit();
+      setSystemSettingsNotice({ type: 'success', text: 'System setting deleted.' });
+    } catch (error) {
+      setSystemSettingsNotice({ type: 'error', text: error.message || 'System setting could not be deleted.' });
+    } finally {
+      setDeletingSystemSetting(null);
+    }
   }
 
   return <PageContainer title="Settings" description="Manage administrator account and system settings.">
@@ -260,20 +352,68 @@ export default function SettingsPage() {
           <p className="settings-muted">Recovery runbook, retention window, and authorized export limits must be verified by the host environment before the UI exposes any destructive backup or restore action.</p>
         </div>}
         {active.slug === 'system' && <div className="settings-content">
-          <div className="settings-status-grid">
-            {systemChecks.map((item) => <article key={item.name} className={`settings-status-card settings-status-card--${item.state}`}>
-              <div className="settings-status-card__heading">
-                <span>{item.name}</span>
-                <em>{item.state === 'not-connected' ? 'Not connected' : 'Pending'}</em>
+          <div className="settings-actions settings-actions--between">
+            <p>Live application, database, authentication, and audit-storage checks.</p>
+            <button className="button button--secondary" type="button" disabled={systemHealthLoading} onClick={() => setHealthRefresh((value) => value + 1)}>
+              {systemHealthLoading ? 'Checking…' : 'Refresh health'}
+            </button>
+          </div>
+          {systemHealthError && <p className="settings-notice settings-notice--error" role="alert">{systemHealthError}</p>}
+          {systemHealthLoading && !systemHealth && <p role="status">Checking system health…</p>}
+          {systemHealth && <>
+            <p className={`settings-health-summary settings-health-summary--${systemHealth.status.toLowerCase()}`} role="status">
+              Overall status: <strong>{systemHealth.status}</strong> · Checked {new Date(systemHealth.checkedAt).toLocaleString()}
+            </p>
+            <div className="settings-status-grid">
+              {systemHealth.checks.map((check) => <article key={check.name} className={`settings-status-card settings-status-card--${check.status.toLowerCase()}`}>
+                <div className="settings-status-card__heading">
+                  <span>{check.name}</span>
+                  <em>{check.status}</em>
+                </div>
+                <small>{check.detail}</small>
+              </article>)}
+            </div>
+          </>}
+          <section className="settings-card">
+            <h3>System settings</h3>
+            <p>Manage non-secret system configuration values. Do not store passwords, tokens, or other credentials here.</p>
+            <form className="system-setting-form" onSubmit={saveSystemSetting}>
+              <label className="field">
+                <span>Key</span>
+                <input className="input" required maxLength="80" pattern="[A-Za-z][A-Za-z0-9._-]{0,79}" disabled={savingSystemSetting || Boolean(editingSystemSetting)} value={systemSettingDraft.key} onChange={(event) => setSystemSettingDraft((value) => ({ ...value, key: event.target.value }))} />
+              </label>
+              <label className="field">
+                <span>Value</span>
+                <input className="input" required maxLength="1000" disabled={savingSystemSetting} value={systemSettingDraft.value} onChange={(event) => setSystemSettingDraft((value) => ({ ...value, value: event.target.value }))} />
+              </label>
+              <div className="settings-actions">
+                <button className="button button--primary" type="submit" disabled={savingSystemSetting}>{savingSystemSetting ? 'Saving…' : editingSystemSetting ? 'Update setting' : 'Create setting'}</button>
+                {editingSystemSetting && <button className="button button--secondary" type="button" disabled={savingSystemSetting} onClick={cancelSystemSettingEdit}>Cancel</button>}
               </div>
-              <strong>{formatTimestamp()}</strong>
-              <small>{item.detail}</small>
-            </article>)}
-          </div>
-          <div className="settings-card settings-card--warning">
-            <h3>System status policy</h3>
-            <p>Stale, unavailable, or partially connected systems must never display as healthy. Secure deployment health and backup sources must be attached before this screen can claim operational status.</p>
-          </div>
+            </form>
+            {systemSettingsNotice && <p className={`settings-notice settings-notice--${systemSettingsNotice.type}`} role={systemSettingsNotice.type === 'error' ? 'alert' : 'status'}>{systemSettingsNotice.text}</p>}
+            {systemSettingsError && <p className="settings-notice settings-notice--error" role="alert">{systemSettingsError}</p>}
+            <div className="audit-table-wrap">
+              <table className="audit-table">
+                <thead><tr><th>Key</th><th>Value</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {systemSettingsLoading ? <tr><td colSpan="3" className="audit-empty">Loading system settings…</td></tr>
+                    : systemSettings.length === 0 ? <tr><td colSpan="3" className="audit-empty">No system settings have been created.</td></tr>
+                      : systemSettings.map((setting) => <tr key={setting.key}>
+                        <td>{setting.key}</td>
+                        <td className="system-setting-value">{setting.value}</td>
+                        <td>
+                          <div className="settings-actions">
+                            <button className="button button--secondary" type="button" disabled={Boolean(deletingSystemSetting) || savingSystemSetting} onClick={() => editSystemSetting(setting)}>Edit</button>
+                            <button className="button button--danger" type="button" disabled={Boolean(deletingSystemSetting) || savingSystemSetting} onClick={() => removeSystemSetting(setting.key)}>{deletingSystemSetting === setting.key ? 'Deleting…' : 'Delete'}</button>
+                          </div>
+                        </td>
+                      </tr>)}
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <p className="settings-muted">The public <code>/api/health</code> endpoint reports application liveness only. Detailed readiness checks require administrator authentication.</p>
         </div>}
         {active.slug === 'danger' && <div className="settings-content">
           <div className="settings-card settings-card--warning">

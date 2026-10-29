@@ -45,9 +45,11 @@ primary keys, foreign keys, constraints, and relationships.
 
 - `GET` and `PUT /api/settings/me/preferences` read and update the signed-in user's appearance preferences.
 - `GET` and `PUT /api/settings/school-profile` read and update the single-school profile. Until a school entity is introduced, the profile uses `SIMS_SETTING` scope `SCHOOL` and owner ID `1`.
+- `GET /api/settings/system`, `POST /api/settings/system`, `PUT /api/settings/system/{key}`, and `DELETE /api/settings/system/{key}` provide audited CRUD for non-secret system settings, stored in scope `SYSTEM` and owner ID `1`.
+- `GET /api/settings/system-health` reports authenticated application, database, authentication, and audit-storage checks. `GET /api/health` is a public liveness probe and does not check database readiness.
 - `GET /api/settings/audit` returns up to the 100 most recent audit-event summaries; event details are not exposed by this endpoint.
 
-School profile and audit endpoints require an administrator role. Apply the Oracle migration in `db/migration/V1__settings_foundation.sql` before using these endpoints.
+Settings management, school profile, audit, and detailed health endpoints require an administrator role. Apply the Oracle migration in `db/migration/V1__settings_foundation.sql` before using settings persistence or audit endpoints.
 
 ## Project Purpose
 
